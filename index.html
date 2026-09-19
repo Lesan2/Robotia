@@ -1666,7 +1666,7 @@
   function exportPortfolioBundle(){
     if(!requireIdentity())return; const bundle=makePortfolioBundle();downloadBlob(JSON.stringify(bundle,null,2),portfolioFileBase()+'.robotiaportfolio','application/json');toast('Portafoli descarregat');
   }
-  function importPortfolioBundle(file){
+  function importPortfolioBundle(file, done){
     if(!requireIdentity())return; const reader=new FileReader();reader.onload=()=>{try{
       const bundle=JSON.parse(reader.result);if(bundle.app!=='ROBOTIA FlowLab Portfolio')throw 0;
       if(normalize(bundle.identity?.name||'')!==normalize(state.identity.name)){toast(`Aquest portafoli és de ${bundle.identity?.name||'un altre alumne'}`);return}
@@ -1689,7 +1689,7 @@
       savePortfolio();saveProgress();
       if(!state.identity.className&&bundle.identity?.className){state.identity.className=bundle.identity.className;safeLocalSet(STORAGE.identity,JSON.stringify(state.identity))}
       renderPortfolio();renderChallenges();toast(`Portafoli fusionat ✓ · ${merged} activitat(s)`);
-    }catch(err){console.error(err);toast('Aquest fitxer no és un portafoli ROBOTIA vàlid')}};reader.readAsText(file);
+    }catch(err){console.error(err);toast('Aquest fitxer no és un portafoli ROBOTIA vàlid')}finally{if(typeof done==='function')done()}};reader.readAsText(file);
   }
 
   function storedProjectSvg(project){
@@ -1840,9 +1840,13 @@
 
   function renderTutorial(){const [title,text,visual]=tutorialSteps[state.tutorialStep];$('#tutorialTitle').textContent=title;$('#tutorialText').textContent=text;$('#tutorialVisual').innerHTML=visual;$('#tutorialStep').textContent=`${state.tutorialStep+1} / ${tutorialSteps.length}`;$('#tutorialPrev').disabled=state.tutorialStep===0;$('#tutorialNext').textContent=state.tutorialStep===tutorialSteps.length-1?'Fer primer repte':'Següent'}
 
+  window.ROBOTIA_CLOUD_APP={state,makePortfolioBundle,exportPortfolioBundle,importPortfolioBundle,activateIdentity,renderChallenges,renderPortfolio};
   loadStored(); bindUI(); initDragDropPalette(); renderChallenges(); updateProgressUI(); setInterval(tickActiveTime,15000);
 })();
 
 </script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="nuvol/config.js"></script>
+<script src="nuvol/cloud.js" defer></script>
 </body>
 </html>
