@@ -1,0 +1,1853 @@
+<!doctype html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#111827" />
+  <title>ROBOTIA · FlowLab v0.12</title>
+  <style>
+:root{
+  --bg:#f6f8fc;--panel:#fff;--ink:#111827;--muted:#667085;--line:#d9e0ea;
+  --primary:#2563eb;--primary2:#1d4ed8;--soft:#eef4ff;--green:#10b981;--amber:#f59e0b;
+  --violet:#8b5cf6;--rose:#f43f5e;--teal:#14b8a6;--slate:#64748b;--danger:#dc2626;
+  --shadow:0 12px 32px rgba(15,23,42,.08);--radius:18px;
+}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:var(--bg)}button,input,textarea,select{font:inherit}.hidden{display:none!important}
+.topbar{height:74px;padding:0 26px;display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.93);border-bottom:1px solid #e9edf4;position:sticky;top:0;z-index:40;backdrop-filter:blur(12px)}
+.brand{display:flex;gap:12px;align-items:center}.brand-mark{width:42px;height:42px;border-radius:13px;background:#111827;color:#fff;display:grid;place-items:center;font-weight:900;font-size:22px;box-shadow:0 8px 18px rgba(17,24,39,.18)}.brand-title{font-size:19px;font-weight:900;letter-spacing:.02em}.brand-title span{color:var(--primary)}.brand-sub{font-size:12px;color:var(--muted);margin-top:1px}.top-actions{display:flex;gap:7px}
+.btn{border:0;border-radius:11px;padding:10px 14px;font-weight:750;cursor:pointer;transition:.15s ease;display:inline-flex;align-items:center;justify-content:center;gap:7px}.btn:hover{transform:translateY(-1px)}.btn:active{transform:none}.btn.primary{background:var(--primary);color:#fff;box-shadow:0 6px 16px rgba(37,99,235,.23)}.btn.primary:hover{background:var(--primary2)}.btn.secondary{background:#eaf1ff;color:#174ea6}.btn.ghost{background:transparent;color:#344054}.btn.ghost:hover{background:#f2f4f7}.btn.danger{color:#b42318;background:#fff1f0}.btn.big{padding:14px 20px;font-size:16px}.btn.full{width:100%}.file-label{cursor:pointer}
+.view{display:none;max-width:1500px;margin:0 auto;padding:32px}.view.active{display:block}.home-view{padding-top:40px}.hero{display:grid;grid-template-columns:1.2fr .8fr;gap:50px;align-items:center;min-height:480px}.eyebrow{font-size:12px;font-weight:900;color:#315ea8;letter-spacing:.14em}.hero h1,.section-head h1,.lab-header h1{font-size:clamp(34px,5vw,64px);line-height:1.02;letter-spacing:-.04em;margin:12px 0 18px}.hero h1 em{font-style:normal;color:var(--primary)}.hero p{font-size:19px;line-height:1.55;color:#475467;max-width:760px}.hero-actions{display:flex;gap:12px;margin:26px 0}.feature-chips{display:flex;gap:9px;flex-wrap:wrap}.feature-chips span{background:#fff;border:1px solid #e4e7ec;border-radius:999px;padding:8px 11px;font-size:13px;color:#475467}
+.hero-demo{display:grid;place-items:center}.demo-card{width:min(470px,100%);background:#111827;border-radius:30px;padding:34px;box-shadow:0 30px 70px rgba(17,24,39,.23);color:#fff}.demo-node{margin:auto;min-width:160px;text-align:center;padding:15px 18px;font-weight:900;background:#1f2937;border:2px solid transparent}.demo-node.start{border-radius:999px;border-color:#6ee7b7}.demo-node.decision{width:180px;transform:skew(-15deg);border-color:#fbbf24}.demo-node.process{border-radius:12px;border-color:#60a5fa}.demo-node.alt{border-color:#c4b5fd}.demo-arrow{text-align:center;color:#94a3b8;font-size:25px;padding:7px}.demo-split,.demo-row{display:flex;justify-content:space-between;gap:22px}.demo-split{font-size:11px;color:#cbd5e1;margin:6px 55px}.demo-row .demo-node{min-width:0;flex:1}
+.card{background:var(--panel);border:1px solid #e5eaf1;border-radius:var(--radius);box-shadow:var(--shadow)}.identity-card{margin-top:32px;padding:24px;display:grid;grid-template-columns:1.1fr 2fr auto;gap:22px;align-items:end}.identity-card h2{margin:0 0 5px}.identity-card p{margin:0;color:var(--muted);font-size:14px}.identity-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}label{font-size:12px;font-weight:800;color:#475467;display:grid;gap:7px}input,textarea,select{width:100%;border:1px solid #ccd5e2;border-radius:10px;padding:10px 11px;background:#fff;color:#101828;outline:none}input:focus,textarea:focus,select:focus{border-color:#84a9f5;box-shadow:0 0 0 3px rgba(37,99,235,.10)}
+.section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:26px}.section-head h1{font-size:42px;margin:8px 0 5px}.section-head p{margin:0;color:var(--muted)}.learn-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.learn-card{background:#fff;border-radius:18px;padding:22px;border:1px solid #e4e7ec;box-shadow:0 8px 22px rgba(15,23,42,.05)}.learn-card h3{margin:18px 0 7px}.learn-card p{margin:0;color:var(--muted);line-height:1.5}.shape{height:78px;display:grid;place-items:center;font-weight:900}.shape.oval{border:3px solid var(--green);border-radius:999px}.shape.rect{border:3px solid #3b82f6;border-radius:12px}.shape.diamond{width:78px;margin:auto;border:3px solid var(--amber);transform:rotate(45deg)}.shape.diamond span{transform:rotate(-45deg);font-size:24px}.shape.parallelogram{border:3px solid var(--violet);transform:skew(-13deg);border-radius:8px}.shape.loopshape{border:3px dashed var(--rose);border-radius:15px}.shape.variablebox{border:3px solid var(--teal);border-radius:12px}.rules-card{padding:24px;margin-top:18px}.rules-card h2{margin-top:0}.rules-card li{margin:9px 0;line-height:1.5;color:#475467}
+.progress-ring{width:86px;height:86px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--primary) 0deg,#e8edf6 0deg);position:relative}.progress-ring:after{content:"";position:absolute;width:66px;height:66px;background:#fff;border-radius:50%}.progress-ring span{position:relative;z-index:1;font-weight:900}.score-panel{padding:22px 24px;margin:10px 0 18px;background:linear-gradient(135deg,#fffdf5 0%,#f8fbff 100%);border:1px solid #efe4b5}.score-summary{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;align-items:center}.score-copy h2{margin:8px 0 10px;font-size:29px;letter-spacing:-.03em}.score-copy p{margin:0;color:#667085;line-height:1.5}.score-kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.score-kpi{background:#fff;border:1px solid #eadfb4;border-radius:16px;padding:16px;box-shadow:0 10px 24px rgba(15,23,42,.05)}.score-kpi span{display:block;font-size:12px;font-weight:800;color:#7c6f40;text-transform:uppercase;letter-spacing:.08em}.score-kpi b{display:block;margin-top:5px;font-size:28px}.score-kpi small{display:block;margin-top:2px;font-size:11px;color:#8a7a46;font-weight:700}.score-validation-note{margin-top:14px;display:inline-flex;align-items:center;gap:7px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:10px;padding:9px 11px;font-size:12px;font-weight:800}.score-kpi.note{background:linear-gradient(135deg,#fff4d9 0%,#fff 100%)}.challenge-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.challenge-card{position:relative;border-radius:21px;padding:8px;background:linear-gradient(145deg,#c7a34a,#f8edbf 18%,#8f6c24 92%);box-shadow:0 18px 34px rgba(15,23,42,.14);overflow:hidden}.challenge-card-inner{background:linear-gradient(180deg,#fefefe 0%,#f7f1e2 100%);border-radius:15px;padding:16px;display:grid;gap:10px;min-height:100%;position:relative;border:1px solid rgba(83,61,17,.18)}.challenge-card.completed .challenge-card-inner{background:linear-gradient(180deg,#f8fff6 0%,#ebfdf0 100%)}.challenge-card:before{content:"";position:absolute;inset:10px;border-radius:16px;border:1px solid rgba(255,255,255,.45);pointer-events:none}.challenge-mana{position:absolute;right:18px;top:14px;min-width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 30% 30%,#fffef1,#e1c56b 58%,#8b6921 100%);font-weight:900;color:#3f2d08;border:2px solid rgba(93,69,13,.45);box-shadow:0 6px 14px rgba(0,0,0,.12)}.challenge-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding-right:58px}.challenge-level{font-size:11px;font-weight:900;color:#6b7280;text-transform:uppercase;letter-spacing:.14em}.challenge-type-line{font-size:11px;font-weight:900;color:#6f5b1c;background:#f9edbf;border:1px solid #ecd47d;border-radius:999px;padding:4px 8px}.challenge-name{margin:0;font-size:22px;line-height:1.04;letter-spacing:-.03em;padding-right:62px}.challenge-subtype{margin-top:-4px;font-size:12px;font-weight:700;color:#7a6d4a;font-style:italic}.challenge-art{height:124px;border-radius:14px;background:radial-gradient(circle at 30% 20%,color-mix(in srgb,var(--accent) 38%,#fff) 0%, #f7fbff 34%, #d6e0f2 100%);display:grid;place-items:center;border:1px solid rgba(15,23,42,.08);overflow:hidden}.challenge-art-glyph{font-size:52px;font-weight:900;color:color-mix(in srgb,var(--accent) 72%,#111);letter-spacing:.06em;text-shadow:0 2px 0 rgba(255,255,255,.55)}.challenge-card p{margin:0;color:#5e6472;font-size:14px;line-height:1.45;min-height:80px}.challenge-metrics{display:flex;gap:7px;flex-wrap:wrap}.metric{font-size:11px;font-weight:800;background:#f2f4f7;color:#475467;padding:5px 8px;border-radius:999px}.metric.gold{background:#fff2c4;color:#6f5307;border:1px solid #edd67b}.metric.stars{color:#a16207;background:#fffbeb}.tags{display:flex;gap:6px;flex-wrap:wrap}.tag{font-size:11px;background:#f5f7fa;color:#475467;padding:5px 7px;border-radius:7px}.challenge-foot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(83,61,17,.12);padding-top:11px;margin-top:2px}.status-pill{font-size:11px;font-weight:800;padding:5px 8px;border-radius:999px;background:#f2f4f7;color:#475467}.status-pill.progress{background:#eff6ff;color:#1d4ed8}.status-pill.done{background:#dcfce7;color:#166534}.challenge-foot button{padding:8px 11px}.challenge-stamp{position:absolute;left:14px;top:58px;transform:rotate(-16deg);padding:8px 13px;border:3px solid #16a34a;color:#166534;font-weight:900;letter-spacing:.12em;background:rgba(240,253,244,.86);border-radius:10px;box-shadow:0 8px 16px rgba(22,101,52,.16)}
+.lab-view{max-width:none;padding:0}.lab-header{min-height:94px;padding:17px 24px;display:flex;align-items:center;justify-content:space-between;background:#fff;border-bottom:1px solid #e5e7eb}.lab-title-block{display:flex;align-items:flex-start;gap:13px}.lab-header h1{font-size:24px;margin:3px 0 2px;letter-spacing:-.02em}.lab-header p{margin:0;font-size:13px;color:#667085}.lab-actions{display:flex;gap:7px}.icon-btn{border:1px solid #e1e5ec;background:#fff;border-radius:10px;width:38px;height:38px;cursor:pointer;font-size:20px}.lab-layout{display:grid;grid-template-columns:250px minmax(500px,1fr) 290px;height:calc(100vh - 169px);min-height:620px}.sidebar{background:#fff;overflow:auto;padding:16px;border-right:1px solid #e4e7ec}.right-sidebar{border-right:0;border-left:1px solid #e4e7ec}.panel-title{font-size:11px;text-transform:uppercase;letter-spacing:.11em;font-weight:900;color:#667085;margin:7px 0 10px}.panel-title:not(:first-child){margin-top:20px}.with-switch{display:flex;justify-content:space-between;align-items:center}.palette{display:grid;gap:7px}.palette-item{display:grid;grid-template-columns:32px 1fr;column-gap:8px;row-gap:1px;text-align:left;border:1px solid #e2e7ef;background:#fff;border-radius:11px;padding:9px;cursor:pointer}.palette-item:hover{border-color:#9db7ee;background:#f8fbff}.palette-item b{font-size:13px}.palette-item small{font-size:11px;color:#667085}.picon{grid-row:1/3;width:29px;height:25px;align-self:center;display:block}.picon.start{border:3px solid var(--green);border-radius:999px}.picon.process{border:3px solid #3b82f6;border-radius:5px}.picon.decision{border:3px solid var(--amber);width:22px;height:22px;transform:rotate(45deg);margin-left:3px}.picon.io{border:3px solid var(--violet);transform:skew(-13deg)}.picon.loop{border:3px dashed var(--rose);border-radius:5px}.picon.variable{border:3px solid var(--teal);border-radius:5px}.tool-stack{display:grid;gap:7px}.btn.tool{justify-content:flex-start;background:#f8fafc;color:#344054;border:1px solid #e3e8ef}.btn.tool.active{background:#eaf1ff;color:#174ea6;border-color:#b9cef7}.btn.tool.danger{background:#fff5f5;color:#b42318}.sidebar-help{font-size:11px;line-height:1.45;color:#667085}.switch input{display:none}.switch span{display:block;width:38px;height:22px;background:#d0d5dd;border-radius:99px;position:relative;cursor:pointer}.switch span:after{content:"";position:absolute;width:16px;height:16px;background:#fff;top:3px;left:3px;border-radius:50%;transition:.2s}.switch input:checked+span{background:var(--teal)}.switch input:checked+span:after{left:19px}.micro-palette{display:grid;gap:6px}.micro-btn{border:1px solid #ccebe7;background:#f0fdfa;color:#0f766e;border-radius:9px;padding:8px;text-align:left;font-size:12px;font-weight:750;cursor:pointer}.micro-btn:hover{background:#e4faf6}
+.canvas-panel{background:#eef2f7;min-width:0;display:flex;flex-direction:column}.canvas-toolbar{height:44px;background:#fff;border-bottom:1px solid #e3e7ed;display:flex;justify-content:space-between;align-items:center;padding:0 12px}.zoom-group{display:flex;gap:5px;align-items:center}.zoom-group button{height:28px;min-width:29px;border:1px solid #e0e5ec;background:#fff;border-radius:7px;cursor:pointer}.zoom-group span{font-size:11px;color:#667085;min-width:40px;text-align:center}.autosave{font-size:11px;color:#667085}.autosave::first-letter{color:var(--green)}.canvas-wrap{position:relative;flex:1;overflow:auto;background:#e9eef5;overscroll-behavior:contain;scrollbar-gutter:stable}.canvas-wrap svg{display:block;max-width:none;max-height:none;touch-action:none;user-select:none;background-color:#f6f8fb;background-image:radial-gradient(#cbd5e1 1px,transparent 1px);background-size:20px 20px;box-shadow:0 0 0 1px rgba(148,163,184,.18)}.empty-canvas{position:absolute;inset:0;display:grid;place-content:center;text-align:center;pointer-events:none;color:#98a2b3}.empty-canvas div{width:50px;height:50px;margin:auto;border:2px dashed #b8c1ce;border-radius:14px;display:grid;place-items:center;font-size:28px}.empty-canvas b{margin-top:10px;color:#667085}.empty-canvas span{font-size:12px;margin-top:4px}.flow-node{cursor:grab}.flow-node.selected .node-shape{stroke:#111827!important;stroke-width:4!important}.flow-node.connect-source .node-shape{stroke:#2563eb!important;stroke-width:5!important}.node-text{font-size:16px;font-weight:800;fill:#0f172a;text-anchor:middle;dominant-baseline:middle;pointer-events:none}.node-sub{font-size:10px;fill:#64748b;text-anchor:middle;pointer-events:none}.connection-port{fill:#fff;stroke:#2563eb;stroke-width:3;cursor:crosshair;opacity:.72;transition:opacity .12s,fill .12s,stroke-width .12s}.flow-node:hover .connection-port,.flow-node.selected .connection-port,.flow-node.connect-source .connection-port{opacity:1}.connection-port:hover{fill:#2563eb;stroke:#fff;stroke-width:4}.edge-path{fill:none;stroke:#64748b;stroke-width:3;marker-end:url(#arrowHead);cursor:pointer}.edge-hit{fill:none;stroke:transparent;stroke-width:18;cursor:pointer}.edge-group.selected .edge-path{stroke:#2563eb;stroke-width:4}.edge-label{font-size:12px;font-weight:900;fill:#475569;text-anchor:middle;paint-order:stroke;stroke:#fff;stroke-width:5}.sim-active .node-shape{stroke:#f43f5e!important;stroke-width:6!important;filter:drop-shadow(0 0 10px rgba(244,63,94,.35))}
+.challenge-panel .challenge-mini-title{font-weight:900;font-size:16px}.challenge-panel .challenge-mini-brief{font-size:12px;color:#667085;line-height:1.45;margin:6px 0 9px}.requirements{display:grid;gap:5px;margin:9px 0}.req{font-size:11px;padding:6px 7px;background:#f8fafc;border-radius:7px;color:#475467}.hint-box{background:#fffbeb;color:#92400e;border:1px solid #fde68a;border-radius:10px;padding:10px;font-size:12px;line-height:1.45;margin-top:8px}.inspector-empty{font-size:12px;color:#98a2b3;padding:10px;background:#f8fafc;border-radius:9px}.diagnostics{display:grid;gap:6px}.diag{font-size:11px;padding:8px;border-radius:8px;line-height:1.35}.diag.ok{background:#ecfdf3;color:#067647}.diag.warn{background:#fffaeb;color:#b54708}.diag.error{background:#fef3f2;color:#b42318}.diag.neutral{background:#f2f4f7;color:#667085}
+.teacher-actions{display:flex;gap:8px}.teacher-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}.kpi{background:#fff;border:1px solid #e4e7ec;border-radius:15px;padding:18px}.kpi span{font-size:12px;color:#667085}.kpi b{display:block;font-size:25px;margin-top:5px}.table-card{padding:0;overflow:hidden}.table-scroll{overflow:auto}table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:12px 13px;border-bottom:1px solid #edf0f4;text-align:left;white-space:nowrap}th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#667085;background:#f8fafc}.empty-table{text-align:center;color:#98a2b3;padding:35px}.mini-progress{width:110px;height:7px;background:#e8edf4;border-radius:99px;overflow:hidden}.mini-progress span{display:block;height:100%;background:var(--primary)}.teacher-note{padding:20px;margin-top:15px}.teacher-note h2{margin:0 0 7px}.teacher-note p{margin:0;color:#667085;line-height:1.5}
+.toast{position:fixed;left:50%;top:88px;transform:translate(-50%,-15px);background:#111827;color:#fff;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:700;opacity:0;pointer-events:none;z-index:100;transition:.22s}.toast.show{opacity:1;transform:translate(-50%,0)}
+.modal{border:0;background:transparent;padding:0;max-width:min(92vw,760px);width:100%}.modal::backdrop{background:rgba(15,23,42,.62);backdrop-filter:blur(3px)}.modal-card{background:#fff;border-radius:22px;padding:25px;position:relative;box-shadow:0 24px 80px rgba(15,23,42,.25)}.modal-close{position:absolute;right:14px;top:12px;border:0;background:#f2f4f7;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:22px;color:#475467}.modal-card h2{margin:7px 0 8px;font-size:26px}.modal-card p{color:#667085;line-height:1.5}.tutorial-visual{min-height:180px;background:#f8fafc;border-radius:16px;margin:18px 0;display:grid;place-items:center;padding:20px}.tutorial-nav,.sim-actions,.deliver-footer{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:18px}.sim-decision{display:flex;gap:10px;margin:14px 0}.sim-decision button{flex:1}.deliver-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:17px}.deliver-option{border:1px solid #e1e6ee;background:#fff;border-radius:13px;padding:16px;text-align:left;cursor:pointer}.deliver-option:hover{border-color:#99b5ec;background:#f8fbff}.deliver-option b{display:block;font-size:16px;margin-bottom:4px}.deliver-option span{font-size:12px;color:#667085}.code-modal{max-width:760px}.code-modal textarea{height:380px;background:#0b1220;color:#d1fae5;font-family:"SFMono-Regular",Consolas,monospace;font-size:12px;line-height:1.5;border:0}
+
+.storage-notice{position:sticky;top:74px;z-index:39;background:#fff7ed;color:#9a3412;border-bottom:1px solid #fed7aa;padding:9px 20px;text-align:center;font-size:12px;line-height:1.35}.storage-notice b{font-weight:900}.storage-notice.hidden{display:none!important}
+@media(max-width:1100px){.top-actions .btn.ghost:nth-child(1),.top-actions .btn.ghost:nth-child(2){display:none}.hero{grid-template-columns:1fr}.hero-demo{display:none}.identity-card{grid-template-columns:1fr}.identity-grid{grid-template-columns:1fr 1fr}.learn-grid,.challenge-grid{grid-template-columns:repeat(2,1fr)}.score-summary{grid-template-columns:1fr}.lab-layout{grid-template-columns:210px 1fr}.right-sidebar{display:none}.teacher-kpis{grid-template-columns:1fr 1fr}}
+@media(max-width:720px){.topbar{padding:0 12px}.brand-sub{display:none}.top-actions .btn.ghost{display:none}.view{padding:20px 14px}.hero{min-height:auto}.hero h1{font-size:42px}.hero p{font-size:16px}.hero-actions{flex-direction:column}.identity-grid,.learn-grid,.challenge-grid,.teacher-kpis{grid-template-columns:1fr}.section-head{align-items:flex-start;flex-direction:column}.lab-header{align-items:flex-start;gap:9px;flex-direction:column}.lab-actions{width:100%;overflow:auto}.lab-layout{grid-template-columns:1fr;height:calc(100vh - 222px)}.left-sidebar{display:none}.canvas-toolbar{height:38px}.deliver-grid{grid-template-columns:1fr}.modal{max-width:95vw}}
+@media print{.topbar,.sidebar,.lab-header,.canvas-toolbar{display:none!important}.view{display:none!important}.lab-view.active{display:block!important}.lab-layout{display:block;height:auto}.canvas-panel{background:#fff}.canvas-wrap{height:90vh;background:none}.canvas-wrap svg{height:100%}}
+
+.app-footer{max-width:1500px;margin:0 auto;padding:14px 32px 22px;text-align:center;color:#98a2b3;font-size:11px}.quick-connect-note{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;border-radius:9px;padding:8px 9px;font-size:11px;line-height:1.4;margin-top:8px}
+
+.challenge-mini-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.challenge-mini-points{font-size:11px;font-weight:900;color:#6f5b1c;background:#fff2c4;border:1px solid #edd67b;border-radius:999px;padding:4px 8px}.challenge-mini-state{font-size:11px;font-weight:800;padding:6px 8px;border-radius:999px;display:inline-flex;width:max-content;background:#f2f4f7;color:#475467;margin:8px 0 4px}.challenge-mini-state.progress{background:#eff6ff;color:#1d4ed8}.challenge-mini-state.done{background:#dcfce7;color:#166534}
+
+/* v0.4 · Portafoli de l'alumnat */
+.portfolio-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.portfolio-owner{padding:20px 22px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:20px}.portfolio-owner h2{margin:5px 0 4px}.portfolio-owner p{margin:0;color:#667085}.owner-lock{font-size:12px;font-weight:900;color:#166534;background:#dcfce7;border:1px solid #bbf7d0;border-radius:999px;padding:8px 11px;white-space:nowrap}.portfolio-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}.portfolio-list{display:grid;gap:16px}.portfolio-item{padding:20px 22px;border-left:5px solid #94a3b8}.portfolio-item.done{border-left-color:#16a34a}.portfolio-item-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start}.portfolio-item-head h2{margin:6px 0 3px}.portfolio-item-head p{margin:0;color:#667085;font-size:13px}.portfolio-status{display:inline-flex;font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;padding:5px 8px;background:#eff6ff;color:#1d4ed8}.portfolio-status.done{background:#dcfce7;color:#166534}.portfolio-item-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.portfolio-reflection-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}.portfolio-reflection-grid textarea{min-height:92px;resize:vertical}.portfolio-evidence{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-top:14px;padding-top:14px;border-top:1px solid #edf0f4}.portfolio-evidence>div{display:grid;gap:3px}.portfolio-evidence span{font-size:12px;color:#667085}.attachment-list{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.attachment-chip{display:flex;align-items:center;gap:6px;border:1px solid #dfe5ec;background:#f8fafc;border-radius:999px;padding:5px 7px 5px 10px;font-size:11px}.attachment-chip a{color:#1d4ed8;text-decoration:none;font-weight:700}.attachment-chip button{border:0;background:#e5e7eb;border-radius:50%;width:20px;height:20px;cursor:pointer}.no-attachments{font-size:11px;color:#98a2b3}.portfolio-empty,.portfolio-note{padding:22px}.portfolio-empty p,.portfolio-note p{color:#667085;margin-bottom:0}
+
+/* Connexions ràpides: només apareixen quan el bloc és actiu. */
+.connection-port{opacity:0;pointer-events:none;transition:opacity .12s,fill .12s,stroke-width .12s,transform .12s;transform-box:fill-box;transform-origin:center}.flow-node.selected .connection-port{opacity:1;pointer-events:auto}.flow-node.connect-source .connection-port.port-output,.flow-node.connect-source .connection-port.port-aux{opacity:1;pointer-events:auto}.flow-node.connect-source .connection-port.port-input{opacity:.28;pointer-events:auto}#flowSvg.is-connecting .flow-node:not(.connect-source) .connection-port.port-input,#flowSvg.is-connecting .flow-node:not(.connect-source) .connection-port.port-aux{opacity:1;pointer-events:auto}#flowSvg.is-connecting .flow-node:not(.connect-source) .connection-port.port-output{opacity:.2;pointer-events:auto}.connection-port.port-input{stroke:#64748b}.connection-port.port-output{stroke:#2563eb}.connection-port.port-aux{stroke:#8b5cf6}.connection-port:hover{fill:#2563eb;stroke:#fff;stroke-width:4;transform:scale(1.22)}
+
+/* Menú contextual de Micro:bit: el diagrama continua utilitzant símbols estàndard. */
+.node-context-menu{position:fixed;z-index:150;width:270px;max-height:350px;overflow:auto;background:#fff;border:1px solid #dfe4eb;border-radius:14px;box-shadow:0 22px 60px rgba(15,23,42,.25);padding:7px}.node-context-menu button{display:block;width:100%;border:0;background:transparent;text-align:left;border-radius:9px;padding:9px 10px;cursor:pointer;color:#344054;font-size:12px}.node-context-menu button:hover{background:#f1f5f9}.node-context-menu .ctx-title{padding:9px 10px 5px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#0f766e}.node-context-menu .ctx-sep{height:1px;background:#edf0f4;margin:5px}.node-context-menu .ctx-danger{color:#b42318}.node-context-menu .ctx-clear{color:#0f766e}
+
+@media(max-width:1000px){.portfolio-kpis{grid-template-columns:1fr 1fr}.portfolio-reflection-grid{grid-template-columns:1fr}.portfolio-item-head,.portfolio-evidence{align-items:flex-start;flex-direction:column}.portfolio-item-actions{justify-content:flex-start}.portfolio-owner{align-items:flex-start;flex-direction:column}}
+@media(max-width:620px){.portfolio-kpis{grid-template-columns:1fr}.portfolio-actions{justify-content:flex-start}.portfolio-owner{padding:16px}.portfolio-item{padding:16px}}
+.participants-btn{width:100%;border:1px solid #dbe5f0;background:#f8fbff;color:#334155;border-radius:9px;padding:8px 9px;text-align:left;font-size:11px;font-weight:800;cursor:pointer}.participants-btn:hover{border-color:#9db7ee;background:#eff6ff}
+
+.port-caption{font-size:10px;font-weight:900;fill:#475569;text-anchor:middle;opacity:0;pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:4px}
+.flow-node.selected .port-caption,.flow-node.connect-source .port-caption{opacity:1}
+.flow-node.connect-source .connection-port.port-input{opacity:.15!important;pointer-events:none!important}
+#flowSvg.is-connecting .flow-node:not(.connect-source) .connection-port.port-output{opacity:.12!important;pointer-events:none!important}
+#flowSvg.is-connecting .flow-node:not(.connect-source) .connection-port.port-input{opacity:1!important;pointer-events:auto!important}
+
+/* v0.5 · símbols i connexions */
+.shape.connectorshape{width:72px;height:72px;border:3px solid #64748b;border-radius:50%;margin:auto}
+.shape.subprocessshape{border:3px solid #475569;border-radius:10px;position:relative}
+.shape.subprocessshape:before,.shape.subprocessshape:after{content:"";position:absolute;top:0;bottom:0;width:2px;background:#475569}
+.shape.subprocessshape:before{left:15px}.shape.subprocessshape:after{right:15px}
+.picon.start.end{border-color:#ef4444}.picon.variable{border-color:#3b82f6;position:relative}.picon.variable:after{content:"x=";position:absolute;inset:0;display:grid;place-items:center;font-size:8px;font-weight:900;color:#2563eb}
+.picon.connector{width:25px;height:25px;border:3px solid #64748b;border-radius:50%;margin-left:2px}.picon.subprocess{border:3px solid #475569;border-radius:4px;position:relative}.picon.subprocess:before,.picon.subprocess:after{content:"";position:absolute;top:-3px;bottom:-3px;width:2px;background:#475569}.picon.subprocess:before{left:5px}.picon.subprocess:after{right:5px}
+.palette.compact .palette-item{padding:8px}.palette-item.helper{background:#f8fbff;border-color:#bfd4fb}
+.structure-stack{display:grid;gap:7px}.structure-btn{border:1px solid #d8dee9;background:linear-gradient(180deg,#fff,#f8fafc);border-radius:11px;padding:9px 10px;text-align:left;cursor:pointer;color:#344054}.structure-btn:hover{border-color:#9db7ee;background:#f2f7ff}.structure-btn b{display:block;font-size:12px}.structure-btn small{display:block;color:#667085;font-size:10px;margin-top:2px}
+.node-type-help{font-size:11px;line-height:1.45;color:#475467;background:#f8fafc;border:1px solid #e4e7ec;border-radius:9px;padding:8px 9px;margin-bottom:10px}
+
+/* Els ports sempre existeixen. En seleccionar una caixa passen a ser ben visibles. */
+.connection-port{opacity:.12!important;pointer-events:none!important;fill:#fff;stroke-width:3.5!important}
+.flow-node.selected .connection-port{opacity:1!important;pointer-events:auto!important;filter:drop-shadow(0 0 4px rgba(37,99,235,.35))}
+.flow-node.selected .connection-port.port-output{fill:#eff6ff!important;stroke:#2563eb!important}
+.flow-node.selected .connection-port.port-input{fill:#f8fafc!important;stroke:#64748b!important}
+.flow-node.selected .port-caption{opacity:1!important}
+.flow-node.connect-source .connection-port.port-output{opacity:1!important;pointer-events:auto!important}
+.flow-node.connect-source .connection-port.port-input{opacity:.12!important;pointer-events:none!important}
+#flowSvg.is-connecting .flow-node:not(.connect-source) .connection-port.port-input{opacity:1!important;pointer-events:auto!important;fill:#f0fdf4!important;stroke:#16a34a!important}
+#flowSvg.is-connecting .flow-node:not(.connect-source) .connection-port.port-output{opacity:.08!important;pointer-events:none!important}
+.connection-port:hover{fill:#2563eb!important;stroke:#fff!important;stroke-width:4px!important;transform:scale(1.28)}
+
+@media(max-width:720px){.structure-stack{grid-template-columns:1fr 1fr}}
+
+
+
+.auto-save-hint{margin-top:8px;padding:7px 9px;border-radius:9px;background:#ecfdf3;color:#166534;font-size:11px;font-weight:800;border:1px solid #bbf7d0}
+.connection-port.port-input{fill:#fff!important}.connection-port.port-output{fill:#eaf2ff!important}
+/* v0.6 · selecció robusta, ports visibles i multiselecció */
+.connection-port{opacity:0!important;pointer-events:none!important;fill:#fff!important;stroke-width:4!important}
+.flow-node.selected .connection-port{opacity:1!important;pointer-events:auto!important}
+.flow-node.selected .connection-port.port-output{fill:#eaf2ff!important;stroke:#2563eb!important}
+.flow-node.selected .connection-port.port-input{fill:#fff!important;stroke:#64748b!important}
+.flow-node.selected .port-caption{opacity:1!important}
+.flow-node.group-selected .node-shape{stroke:#2563eb!important;stroke-width:3.5!important;stroke-dasharray:7 5}
+.flow-node.primary-selected .node-shape{stroke:#111827!important;stroke-width:4.5!important;stroke-dasharray:none!important}
+#flowSvg.is-connecting .flow-node:not(.connect-source) .connection-port.port-input{opacity:1!important;pointer-events:auto!important;fill:#ecfdf3!important;stroke:#16a34a!important}
+#flowSvg.is-connecting .flow-node:not(.connect-source) .connection-port.port-output{opacity:0!important;pointer-events:none!important}
+.selection-marquee{fill:rgba(37,99,235,.10);stroke:#2563eb;stroke-width:2;stroke-dasharray:8 5;pointer-events:none}
+
+
+/* v0.12 · curs complet */
+.challenge-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:-4px 0 14px}.challenge-tab{border:1px solid #dfe5ee;background:#fff;color:#475467;border-radius:999px;padding:10px 14px;font-weight:850;cursor:pointer}.challenge-tab.active{background:#111827;color:#fff;border-color:#111827;box-shadow:0 8px 20px rgba(15,23,42,.14)}.category-intro{margin-bottom:14px;color:#667085;font-size:14px}.category-intro b{color:#111827}.challenge-card.cat-microbit{background:linear-gradient(145deg,#8fc5ff,#e6f3ff 18%,#2868b8 92%)}.challenge-card.cat-sensors{background:linear-gradient(145deg,#8fe0bd,#e9fff5 18%,#23765a 92%)}.challenge-card.cat-robot{background:linear-gradient(145deg,#7b879d,#e8edf5 18%,#111827 92%)}.challenge-card.cat-microbit .challenge-type-line{background:#eaf4ff;border-color:#b9dcff;color:#185a9d}.challenge-card.cat-sensors .challenge-type-line{background:#e8fff3;border-color:#b5eed4;color:#16624b}.challenge-card.cat-robot .challenge-type-line{background:#eef2f7;border-color:#cad2df;color:#253247}.challenge-card .bridge-chip{font-size:10px;font-weight:900;border-radius:999px;padding:5px 7px;background:#eef4ff;color:#1d4ed8;border:1px solid #c7d8fb}.practical-modal{max-width:820px}.practical-meta{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.practical-meta span{font-size:11px;font-weight:900;border-radius:999px;padding:6px 9px;background:#f2f4f7;color:#475467}.practical-deliverables{background:#f8fafc;border:1px solid #e5e7eb;border-radius:13px;padding:13px 15px;margin:13px 0}.practical-deliverables b{display:block;margin-bottom:6px}.practical-deliverables ul{margin:7px 0 0;padding-left:20px;color:#475467}.practical-linked{background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:11px 13px;color:#1e40af;font-size:12px;margin:12px 0}.practical-actions{display:flex;gap:9px;flex-wrap:wrap;margin:14px 0}.practical-evidence{border-top:1px solid #e5e7eb;margin-top:15px;padding-top:14px}.practical-evidence h3{margin:0 0 4px}.practical-evidence>p{font-size:12px;margin:0 0 12px}.practical-evidence label{margin:10px 0}.portfolio-category{display:inline-flex;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;border-radius:999px;padding:5px 8px;margin-left:6px;background:#f2f4f7;color:#475467}.portfolio-code{margin-top:12px;background:#0b1220;color:#d1fae5;border-radius:10px;padding:10px;white-space:pre-wrap;max-height:180px;overflow:auto;font:11px/1.45 Consolas,monospace}.portfolio-makecode-link{font-size:12px;margin-top:8px}.makecode-bridge{margin-top:10px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:9px 10px;font-size:11px;color:#1e40af}.category-score-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.category-score-mini{background:#fff;border:1px solid #e3e8ef;border-radius:13px;padding:12px}.category-score-mini span{display:block;font-size:10px;color:#667085;font-weight:900;text-transform:uppercase}.category-score-mini b{display:block;font-size:22px;margin-top:4px}@media(max-width:800px){.category-score-grid{grid-template-columns:1fr 1fr}.practical-actions{flex-direction:column}}
+
+.bridge-chip.strong{background:#e0f2fe;color:#075985;border-color:#7dd3fc}.challenge-link-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:-2px}.bridge-open-btn{border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;border-radius:9px;padding:7px 9px;font-size:11px;font-weight:900;cursor:pointer}.bridge-open-btn:hover{background:#dbeafe}.workflow-card{padding:20px 22px;margin:0 0 16px}.workflow-card h2{margin:0 0 10px}.workflow-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.workflow-step{background:#f8fafc;border:1px solid #e3e8ef;border-radius:13px;padding:13px}.workflow-step b{display:block;margin-bottom:5px}.workflow-step p{margin:0;color:#667085;font-size:12px;line-height:1.45}.compat-note{margin-top:10px;font-size:11px;color:#166534;background:#ecfdf3;border:1px solid #bbf7d0;border-radius:10px;padding:9px 10px}.version-count{font-size:10px;color:#667085;margin-top:5px}.linked-status{display:inline-flex;margin-left:5px;border-radius:999px;padding:3px 7px;font-size:10px;font-weight:900;background:#f2f4f7;color:#475467}.linked-status.done{background:#dcfce7;color:#166534}@media(max-width:800px){.workflow-grid{grid-template-columns:1fr}}
+
+</style>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23111827'/%3E%3Cpath d='M14 22h18l8 10-8 10H14l8-10z' fill='%236ee7b7'/%3E%3Ccircle cx='48' cy='32' r='7' fill='%2360a5fa'/%3E%3C/svg%3E" />
+</head>
+<body>
+<div style="background:#7c2d12;color:white;padding:10px;text-align:center;font-weight:bold;position:relative;z-index:9999">⚠️ VERSIÓ DE PROVES · No utilitzar amb alumnat ni dades personals fins que s’autoritzi</div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="storageNotice" class="storage-notice hidden" role="status"><b>Mode local:</b> el navegador no permet desar automàticament en aquest fitxer. Pots continuar treballant, però descarrega el projecte o el portafoli per conservar-lo.</div>
+
+  <header class="topbar">
+    <div class="brand" tabindex="0" aria-label="ROBOTIA FlowLab">
+      <div class="brand-mark">R</div>
+      <div>
+        <div class="brand-title">ROBOTIA <span>FlowLab</span></div>
+        <div class="brand-sub">Diagrames de flux · Robòtica 3r ESO · Creat per Jordi Lesan</div>
+      </div>
+    </div>
+    <nav class="top-actions" aria-label="Accions principals">
+      <button class="btn ghost" id="btnHome">Inici</button>
+      <button class="btn ghost" id="btnLearn">Aprendre</button>
+      <button class="btn ghost" id="btnChallenges">Reptes</button>
+      <button class="btn ghost" id="btnPortfolio">Portafoli</button>
+      <button class="btn primary" id="btnDeliver">Entrega</button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="viewHome" class="view active home-view">
+      <div class="hero">
+        <div class="hero-copy">
+          <span class="eyebrow">PENSA · DIBUIXA · COMPROVA · PROGRAMA</span>
+          <h1>Entén els algoritmes <em>veient-los fluir.</em></h1>
+          <p>Construeix diagrames de flux, resol reptes de dificultat creixent, detecta errors i prepara el salt a MakeCode i micro:bit.</p>
+          <div class="hero-actions">
+            <button class="btn primary big" id="btnStartChallenge">Començar un repte</button>
+            <button class="btn secondary big" id="btnFreeLab">Laboratori lliure</button>
+          </div>
+          <div class="feature-chips">
+            <span>✓ Pistes graduades</span><span>✓ Simulació pas a pas</span><span>✓ Informe de progrés</span><span>✓ PNG + projecte editable</span>
+          </div>
+        </div>
+        <div class="hero-demo" aria-hidden="true">
+          <div class="demo-card">
+            <div class="demo-node start">INICI</div>
+            <div class="demo-arrow">↓</div>
+            <div class="demo-node decision">Llum &lt; 50?</div>
+            <div class="demo-split"><span>SÍ ↓</span><span>NO ↓</span></div>
+            <div class="demo-row"><div class="demo-node process">Encén LED</div><div class="demo-node process alt">Apaga LED</div></div>
+            <div class="demo-arrow">↺</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="identity-card card">
+        <div>
+          <h2>Qui està treballant?</h2>
+          <p>Aquesta informació apareixerà a les captures i a l'informe de progrés.</p>
+        </div>
+        <div class="identity-grid">
+          <label>Nom i cognoms<input id="studentName" placeholder="Ex. Aina Delta" autocomplete="name" /></label>
+          <label>Companys/es de grup<input id="teamNames" placeholder="Ex. Pol Vector" /></label>
+          <label>Classe<input id="className" placeholder="Ex. Robòtica 3r · Q2" /></label>
+        </div>
+        <button class="btn primary" id="btnSaveIdentity">Desar dades</button>
+      </div>
+    </section>
+
+    <section id="viewLearn" class="view">
+      <div class="section-head">
+        <div><span class="eyebrow">MICROCURS INTERACTIU</span><h1>Aprèn el llenguatge dels diagrames</h1></div>
+        <button class="btn secondary" id="btnTutorialStart">Obrir tutorial guiat</button>
+      </div>
+      <div class="learn-grid">
+        <article class="learn-card start"><div class="shape oval">INICI / FI</div><h3>Inici i final</h3><p>Marca on comença i on acaba un algoritme. Un diagrama complet necessita un inici i almenys un final.</p></article>
+        <article class="learn-card process"><div class="shape rect">ACCIÓ</div><h3>Procés o acció</h3><p>Una ordre: encendre un LED, esperar, sumar 1, enviar un valor per ràdio…</p></article>
+        <article class="learn-card decision"><div class="shape diamond"><span>?</span></div><h3>Decisió</h3><p>Una pregunta que obre camins. Habitualment té dues sortides: SÍ i NO.</p></article>
+        <article class="learn-card io"><div class="shape parallelogram">ENTRADA</div><h3>Entrada / sortida</h3><p>Dades que entren o surten: botó, sensor, número, missatge, pantalla…</p></article>
+        <article class="learn-card loop"><div class="shape loopshape">↺ FLETXA</div><h3>Repetició / bucle</h3><p>No té una figura pròpia: un bucle es crea quan una fletxa torna a un pas anterior del diagrama.</p></article>
+        <article class="learn-card variable"><div class="shape variablebox">x = 0</div><h3>Variable i càlcul</h3><p>En un diagrama estàndard, una assignació és un <strong>procés</strong>: <code>x = 0</code>, <code>i = i + 1</code>… FlowLab te'l prepara com a ajuda.</p></article>
+        <article class="learn-card connector"><div class="shape connectorshape">A</div><h3>Connector</h3><p>Uneix parts llunyanes del mateix diagrama sense dibuixar una fletxa enorme o creuada.</p></article>
+        <article class="learn-card subprocess"><div class="shape subprocessshape">SUBPROCÉS</div><h3>Subprocés</h3><p>Representa una tasca complexa que té el seu propi diagrama: per exemple, “comprovar PIN”.</p></article>
+      </div>
+      <div class="card rules-card">
+        <h2>6 regles que et salvaran el diagrama</h2>
+        <ol>
+          <li>Comença amb <strong>INICI</strong> i assegura't que tots els camins útils arriben a un final o tornen a un bucle.</li>
+          <li>Les fletxes indiquen <strong>l'ordre real</strong> d'execució, no només decoren.</li>
+          <li>Una decisió necessita sortides clares, normalment <strong>SÍ / NO</strong>.</li>
+          <li>No deixis blocs flotants o camins morts sense voler.</li>
+          <li>Les <strong>variables i càlculs</strong> s’escriuen dins d’un rectangle de procés; no tenen una figura especial.</li>
+          <li>Un bon diagrama és prou simple per explicar-lo en veu alta sense perdre't.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="viewChallenges" class="view">
+      <div class="section-head">
+        <div><span class="eyebrow">RUTA DE PROGRÉS</span><h1>Reptes</h1><p>De seqüències simples a sistemes de robòtica amb sensors, ràdio i actuadors.</p></div>
+        <div class="progress-ring" id="progressRing"><span id="progressPercent">0%</span></div>
+      </div>
+      <div class="challenge-tabs" id="challengeTabs" role="tablist" aria-label="Tipus de reptes">
+        <button class="challenge-tab active" data-category="flux">◇ Diagrames de flux</button>
+        <button class="challenge-tab" data-category="microbit">▦ micro:bit</button>
+        <button class="challenge-tab" data-category="sensors">⚙ Sensors i actuadors</button>
+        <button class="challenge-tab" data-category="robot">🤖 Robot final</button>
+      </div>
+      <div id="categoryIntro" class="category-intro"></div>
+      <div id="scorePanel" class="score-panel card"></div>
+      <div id="challengeGrid" class="challenge-grid"></div>
+    </section>
+
+    <section id="viewLab" class="view lab-view">
+      <div class="lab-header">
+        <div class="lab-title-block">
+          <button class="icon-btn" id="btnBackChallenges" title="Tornar">←</button>
+          <div><span class="eyebrow" id="labEyebrow">LABORATORI</span><h1 id="labTitle">Diagrama lliure</h1><p id="labBrief">Construeix el teu algoritme i comprova'l.</p></div>
+        </div>
+        <div class="lab-actions">
+          <button class="btn ghost" id="btnUndo">↶</button>
+          <button class="btn ghost" id="btnRedo">↷</button>
+          <button class="btn ghost" id="btnValidate">✓ Comprova</button>
+          <button class="btn secondary" id="btnSimulate">▶ Simula</button>
+          <button class="btn ghost" id="btnLoadProject">Obre</button><button class="btn primary" id="btnSaveProject">Desa</button><button class="btn secondary hidden" id="btnMakeCode">⚡ Fes-ho a MakeCode</button>
+        </div>
+      </div>
+
+      <div class="lab-layout">
+        <aside class="sidebar left-sidebar">
+          <div class="panel-title">Blocs</div>
+          <div class="palette" id="palette">
+            <button class="palette-item" data-type="start" data-label="INICI"><span class="picon start"></span><b>Inici</b><small>Començament de l'algoritme</small></button>
+            <button class="palette-item" data-type="start" data-label="FI"><span class="picon start end"></span><b>Fi</b><small>Final d'un camí</small></button>
+            <button class="palette-item" data-type="process"><span class="picon process"></span><b>Procés</b><small>Acció o instrucció</small></button>
+            <button class="palette-item" data-type="decision"><span class="picon decision"></span><b>Decisió</b><small>Pregunta SÍ / NO</small></button>
+            <button class="palette-item" data-type="io"><span class="picon io"></span><b>Entrada / sortida</b><small>Llegir o mostrar dades</small></button>
+            <button class="palette-item helper" data-type="variable" data-label="i = 0"><span class="picon variable"></span><b>Variable / càlcul</b><small>Ajuda: és un procés estàndard</small></button>
+          </div>
+
+          <div class="panel-title">Símbols avançats</div>
+          <div class="palette compact" id="advancedPalette">
+            <button class="palette-item" data-type="connector"><span class="picon connector"></span><b>Connector</b><small>Continua el flux en un altre punt</small></button>
+            <button class="palette-item" data-type="subprocess"><span class="picon subprocess"></span><b>Subprocés</b><small>Crida una rutina o subdiagrama</small></button>
+          </div>
+
+          <div class="panel-title">Estructures ràpides</div>
+          <div class="structure-stack">
+            <button class="structure-btn" data-structure="if"><b>◇ Si / si no</b><small>Decisió + dues branques</small></button>
+            <button class="structure-btn" data-structure="while"><b>↺ Mentre...</b><small>Condició + retorn al rombe</small></button>
+            <button class="structure-btn" data-structure="repeat"><b>↺ Repetir N vegades</b><small>Variable + condició + increment</small></button>
+            <button class="structure-btn" data-structure="forever"><b>∞ Per sempre</b><small>Cicle continu amb fletxa de retorn</small></button>
+          </div>
+
+          <div class="panel-title">Eines</div>
+          <div class="tool-stack">
+            <button class="btn tool active" id="toolSelect">↖ Seleccionar / moure</button>
+            <button class="btn tool" id="toolConnect">⤴ Connectar blocs</button>
+            <button class="btn tool danger" id="toolDelete">⌫ Eliminar seleccionat</button>
+          </div>
+          <div class="quick-connect-note"><b>Connexió ràpida:</b> clica qualsevol bloc i els seus punts apareixen immediatament. Procés/entrada/subprocés: dalt → baix. Decisió: entrada a dalt i sortides laterals SÍ/NO. <b>Ctrl+clic</b> suma blocs; <b>Majús+arrossegar</b> fa una selecció múltiple.</div><p class="sidebar-help">També pots usar el mode <b>Connectar</b> tradicional. <b>Ctrl+C / Ctrl+V</b> copia i enganxa blocs. <b>Shift + arrossegar</b> selecciona una zona.</p>
+        </aside>
+
+        <section class="canvas-panel">
+          <div class="canvas-toolbar">
+            <div class="zoom-group"><button id="zoomOut">−</button><span id="zoomLabel">100%</span><button id="zoomIn">+</button><button id="zoomFit">Ajusta</button></div>
+            <div class="autosave"><span id="canvasSizeLabel">Llenç 1400×900</span> · ● Desat automàtic</div>
+          </div>
+          <div id="canvasWrap" class="canvas-wrap">
+            <svg id="flowSvg" viewBox="0 0 1400 900" role="img" aria-label="Editor de diagrama de flux">
+              <defs>
+                <marker id="arrowHead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                  <path d="M0,0 L0,6 L9,3 z" fill="#64748b"></path>
+                </marker>
+                <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="5" stdDeviation="6" flood-opacity=".12"/></filter>
+              </defs>
+              <g id="viewport"><g id="edgesLayer"></g><g id="nodesLayer"></g><g id="marqueeLayer"></g></g>
+            </svg>
+            <div id="emptyCanvas" class="empty-canvas"><div>+</div><b>Afegeix un bloc</b><span>Tria una figura de l'esquerra per començar.</span></div>
+          </div>
+        </section>
+
+        <aside class="sidebar right-sidebar">
+          <div id="challengePanel" class="challenge-panel">
+            <div class="panel-title">Repte actual</div>
+            <div id="challengeMeta"></div>
+            <button class="btn secondary full" id="btnHint">💡 Demana una pista</button>
+            <button class="btn ghost full" id="btnOpenMakeCodeQuick" style="margin-top:7px">↗ Obrir MakeCode</button>
+            <div id="hintBox" class="hint-box hidden"></div>
+          </div>
+
+          <div class="panel-title">Inspector</div>
+          <div id="inspectorEmpty" class="inspector-empty">Selecciona un bloc o una fletxa.</div>
+          <div id="nodeInspector" class="hidden">
+            <div id="nodeTypeHelp" class="node-type-help"></div>
+            <label>Text del bloc<textarea id="nodeLabel" rows="3"></textarea></label>
+            <label id="semanticWrap" class="hidden">Acció Micro:bit<select id="nodeSemantic"></select></label>
+            <div class="auto-save-hint">✓ Els canvis de text s’actualitzen automàticament</div>
+            <button class="btn secondary full hidden" id="btnApplyNode" tabindex="-1">Aplicar canvis</button>
+          </div>
+          <div id="edgeInspector" class="hidden">
+            <label>Etiqueta de la fletxa<input id="edgeLabel" placeholder="SÍ, NO, següent…" /></label>
+            <div class="auto-save-hint">✓ L’etiqueta s’actualitza automàticament</div>
+            <button class="btn secondary full hidden" id="btnApplyEdge" tabindex="-1">Aplicar canvis</button>
+          </div>
+
+          <div class="panel-title">Diagnòstic</div>
+          <div id="diagnostics" class="diagnostics"><div class="diag neutral">Encara no has comprovat el diagrama.</div></div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="viewPortfolio" class="view portfolio-view">
+      <div class="section-head">
+        <div><span class="eyebrow">EL MEU PORTAFOLI</span><h1>Treballs, reflexió i còpia de seguretat</h1><p>Guarda els teus reptes, explica què t'ha costat i emporta't tot el progrés a un altre ordinador.</p></div>
+        <div class="portfolio-actions">
+          <label class="btn secondary file-label">Importar activitat<input id="portfolioProjectImport" type="file" accept=".robotia,.json" multiple hidden></label>
+          <label class="btn ghost file-label">Carregar portafoli<input id="portfolioBundleImport" type="file" accept=".robotiaportfolio,.json" hidden></label>
+          <button class="btn primary" id="btnPortfolioBackup">Descarregar portafoli</button>
+          <button class="btn secondary" id="btnPortfolioDossier">Generar dossier</button>
+        </div>
+      </div>
+      <div class="card workflow-card"><h2>Flux de treball recomanat</h2><div class="workflow-grid"><div class="workflow-step"><b>1 · Comença la sessió</b><p>Identifica’t. Si canvies d’ordinador, carrega el teu <b>.robotiaportfolio</b>. Si és el mateix navegador, el progrés local ja hi serà.</p></div><div class="workflow-step"><b>2 · Treballa sol o en parella</b><p>En parella, posa els dos noms al repte. Una activitat <b>.robotia</b> la podrà obrir qualsevol dels autors i incorporar-la al seu portafoli.</p></div><div class="workflow-step"><b>3 · Final de sessió</b><p>Fes <b>Descarregar portafoli</b> i desa’l al Drive. És la còpia completa i la manera segura de continuar en un altre PC.</p></div></div><div class="compat-note">✓ Compatibilitat: els IDs dels reptes ja són estables. Les versions noves poden afegir reptes o funcions sense invalidar portafolis i activitats anteriors.</div></div>
+      <div id="portfolioOwner" class="portfolio-owner card"></div>
+      <div class="portfolio-kpis" id="portfolioKpis">
+        <div class="kpi"><span>Reptes entregats</span><b>0</b></div>
+        <div class="kpi"><span>Flux · màxim prov.</span><b>0/10</b></div>
+        <div class="kpi"><span>micro:bit · màxim prov.</span><b>0/10</b></div>
+        <div class="kpi"><span>Sensors + robot</span><b>0</b></div>
+      </div>
+      <div id="portfolioList" class="portfolio-list"></div>
+      <div class="card portfolio-note">
+        <h2>Per continuar en un altre ordinador</h2>
+        <p><b>Descarregar portafoli</b> crea una còpia completa amb progrés, activitats, anotacions i adjunts petits. En el nou ordinador identifica't amb el mateix nom i usa <b>Carregar portafoli</b>.</p>
+      </div>
+    </section>
+  </main>
+  <footer class="app-footer">ROBOTIA FlowLab v0.13 · Creat per Jordi Lesan</footer>
+  <div id="nodeContextMenu" class="node-context-menu hidden" role="menu" aria-label="Opcions del bloc"></div>
+
+
+  <dialog id="modalTutorial" class="modal">
+    <form method="dialog" class="modal-card tutorial-modal">
+      <button class="modal-close" value="cancel">×</button>
+      <span class="eyebrow">TUTORIAL EXPRESS</span>
+      <h2 id="tutorialTitle">1. Tot algoritme té un inici</h2>
+      <div id="tutorialVisual" class="tutorial-visual"></div>
+      <p id="tutorialText"></p>
+      <div class="tutorial-nav"><button type="button" class="btn ghost" id="tutorialPrev">Anterior</button><span id="tutorialStep">1 / 6</span><button type="button" class="btn primary" id="tutorialNext">Següent</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="modalSim" class="modal">
+    <div class="modal-card sim-modal">
+      <button class="modal-close" id="simClose">×</button>
+      <span class="eyebrow">SIMULACIÓ</span>
+      <h2 id="simTitle">Executant el diagrama</h2>
+      <p id="simMessage">Prem «Pas següent» per avançar.</p>
+      <div id="simDecision" class="sim-decision hidden"><button class="btn primary" data-choice="yes">SÍ</button><button class="btn secondary" data-choice="no">NO</button></div>
+      <div class="sim-actions"><button class="btn ghost" id="simRestart">Reinicia</button><button class="btn primary" id="simNext">Pas següent →</button></div>
+    </div>
+  </dialog>
+
+  <dialog id="modalDeliver" class="modal">
+    <div class="modal-card deliver-modal">
+      <button class="modal-close" id="deliverClose">×</button>
+      <span class="eyebrow">PREPARA L'ENTREGA</span>
+      <h2>Tot a punt per Classroom</h2>
+      <p id="deliverIdentity"></p>
+      <div class="deliver-grid">
+        <button class="deliver-option" id="btnExportPng"><b>🖼 PNG</b><span>Captura neta del diagrama</span></button>
+        <button class="deliver-option" id="btnExportSvg"><b>◇ SVG</b><span>Imatge vectorial editable</span></button>
+        <button class="deliver-option" id="btnExportProject"><b>💾 .robotia</b><span>Projecte que es pot reobrir</span></button>
+        <button class="deliver-option" id="btnExportReport"><b>📊 Informe</b><span>Progrés i dificultats per al professor</span></button>
+      </div>
+      <div class="deliver-footer"><button class="btn secondary" id="btnOpenClassroom">Obrir Google Classroom ↗</button><button class="btn ghost" id="btnPrint">Imprimir / PDF</button></div>
+    </div>
+  </dialog>
+
+  <dialog id="modalPractical" class="modal">
+    <div class="modal-card practical-modal">
+      <button class="modal-close" id="practicalClose">×</button>
+      <span class="eyebrow" id="practicalEyebrow">REPTE PRÀCTIC</span>
+      <h2 id="practicalTitle">Repte</h2>
+      <p id="practicalBrief"></p>
+      <div id="practicalMeta" class="practical-meta"></div>
+      <div id="practicalDeliverables" class="practical-deliverables"></div>
+      <div id="practicalLinkedFlow" class="practical-linked"></div>
+      <div class="practical-actions">
+        <button class="btn primary" id="practicalMakeCode">Fes-ho a MakeCode ↗</button>
+        <button class="btn secondary" id="practicalDiagram">Fer / obrir diagrama</button>
+      </div>
+      <div class="practical-evidence">
+        <h3>Evidències del repte</h3>
+        <p>Perquè es pugui corregir bé, recomanem pujar el <b>.hex</b> i, si pots, una captura dels blocs o enganxar el JavaScript de MakeCode.</p>
+        <label>Enllaç compartit de MakeCode (opcional)<input id="practicalMakeCodeUrl" placeholder="https://makecode.microbit.org/_..." /></label>
+        <label>Codi JavaScript de MakeCode (opcional però molt útil per corregir)<textarea id="practicalCode" rows="7" placeholder="Enganxa aquí el codi si vols..."></textarea></label>
+        <label class="btn ghost file-label">+ Adjuntar .hex / captures / PDF<input id="practicalFiles" type="file" accept=".hex,.png,.jpg,.jpeg,.webp,.pdf,.txt,.js,.json,.robotia" multiple hidden></label>
+        <div id="practicalFilesList" class="attachment-list"></div>
+      </div>
+      <div class="deliver-footer"><span id="practicalStatus" class="status-pill">Nou</span><button class="btn primary" id="practicalSave">Desar al portafoli</button></div>
+    </div>
+  </dialog>
+
+  <dialog id="modalCode" class="modal">
+    <div class="modal-card code-modal">
+      <button class="modal-close" id="codeClose">×</button>
+      <span class="eyebrow">PONT A MAKECODE · BETA</span>
+      <h2>Esquelet JavaScript per micro:bit</h2>
+      <p>FlowLab converteix el flux en una màquina d'estats. Els blocs Micro:bit reconeguts generen codi; els blocs lliures queden marcats com a TODO.</p>
+      <textarea id="codeOutput" spellcheck="false"></textarea>
+      <div class="deliver-footer"><button class="btn secondary" id="btnCopyCode">Copiar codi</button><button class="btn primary" id="btnOpenMakeCode">Obrir MakeCode ↗</button></div>
+    </div>
+  </dialog>
+
+  <input id="projectImport" type="file" accept=".robotia,.json" hidden />
+  <script>
+(() => {
+  'use strict';
+
+  const $ = (sel) => document.querySelector(sel);
+  const $$ = (sel) => [...document.querySelectorAll(sel)];
+  const uid = (p='id') => `${p}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,8)}`;
+  const clamp = (n,a,b) => Math.max(a, Math.min(b,n));
+  const escapeHtml = (s='') => s.replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  const normalize = (s='') => s.normalize('NFD').replace(/\p{Diacritic}/gu,'').toLowerCase().trim();
+  const yesWords = ['si','sí','yes','true','1'];
+  const noWords = ['no','false','0'];
+  const APP_BUILD='student-v0.13';
+  const DATA_SCHEMA_VERSION=10;
+  const PORTFOLIO_SCHEMA_VERSION=5;
+  const CHALLENGE_CATALOG_VERSION=1; // IDs estables: a partir d'ara només s'afegeixen reptes, no es reciclen IDs.
+
+  function generateWorkId(){
+    const bytes=new Uint8Array(15);
+    if(globalThis.crypto?.getRandomValues)crypto.getRandomValues(bytes);else for(let i=0;i<bytes.length;i++)bytes[i]=Math.floor(Math.random()*256);
+    return Array.from(bytes,b=>String(b%10)).join('');
+  }
+  function challengeMetaFor(id){
+    const c=challenges.find(x=>x.id===id); if(!c)return null;
+    return {id:c.id,title:c.title,category:c.category||'flux',kind:c.kind||'diagram',points:c.points||0,maxNote:c.maxNote||0,level:c.level||0,makeCodeBridge:c.makeCodeBridge||null,linkedFlow:c.linkedFlow||null,catalogVersion:CHALLENGE_CATALOG_VERSION};
+  }
+
+  const STORAGE = {
+    identity:'robotia.identity.v1',
+    progress:'robotia.progress.v1',
+    free:'robotia.project.free.v1',
+    projectPrefix:'robotia.project.challenge.',
+    portfolio:'robotia.portfolio.v1',
+  };
+
+
+  const memoryStore = new Map();
+  let storageDegraded = false;
+  let storageWarned = false;
+
+  function updateStorageNotice(){
+    const el=document.querySelector('#storageNotice');
+    if(el)el.classList.toggle('hidden',!storageDegraded);
+  }
+  function safeLocalGet(key){
+    try{
+      const value=localStorage.getItem(key);
+      if(value!==null)return value;
+    }catch(err){
+      storageDegraded=true; updateStorageNotice();
+    }
+    return memoryStore.has(key)?memoryStore.get(key):null;
+  }
+  function safeLocalSet(key,value,{quiet=false}={}){
+    memoryStore.set(key,value);
+    try{
+      localStorage.setItem(key,value);
+      return true;
+    }catch(err){
+      storageDegraded=true; updateStorageNotice();
+      console.warn('ROBOTIA: desat local no disponible; s’utilitza memòria temporal.',err);
+      if(!quiet&&!storageWarned){
+        storageWarned=true;
+        setTimeout(()=>toast('No puc desar al navegador. Pots continuar; descarrega el projecte per conservar-lo.'),0);
+      }
+      return false;
+    }
+  }
+
+  const nodeStyles = {
+    start:{fill:'#ecfdf3',stroke:'#10b981'}, process:{fill:'#eff6ff',stroke:'#3b82f6'},
+    decision:{fill:'#fffbeb',stroke:'#f59e0b'}, io:{fill:'#f5f3ff',stroke:'#8b5cf6'},
+    variable:{fill:'#eff6ff',stroke:'#3b82f6'}, connector:{fill:'#f8fafc',stroke:'#64748b'}, subprocess:{fill:'#f8fafc',stroke:'#475569'}
+  };
+
+  const microSemantics = {
+    cond_button_a:{label:'Botó A està premut?',type:'decision',condition:'input.buttonIsPressed(Button.A)'},
+    cond_button_b:{label:'Botó B està premut?',type:'decision',condition:'input.buttonIsPressed(Button.B)'},
+    cond_light:{label:'Nivell de llum < 50?',type:'decision',condition:'input.lightLevel() < 50'},
+    cond_sound:{label:'Nivell de so > 80?',type:'decision',condition:'input.soundLevel() > 80'},
+    cond_shake:{label:'S’ha sacsejat?',type:'decision',condition:'input.isGesture(Gesture.Shake)'},
+    cond_distance:{label:'Distància < 10 cm?',type:'decision',condition:'distancia < 10',todo:'Cal afegir el bloc/extension de l’ultrasò a MakeCode'},
+    show_heart:{label:'Mostra un cor',type:'process',code:'basic.showIcon(IconNames.Heart)'},
+    clear_screen:{label:'Apaga la pantalla',type:'process',code:'basic.clearScreen()'},
+    show_smile:{label:'Mostra cara contenta',type:'process',code:'basic.showIcon(IconNames.Happy)'},
+    show_sad:{label:'Mostra cara trista',type:'process',code:'basic.showIcon(IconNames.Sad)'},
+    pause_1000:{label:'Espera 1 segon',type:'process',code:'basic.pause(1000)'},
+    pin_p0_on:{label:'Encén LED al pin P0',type:'process',code:'pins.digitalWritePin(DigitalPin.P0, 1)'},
+    pin_p0_off:{label:'Apaga LED al pin P0',type:'process',code:'pins.digitalWritePin(DigitalPin.P0, 0)'},
+    radio_send_1:{label:'Envia 1 per ràdio',type:'process',code:'radio.sendNumber(1)'},
+    radio_send_0:{label:'Envia 0 per ràdio',type:'process',code:'radio.sendNumber(0)'},
+    servo_90:{label:'Servo a 90°',type:'process',code:'pins.servoWritePin(AnalogPin.P1, 90)'},
+    servo_30:{label:'Servo a 30°',type:'process',code:'pins.servoWritePin(AnalogPin.P1, 30)'},
+    random_1_5:{label:'dau = aleatori 1..5',type:'variable',code:'dau = randint(1, 5)'},
+    read_light:{label:'Llegeix nivell de llum',type:'io',code:'llum = input.lightLevel()'},
+    read_sound:{label:'Llegeix nivell de so',type:'io',code:'so = input.soundLevel()'},
+    forever:{label:'Acció per sempre',type:'process',code:'// El bucle es representa amb una fletxa de retorn'},
+  };
+
+  const microPalette = [
+    ['cond_button_a','Botó A?'],['cond_light','Llum < 50?'],['cond_sound','So > 80?'],['cond_shake','Sacsejada?'],
+    ['show_heart','Mostra cor'],['clear_screen','Apaga pantalla'],['pause_1000','Espera 1 s'],
+    ['pin_p0_on','LED P0 ON'],['pin_p0_off','LED P0 OFF'],['random_1_5','Aleatori 1..5'],
+    ['radio_send_1','Ràdio: envia 1'],['radio_send_0','Ràdio: envia 0'],['servo_90','Servo 90°'],['servo_30','Servo 30°'],
+    ['cond_distance','Distància < 10?'],['forever','Per sempre']
+  ];
+
+  const categoryMeta={
+    flux:{label:'Diagrames de flux',subtitle:'Aprèn a pensar i representar algoritmes abans de programar.',accent:'#8b5cf6'},
+    microbit:{label:'micro:bit',subtitle:'Converteix algoritmes en programes reals amb MakeCode i la placa micro:bit.',accent:'#3b82f6'},
+    sensors:{label:'Sensors i actuadors',subtitle:'Connecta el programa amb el món físic: Micro:Shield, sensors, LEDs, servos, relés i més.',accent:'#10b981'},
+    robot:{label:'Robot final',subtitle:'Integra programació, sensors, actuadors i documentació en un projecte complet.',accent:'#111827'}
+  };
+
+  const challenges = [
+    {id:'f0',category:'flux',level:1,title:'La motxilla',difficulty:1,accent:'#8b5cf6',points:1,maxNote:5,brief:'Representa un procés quotidià lineal: INICI → preparar llibres → posar l’estoig → sortir de casa → FI.',tags:['Seqüència','Bàsic'],minCounts:{start:2,process:3},minEdges:4,hints:['Necessites un inici i un final clars.','Entre INICI i FI col·loca tres accions consecutives.'],criteria:['C2.1','C2.2']},
+    {id:'f1',category:'flux',level:1,title:'Fer un entrepà',difficulty:1,accent:'#14b8a6',points:1,maxNote:5,brief:'Crea un diagrama seqüencial amb almenys quatre accions per explicar com preparar un entrepà.',tags:['Seqüència','Ordre'],minCounts:{start:2,process:4},minEdges:5,hints:['Pensa en accions simples i ordenades.','No fa falta cap decisió si tot és lineal.'],criteria:['C2.1','C2.2']},
+    {id:'f2',category:'flux',level:2,title:'Plou o no plou?',difficulty:2,accent:'#3b82f6',points:1,maxNote:6,brief:'Si plou, agafa paraigua. Si no, surt directament. El diagrama ha d’acabar correctament en els dos camins.',tags:['Decisió','SÍ/NO'],minCounts:{start:2,decision:1,process:2},minEdges:4,decisionLabels:true,hints:['La pregunta “Plou?” va en un rombe.','Posa SÍ i NO a les dues sortides.'],criteria:['C2.2','C2.3']},
+    {id:'f3',category:'flux',level:2,title:'Major d’edat?',difficulty:2,accent:'#f59e0b',points:1,maxNote:6,brief:'Demana una edat i decideix si la persona és major o menor d’edat.',tags:['Entrada','Decisió'],minCounts:{start:2,io:1,decision:1,process:2},minEdges:5,decisionLabels:true,hints:['Llegeix primer l’edat com a entrada.','La decisió pot ser “edat ≥ 18?”.'],criteria:['C2.2','C2.3']},
+    {id:'f4',category:'flux',level:3,title:'Semàfor',difficulty:2,accent:'#ef4444',points:2,maxNote:7,brief:'Representa el funcionament d’un semàfor que passa per verd, groc i vermell i torna a començar.',tags:['Bucle','Procés'],minCounts:{start:1,process:4},minEdges:5,cycleExpected:true,makeCodeCompatible:true,makeCodeBridge:'m7',hints:['No cal un bloc especial de bucle: fes que el flux torni al principi del cicle.','Després de vermell, el sistema continua.'],criteria:['C2.2','C2.3']},
+    {id:'f5',category:'flux',level:3,title:'Contrasenya correcta',difficulty:3,accent:'#10b981',points:2,maxNote:7,brief:'Llegeix una contrasenya. Si és correcta, deixa passar. Si no, mostra error i torna a demanar-la.',tags:['Decisió','Bucle','Entrada'],minCounts:{start:1,io:1,decision:1,process:2},minEdges:5,decisionLabels:true,cycleExpected:true,hints:['La branca NO hauria de tornar a demanar la contrasenya.','La branca SÍ pot acabar en un final.'],criteria:['C2.2','C2.3']},
+    {id:'f6',category:'flux',level:4,title:'Comptar de l’1 al 5',difficulty:3,accent:'#06b6d4',points:2,maxNote:8,brief:'Fes un algoritme que use una variable i un bucle per comptar de l’1 al 5.',tags:['Variable','Bucle'],minCounts:{start:1,variable:2,decision:1,process:1},minEdges:5,cycleExpected:true,makeCodeCompatible:true,makeCodeBridge:'m8',hints:['Inicialitza una variable, per exemple i = 1.','Comprova si i <= 5, mostra el valor i després incrementa-la.'],criteria:['C2.2','C2.3','C3.2']},
+    {id:'f7',category:'flux',level:4,title:'Endevina el número',difficulty:4,accent:'#8b5cf6',points:2,maxNote:8,brief:'Llegeix intents fins que l’usuari encerti un nombre secret. Necessita variable, decisió i repetició.',tags:['Variable','Bucle','Comparació'],minCounts:{start:1,variable:1,io:1,decision:1,process:2},minEdges:6,decisionLabels:true,cycleExpected:true,hints:['Pots guardar el nombre secret en una variable.','Si l’intent no és correcte, el flux ha de tornar a llegir un altre intent.'],criteria:['C2.2','C2.3','C3.2']},
+    {id:'f8',category:'flux',level:5,title:'Màquina expenedora',difficulty:4,accent:'#f97316',points:3,maxNote:9,brief:'Llegeix l’import introduït. Si arriba al preu, entrega el producte; si no, demana més diners i actualitza l’import.',tags:['Variable','Procés','Decisió'],minCounts:{start:1,variable:2,io:1,decision:1,process:3},minEdges:7,decisionLabels:true,cycleExpected:true,hints:['Necessites una variable per acumular l’import.','Després d’afegir diners, torna a comprovar si ja n’hi ha prou.'],criteria:['C2.1','C2.2','C2.3','C3.2']},
+    {id:'f9',category:'flux',level:6,title:'Control d’accés intel·ligent',difficulty:5,accent:'#111827',points:3,maxNote:9,brief:'Llegeix usuari i PIN, comprova si són correctes, suma intents fallits i bloqueja el sistema quan arribin a 3.',tags:['Variables','Condicions encadenades'],minCounts:{start:1,variable:2,io:2,decision:2,process:3},minEdges:9,decisionLabels:true,cycleExpected:true,hints:['Una variable pot guardar els intents fallits.','Necessitaràs almenys una decisió per validar i una altra per bloquejar.'],criteria:['C2.1','C2.2','C2.3','C3.2']},
+    {id:'f10',category:'flux',level:7,title:'Repte mestre',difficulty:5,accent:'#2563eb',points:9,maxNote:10,brief:'Dissenya un diagrama complex i complet amb entrada, variable, bucle, almenys dues decisions i diverses accions. Ha de demostrar domini real dels diagrames de flux.',tags:['Excel·lent','Complex'],minCounts:{start:1,io:1,variable:2,decision:2,process:4},minEdges:10,decisionLabels:true,cycleExpected:true,hints:['Abans de dibuixar, escriu en una frase què fa el teu sistema.','Divideix el problema en llegir dades, decidir, actuar i repetir.'],criteria:['C2.1','C2.2','C2.3','C3.2'],makeCodeBridge:'m6',makeCodeCompatible:true},
+
+    /* Reptes de flux aplicats directament a micro:bit / robòtica. IDs nous: no substitueixen els antics. */
+    {id:'f11',category:'flux',level:2,title:'Flux · Hola, micro:bit!',difficulty:1,accent:'#3b82f6',points:1,maxNote:6,brief:'Representa una seqüència on la micro:bit mostra una icona i després un nom o missatge.',tags:['micro:bit','Seqüència'],minCounts:{start:2,process:2},minEdges:3,makeCodeCompatible:true,makeCodeBridge:'m0',hints:['És una seqüència lineal.','Icona → text → FI.'],criteria:['C2.2','C2.3']},
+    {id:'f12',category:'flux',level:3,title:'Flux · Botons A i B',difficulty:2,accent:'#2563eb',points:2,maxNote:7,brief:'Representa un programa on els botons A i B provoquen respostes diferents.',tags:['micro:bit','Botons','Decisió'],minCounts:{start:1,decision:1,process:2},minEdges:4,decisionLabels:true,makeCodeCompatible:true,makeCodeBridge:'m1',hints:['Pots preguntar quin botó s’ha premut.','Cada camí ha de produir una resposta diferent.'],criteria:['C2.2','C2.3','C3.2']},
+    {id:'f13',category:'flux',level:3,title:'Flux · Llum de nit',difficulty:2,accent:'#6366f1',points:2,maxNote:7,brief:'Llegeix el nivell de llum, decideix segons un llindar i repeteix la comprovació contínuament.',tags:['micro:bit','Sensor de llum','Bucle'],minCounts:{start:1,io:1,decision:1,process:2},minEdges:5,decisionLabels:true,cycleExpected:true,makeCodeCompatible:true,makeCodeBridge:'m2',hints:['Primer llegeix la llum.','Després de cada resposta torna a mesurar.'],criteria:['C2.2','C2.3','C3.2']},
+    {id:'f14',category:'flux',level:4,title:'Flux · Pedra, paper o tisores',difficulty:3,accent:'#8b5cf6',points:3,maxNote:8,brief:'En sacsejar, genera un valor aleatori i decideix entre pedra, paper o tisores.',tags:['micro:bit','Atzar','Variable'],minCounts:{start:1,variable:1,decision:2,process:3},minEdges:6,makeCodeCompatible:true,makeCodeBridge:'m3',hints:['Guarda l’aleatori en una variable.','Pots encadenar decisions per arribar als tres resultats.'],criteria:['C2.2','C2.3','C3.2']},
+    {id:'f15',category:'flux',level:4,title:'Flux · Story Cubes',difficulty:3,accent:'#7c3aed',points:3,maxNote:9,brief:'En sacsejar, genera un valor aleatori i selecciona una de cinc icones o més.',tags:['micro:bit','Aleatori','5 camins'],minCounts:{start:1,variable:1,decision:4,process:5},minEdges:9,makeCodeCompatible:true,makeCodeBridge:'m4',hints:['Necessites arribar a cinc resultats diferents.','Una cadena de decisions és una opció vàlida.'],criteria:['C2.2','C2.3','C3.2']},
+    {id:'f16',category:'flux',level:5,title:'Flux · Ràdio emissor i receptor',difficulty:4,accent:'#0ea5e9',points:3,maxNote:9,brief:'Representa el flux de dues micro:bit: una envia una dada per ràdio i l’altra la rep i actua.',tags:['micro:bit','Ràdio','2 plaques'],minCounts:{start:2,io:2,process:2},minEdges:5,makeCodeCompatible:true,makeCodeBridge:'m5',hints:['Pensa en dos fluxos: emissor i receptor.','Indica clarament què s’envia i què passa quan es rep.'],criteria:['C2.1','C2.2','C2.3','C3.2']},
+    {id:'f17',category:'flux',level:3,title:'Flux · LED extern',difficulty:2,accent:'#10b981',points:1,maxNote:6,brief:'Representa quan i com s’encén o s’apaga un LED extern connectat a la micro:bit.',tags:['Sensor/actuador','LED','Pin'],minCounts:{start:1,process:2},minEdges:2,makeCodeCompatible:true,makeCodeBridge:'s0',hints:['Un LED és un actuador.','Pots afegir una entrada o condició si vols controlar-lo.'],criteria:['C2.2','C3.2']},
+    {id:'f18',category:'flux',level:4,title:'Flux · Detector de moviment',difficulty:3,accent:'#059669',points:2,maxNote:7,brief:'Llegeix un PIR i decideix quin color ha de mostrar el NeoPixel segons hi hagi moviment o no.',tags:['PIR','NeoPixel','Micro:Shield'],minCounts:{start:1,io:1,decision:1,process:2},minEdges:5,decisionLabels:true,cycleExpected:true,makeCodeCompatible:true,makeCodeBridge:'s1',hints:['Llegeix PIR → decideix → actua.','Torna a llegir el sensor.'],criteria:['C2.2','C3.2','C3.4']},
+    {id:'f19',category:'flux',level:4,title:'Flux · Control d’humitat',difficulty:3,accent:'#14b8a6',points:2,maxNote:7,brief:'Mesura la humitat i decideix el color del NeoPixel segons el valor obtingut.',tags:['Humitat','NeoPixel','Micro:Shield'],minCounts:{start:1,io:1,decision:1,process:2},minEdges:5,decisionLabels:true,cycleExpected:true,makeCodeCompatible:true,makeCodeBridge:'s2',hints:['Llegeix primer la humitat.','Després de mostrar l’estat, torna a mesurar.'],criteria:['C2.2','C3.2','C3.4']},
+    {id:'f20',category:'flux',level:5,title:'Flux · Barrera automàtica',difficulty:4,accent:'#0d9488',points:3,maxNote:8,brief:'Mesura distància amb ultrasons i controla un servo per obrir o tancar una barrera.',tags:['Ultrasons','Servo','Micro:Shield'],minCounts:{start:1,io:1,decision:1,process:3},minEdges:6,decisionLabels:true,cycleExpected:true,makeCodeCompatible:true,makeCodeBridge:'s3',hints:['Distància és entrada; servo és actuador.','El sistema ha de tornar a mesurar.'],criteria:['C2.2','C2.3','C3.2','C3.4']},
+    {id:'f21',category:'flux',level:5,title:'Flux · Inclinació, ràdio i servo',difficulty:4,accent:'#0891b2',points:4,maxNote:9,brief:'Representa una micro:bit que llegeix inclinació i envia una dada, i una altra que mou un servo segons la recepció.',tags:['Acceleròmetre','Ràdio','Servo'],minCounts:{start:2,io:2,decision:2,process:3},minEdges:7,makeCodeCompatible:true,makeCodeBridge:'s4',hints:['Separa emissor i receptor.','La dada rebuda ha de determinar l’angle del servo.'],criteria:['C2.1','C2.2','C2.3','C3.2','C3.4']},
+    {id:'f22',category:'flux',level:5,title:'Flux · Contaminació acústica',difficulty:4,accent:'#f59e0b',points:3,maxNote:9,brief:'Llegeix el nivell de so i activa indicadors diferents segons un llindar.',tags:['So','LED','Micro:Shield'],minCounts:{start:1,io:1,decision:1,process:2},minEdges:5,decisionLabels:true,cycleExpected:true,makeCodeCompatible:true,makeCodeBridge:'s5',hints:['Llegeix el so abans de comparar.','Torna a mesurar perquè el nivell canvia.'],criteria:['C2.2','C3.2','C3.4']},
+    {id:'f23',category:'flux',level:6,title:'Flux · Transvasament d’aigua',difficulty:5,accent:'#0284c7',points:4,maxNote:10,brief:'Representa el control segur d’una bomba d’aigua mitjançant un relé i una entrada de la micro:bit.',tags:['Relé','Bomba','Micro:Shield'],minCounts:{start:1,io:1,decision:1,process:2},minEdges:5,decisionLabels:true,makeCodeCompatible:true,makeCodeBridge:'s6',hints:['Ha d’existir una manera clara d’aturar la bomba.','El relé és l’actuador que controla la bomba.'],criteria:['C2.1','C2.2','C3.2','C3.4']},
+    {id:'f24',category:'flux',level:6,title:'Flux · Monitoratge ambiental',difficulty:5,accent:'#15803d',points:4,maxNote:10,brief:'Representa la lectura de temperatura, humitat i qualitat de l’aire i què fa el sistema amb aquestes dades.',tags:['DHT','CO₂','Dades'],minCounts:{start:1,io:3,process:2},minEdges:5,cycleExpected:true,makeCodeCompatible:true,makeCodeBridge:'s7',hints:['Cada sensor aporta una entrada.','Decideix si només mostres dades o també prens decisions.'],criteria:['C2.1','C2.2','C3.2','C3.4']},
+    {id:'f25',category:'flux',level:6,title:'Flux · Cotxe teledirigit',difficulty:5,accent:'#334155',points:5,maxNote:9,brief:'Representa comandament, ràdio i receptor del cotxe: avançar, aturar i girar.',tags:['Robot','Ràdio','Motors DC'],minCounts:{start:2,io:2,decision:3,process:4},minEdges:9,makeCodeCompatible:true,makeCodeBridge:'rb0',hints:['Separa comandament i cotxe.','Cada ordre rebuda ha de provocar una acció dels motors.'],criteria:['C2.1','C2.2','C2.3','C3.2','C3.4']},
+    {id:'f26',category:'flux',level:7,title:'Flux · Projecte final de robot',difficulty:5,accent:'#111827',points:6,maxNote:10,brief:'Dissenya el diagrama complet del teu robot final: entrades, decisions, actuadors, bucles i situacions d’error.',tags:['Robot final','Disseny','Complex'],minCounts:{start:1,io:1,decision:2,process:4},minEdges:9,cycleExpected:true,makeCodeCompatible:true,makeCodeBridge:'rb1',hints:['Comença definint l’objectiu del robot.','Inclou què passa si el sensor no detecta res o hi ha una situació inesperada.'],criteria:['C2.1','C2.2','C2.3','C3.2','C3.4']},
+
+    {id:'m0',category:'microbit',kind:'practical',level:1,title:'Hola, micro:bit!',difficulty:1,accent:'#3b82f6',points:1,maxNote:5,brief:'Programa la placa perquè mostri una icona i després un nom o missatge.',tags:['MakeCode','Seqüència'],linkedFlow:'f11',deliverables:['Projecte .hex de MakeCode','Captura dels blocs o codi JavaScript recomanats']},
+    {id:'m1',category:'microbit',kind:'practical',level:2,title:'Botons A i B',difficulty:2,accent:'#2563eb',points:1,maxNote:6,brief:'Fes que A i B provoquin respostes diferents: icones, missatges o sons.',tags:['Botons','Esdeveniments'],linkedFlow:'f12',deliverables:['Projecte .hex','Funcionament diferent per A i B']},
+    {id:'m2',category:'microbit',kind:'practical',level:3,title:'Llum de nit',difficulty:2,accent:'#6366f1',points:2,maxNote:7,brief:'Utilitza el sensor de llum de la micro:bit per activar o apagar una resposta segons el nivell ambiental.',tags:['Sensor de llum','Condició'],linkedFlow:'f13',deliverables:['Projecte .hex','Condició basada en el nivell de llum']},
+    {id:'m3',category:'microbit',kind:'practical',level:4,title:'Pedra, paper o tisores',difficulty:3,accent:'#8b5cf6',points:2,maxNote:8,brief:'En sacsejar la placa, genera un resultat aleatori i mostra pedra, paper o tisores.',tags:['Aleatori','Variables','Sacsejada'],linkedFlow:'f14',deliverables:['Projecte .hex','Ús d’atzar i tres resultats']},
+    {id:'m4',category:'microbit',kind:'practical',level:4,title:'Story Cubes',difficulty:3,accent:'#7c3aed',points:3,maxNote:9,brief:'En sacsejar, tria una de diverses icones aleatòries per inspirar una història.',tags:['Aleatori','Creativitat'],linkedFlow:'f15',deliverables:['Projecte .hex','Com a mínim cinc resultats possibles']},
+    {id:'m5',category:'microbit',kind:'practical',level:5,title:'Dues micro:bit per ràdio',difficulty:4,accent:'#0ea5e9',points:3,maxNote:9,brief:'Crea un emissor i un receptor que comparteixin dades per ràdio.',tags:['Ràdio','2 plaques'],linkedFlow:'f16',deliverables:['Projecte .hex de l’emissor','Projecte .hex del receptor o evidència equivalent']},
+    {id:'m6',category:'microbit',kind:'practical',level:6,title:'Repte micro:bit lliure',difficulty:5,accent:'#1d4ed8',points:8,maxNote:10,brief:'Dissenya un programa propi que combini entrades, lògica, variables i sortides de la micro:bit.',tags:['Projecte','Domini'],linkedFlow:'f10',deliverables:['Diagrama recomanat','Projecte .hex','Explicació breu del funcionament']},
+    {id:'m7',category:'microbit',kind:'practical',level:3,title:'Semàfor micro:bit',difficulty:2,accent:'#ef4444',points:2,maxNote:7,brief:'Porta el diagrama del semàfor a MakeCode i fes que la micro:bit representi el cicle amb LEDs o icones.',tags:['Bucle','MakeCode'],linkedFlow:'f4',deliverables:['Projecte .hex','Cicle verd/groc/vermell o equivalent']},
+    {id:'m8',category:'microbit',kind:'practical',level:4,title:'Comptador 1..5',difficulty:3,accent:'#06b6d4',points:2,maxNote:8,brief:'Programa en MakeCode el comptador del diagrama: variable, condició i increment fins a 5.',tags:['Variable','Bucle'],linkedFlow:'f6',deliverables:['Projecte .hex','Variable i repetició coherents']},
+    {id:'s0',category:'sensors',kind:'practical',level:1,title:'LED extern controlat',difficulty:2,accent:'#10b981',points:1,maxNote:5,brief:'Controla un LED extern des de la micro:bit i comprova el circuit.',tags:['LED','Pin digital'],linkedFlow:'f17',deliverables:['Projecte .hex','Foto o captura opcional del muntatge']},
+    {id:'s1',category:'sensors',kind:'practical',level:2,title:'Detector de moviment',difficulty:3,accent:'#059669',points:2,maxNote:7,brief:'Llegeix un sensor PIR i indica moviment amb un NeoPixel.',tags:['PIR','NeoPixel','Micro:Shield'],linkedFlow:'f18',deliverables:['Projecte .hex','Evidència del sensor i la resposta']},
+    {id:'s2',category:'sensors',kind:'practical',level:2,title:'Control d’humitat',difficulty:3,accent:'#14b8a6',points:2,maxNote:7,brief:'Mesura la humitat i canvia el color del NeoPixel segons el valor.',tags:['Humitat','NeoPixel','Micro:Shield'],linkedFlow:'f19',deliverables:['Projecte .hex','Condició basada en el sensor']},
+    {id:'s3',category:'sensors',kind:'practical',level:3,title:'Barrera automàtica',difficulty:4,accent:'#0d9488',points:3,maxNote:8,brief:'Amb ultrasons i servo, obre una barrera quan detectis un objecte a prop.',tags:['Ultrasons','Servo','Micro:Shield'],linkedFlow:'f20',deliverables:['Projecte .hex','Evidència del servo i del sensor']},
+    {id:'s4',category:'sensors',kind:'practical',level:4,title:'Servo per inclinació i ràdio',difficulty:4,accent:'#0891b2',points:3,maxNote:9,brief:'Una micro:bit envia la inclinació i una altra controla un servo segons la dada rebuda.',tags:['Acceleròmetre','Ràdio','Servo'],linkedFlow:'f21',deliverables:['Projecte(s) .hex','Diagrama d’emissor i receptor recomanat']},
+    {id:'s5',category:'sensors',kind:'practical',level:4,title:'Contaminació acústica',difficulty:4,accent:'#f59e0b',points:3,maxNote:9,brief:'Mesura el nivell de so i activa indicadors diferents segons un llindar.',tags:['So','LED','Micro:Shield'],linkedFlow:'f22',deliverables:['Projecte .hex','Llindar justificat o indicat']},
+    {id:'s6',category:'sensors',kind:'practical',level:5,title:'Transvasament d’aigua',difficulty:5,accent:'#0284c7',points:4,maxNote:10,brief:'Controla una bomba d’aigua mitjançant relé i una entrada de la micro:bit.',tags:['Relé','Bomba','Micro:Shield'],linkedFlow:'f23',deliverables:['Projecte .hex','Evidència del control segur del relé']},
+    {id:'s7',category:'sensors',kind:'practical',level:5,title:'Monitoratge ambiental',difficulty:5,accent:'#15803d',points:4,maxNote:10,brief:'Recull temperatura, humitat i qualitat de l’aire i mostra o envia les dades.',tags:['DHT','CO₂','Dades'],linkedFlow:'f24',deliverables:['Projecte .hex','Evidència de les mesures obtingudes']},
+    {id:'rb0',category:'robot',kind:'practical',level:1,title:'Cotxe teledirigit',difficulty:4,accent:'#334155',points:5,maxNote:8,brief:'Controla un cotxe amb dues micro:bit, ràdio, Micro:Shield i motors DC. Inclou avançar, aturar i girar.',tags:['Ràdio','Motors DC','Integració'],linkedFlow:'f25',deliverables:['Diagrama recomanat','Projecte(s) .hex','Evidència del robot funcionant']},
+    {id:'rb1',category:'robot',kind:'practical',level:2,title:'Projecte final · Robot',difficulty:5,accent:'#111827',points:10,maxNote:10,brief:'Dissenya, programa, construeix i documenta un robot propi que resolgui un repte clar.',tags:['Projecte final','Robot','Documentació'],linkedFlow:'f26',deliverables:['Diagrama de flux','Projecte MakeCode','Fotos/vídeo o documentació','Reflexió final i dificultats']}
+  ];
+
+
+  const issueLabels = {
+    no_start:'Falta inici',multi_start:'Més d’un inici',no_end:'Sense final explícit',unreachable:'Blocs desconnectats',
+    dangling:'Camí inacabat',decision_outputs:'Decisió amb menys de 2 sortides',decision_labels:'Falten SÍ/NO',
+    missing_required:'Falten blocs demanats',few_edges:'Falten connexions',self_loop:'Autobucle directe',
+    empty:'Diagrama buit',variable_format:'Variable poc clara'
+  };
+
+  const tutorialSteps = [
+    ['1. Tot algoritme té un inici','Comença indicant de manera inequívoca on entra el flux.','<div class="shape oval" style="width:220px">INICI</div>'],
+    ['2. Les accions van en ordre','Cada procés és una instrucció. Les fletxes indiquen què passa després.','<div style="display:flex;align-items:center;gap:15px"><div class="shape rect" style="width:150px">Acció 1</div><b>→</b><div class="shape rect" style="width:150px">Acció 2</div></div>'],
+    ['3. Una pregunta obre camins','Una decisió acostuma a tenir SÍ i NO. Les dues sortides laterals apareixen en seleccionar el rombe.','<div style="text-align:center"><div class="shape diamond"><span>?</span></div><div style="margin-top:25px;font-weight:900">SÍ ↙ &nbsp;&nbsp;&nbsp; ↘ NO</div></div>'],
+    ['4. Les dades entren i surten','Usa el paral·lelogram per llegir una dada o mostrar un resultat.','<div class="shape parallelogram" style="width:260px">Llegir valor</div>'],
+    ['5. Les variables són processos','No hi ha un símbol especial: escriu x = 0 o x = x + 1 dins d’un rectangle de procés. FlowLab ofereix plantilles.','<div class="shape rect" style="width:240px">i = i + 1</div>'],
+    ['6. Un bucle és una fletxa que torna','No posis una “caixa bucle”. Fes que el flux torni a una decisió o acció anterior. Les estructures ràpides t’ajuden a construir-lo.','<div class="shape loopshape" style="width:280px">ACCIÓ → DECISIÓ ↺</div>'],
+    ['7. Connectors i subprocessos','Quan el diagrama creix, un connector evita fletxes llargues i un subprocés agrupa una tasca complexa.','<div style="display:flex;gap:26px;align-items:center"><div class="shape connectorshape">A</div><div class="shape subprocessshape" style="width:220px">SUBPROCÉS</div></div>']
+  ];
+
+  const state = {
+    identity:{name:'',team:'',className:''},
+    progress:{},
+    project:null,
+    currentChallenge:null,
+    selected:null,
+    selectedNodes:new Set(),
+    marquee:null,
+    clipboard:null,
+    pasteSerial:0,
+    tool:'select',
+    connectSource:null,
+    connectSourceSide:null,
+    history:[],future:[],zoom:1,
+    drag:null,
+    sim:{active:false,current:null,steps:0},
+    portfolio:{},
+    labSessionStarted:0,
+    tutorialStep:0,
+    challengeCategory:'flux',
+    practicalId:null
+  };
+
+  function profileSlug(name=state.identity.name){
+    const n=normalize(name||'').replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,''); return n||'anon';
+  }
+  function progressStorageKey(name=state.identity.name){return `${STORAGE.progress}.${profileSlug(name)}`}
+  function portfolioStorageKey(name=state.identity.name){return `${STORAGE.portfolio}.${profileSlug(name)}`}
+  function challengeStorageKey(id,name=state.identity.name){return `${STORAGE.projectPrefix}${profileSlug(name)}.${id}`}
+  function freeStorageKey(name=state.identity.name){return `${STORAGE.free}.${profileSlug(name)}`}
+  function loadProfileState(){
+    try{state.progress=JSON.parse(safeLocalGet(progressStorageKey())||'{}')||{}}catch{state.progress={}}
+    try{state.portfolio=JSON.parse(safeLocalGet(portfolioStorageKey())||'{}')||{}}catch{state.portfolio={}}
+  }
+  function activateIdentity(next){
+    const changed=normalize(next.name||'')!==normalize(state.identity.name||'');
+    state.identity=next;safeLocalSet(STORAGE.identity,JSON.stringify(state.identity));loadProfileState();
+    if(changed){state.project=null;state.currentChallenge=null;state.selected=null;state.selectedNodes.clear();state.history=[];state.future=[];}
+    $('#studentName').value=state.identity.name||'';$('#teamNames').value=state.identity.team||'';$('#className').value=state.identity.className||'';
+  }
+  function splitNames(value=''){
+    return value.split(/[,;\/&]+|\s+\+\s+/).map(x=>x.trim()).filter(Boolean);
+  }
+  function currentOwnerNames(){
+    const names=[state.identity.name,...splitNames(state.identity.team)].filter(Boolean);
+    return [...new Map(names.map(n=>[normalize(n),n])).values()];
+  }
+  function requireIdentity(){
+    const typed=$('#studentName')?.value?.trim();
+    if(typed && typed!==state.identity.name){
+      activateIdentity({name:typed,team:$('#teamNames')?.value.trim()||'',className:$('#className')?.value.trim()||''});
+    }
+    if(!state.identity.name){toast('Primer identifica’t amb el teu nom i cognoms.');showView('#viewHome');setTimeout(()=>$('#studentName')?.focus(),50);return false}
+    return true;
+  }
+  function projectOwners(project){return Array.isArray(project?.owners)?project.owners.filter(Boolean):[]}
+  function currentUserOwns(project){
+    const owners=projectOwners(project); if(!owners.length)return true;
+    const me=normalize(state.identity.name||''); return !!me && owners.some(n=>normalize(n)===me);
+  }
+  function migrateProject(project){
+    if(!project||typeof project!=='object')return project;
+    // Compatibilitat v0.3+ / projectes antics: mai s'esborren nodes o connexions.
+    project.nodes=Array.isArray(project.nodes)?project.nodes:[];
+    project.edges=Array.isArray(project.edges)?project.edges:[];
+    if(!project.workId)project.workId=generateWorkId();
+    if(!project.createdAt)project.createdAt=project.updatedAt||new Date().toISOString();
+    if(!project.updatedAt)project.updatedAt=project.createdAt;
+    if(!Array.isArray(project.owners)||!project.owners.length)project.owners=currentOwnerNames();
+    if(!project.className)project.className=state.identity.className||'';
+    if(!project.canvas)project.canvas={width:1400,height:900};
+    if(project.challengeId&&!project.challengeMeta)project.challengeMeta=challengeMetaFor(project.challengeId)||{id:project.challengeId,title:project.title||'Activitat antiga',category:'flux',points:0,maxNote:0,legacy:true};
+    project.version=DATA_SCHEMA_VERSION; project.appBuild=APP_BUILD; project.catalogVersion=project.catalogVersion||CHALLENGE_CATALOG_VERSION;
+    return project;
+  }
+  function meaningfulReflection(r){return !!(r&&(r.notes||r.difficulties||r.successes||r.makeCodeUrl||r.codeText||(r.attachments&&r.attachments.length)))}
+  function reflectionSnapshot(r){if(!r)return null;const x=JSON.parse(JSON.stringify(r));delete x.versionHistory;return x}
+  function projectSignature(p){if(!p)return '';try{return JSON.stringify({workId:p.workId||'',challengeId:p.challengeId||'',updatedAt:p.updatedAt||'',owners:p.owners||[],nodes:p.nodes||[],edges:p.edges||[]})}catch{return String(p?.updatedAt||'')}}
+  function archiveVersion(id,{project=null,reflection=null,label='versió alternativa'}={}){
+    const r=portfolioEntry(id);r.versionHistory=Array.isArray(r.versionHistory)?r.versionHistory:[];
+    r.versionHistory.push({savedAt:new Date().toISOString(),label,project:project?JSON.parse(JSON.stringify(project)):null,reflection:reflection?reflectionSnapshot(reflection):null});
+    if(r.versionHistory.length>8)r.versionHistory=r.versionHistory.slice(-8);
+  }
+  function chooseImportedActivity(id,incomingProject,incomingReflection,source='fitxer'){
+    const c=challenges.find(x=>x.id===id),existing=storedProject(id),currentRef=state.portfolio[id]||null;
+    const projectConflict=!!(existing&&incomingProject&&projectSignature(existing)!==projectSignature(incomingProject));
+    const refConflict=!!(meaningfulReflection(currentRef)&&meaningfulReflection(incomingReflection)&&JSON.stringify(reflectionSnapshot(currentRef))!==JSON.stringify(reflectionSnapshot(incomingReflection)));
+    if(!projectConflict&&!refConflict)return true;
+    const curDate=existing?.updatedAt||currentRef?.updatedAt||'sense data',incDate=incomingProject?.updatedAt||incomingReflection?.updatedAt||'sense data';
+    const useIncoming=confirm(`Ja tens una versió de “${c?.title||id}”.\n\nACTUAL: ${curDate}\nIMPORTADA: ${incDate}\n\nD'acord = usar la importada\nCancel·lar = conservar l'actual\n\nLa versió descartada quedarà guardada dins l'historial del portafoli.`);
+    if(useIncoming){archiveVersion(id,{project:existing,reflection:currentRef,label:'versió anterior abans d’importar'});return true}
+    archiveVersion(id,{project:incomingProject,reflection:incomingReflection,label:`versió importada no seleccionada (${source})`});savePortfolio();return false;
+  }
+  function newProject(title='Diagrama lliure', challengeId=null){
+    const now=new Date().toISOString();
+    return {version:DATA_SCHEMA_VERSION,appBuild:APP_BUILD,catalogVersion:CHALLENGE_CATALOG_VERSION,title,challengeId,challengeMeta:challengeMetaFor(challengeId),workId:generateWorkId(),owners:currentOwnerNames(),className:state.identity.className||'',canvas:{width:1400,height:900},nodes:[],edges:[],createdAt:now,updatedAt:now};
+  }
+
+  function loadStored(){
+    try{state.identity={...state.identity,...JSON.parse(safeLocalGet(STORAGE.identity)||'{}')}}catch{}
+    loadProfileState();
+    $('#studentName').value=state.identity.name||'';$('#teamNames').value=state.identity.team||'';$('#className').value=state.identity.className||'';
+  }
+
+  function saveIdentity(){
+    const next={name:$('#studentName').value.trim(),team:$('#teamNames').value.trim(),className:$('#className').value.trim()};
+    if(!next.name){toast('Escriu el teu nom i cognoms.');return}
+    activateIdentity(next); renderChallenges(); toast('Dades desades');
+  }
+
+  function saveProgress(){ if(state.identity.name)safeLocalSet(progressStorageKey(),JSON.stringify(state.progress),{quiet:true}); updateProgressUI(); }
+
+  function challengeProgress(id){
+    if(!state.progress[id]) state.progress[id]={started:false,completed:false,attempts:0,hints:0,simulations:0,activeSeconds:0,issues:{},lastAt:null};
+    return state.progress[id];
+  }
+
+  function portfolioEntry(id){
+    if(!state.portfolio[id])state.portfolio[id]={notes:'',difficulties:'',successes:'',attachments:[],makeCodeUrl:'',codeText:'',workId:generateWorkId(),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),owners:currentOwnerNames(),className:state.identity.className||''};
+    return state.portfolio[id];
+  }
+  function savePortfolio(){
+    Object.values(state.portfolio||{}).forEach(r=>{if(r)r.updatedAt=new Date().toISOString()});
+    if(!safeLocalSet(portfolioStorageKey(),JSON.stringify(state.portfolio),{quiet:true}))toast('Portafoli en memòria temporal: descarrega’l per conservar els canvis.');
+  }
+  function mergeProgressRecord(id,incoming={}){
+    const p=challengeProgress(id); p.started=!!(p.started||incoming.started); p.completed=!!(p.completed||incoming.completed);
+    p.attempts=Math.max(p.attempts||0,incoming.attempts||0); p.hints=Math.max(p.hints||0,incoming.hints||0); p.simulations=Math.max(p.simulations||0,incoming.simulations||0); p.activeSeconds=Math.max(p.activeSeconds||0,incoming.activeSeconds||0);
+    p.completedAt=p.completedAt||incoming.completedAt||null; p.lastAt=[p.lastAt,incoming.lastAt].filter(Boolean).sort().pop()||null; p.issues={...(incoming.issues||{}),...(p.issues||{})};
+    saveProgress();
+  }
+  function syncProjectMeta(project=state.project){
+    if(!project)return project;
+    if(!project.workId)project.workId=generateWorkId();
+    if(!project.createdAt)project.createdAt=new Date().toISOString();
+    if(!project.challengeMeta&&project.challengeId)project.challengeMeta=challengeMetaFor(project.challengeId);
+    const owners=projectOwners(project); if(!owners.length)project.owners=currentOwnerNames();
+    project.className=project.className||state.identity.className||'';
+    if(project.challengeId){project.progressRecord=JSON.parse(JSON.stringify(challengeProgress(project.challengeId)));project.reflection=JSON.parse(JSON.stringify(portfolioEntry(project.challengeId)))}
+    if(!project.canvas)project.canvas={width:1400,height:900}; migrateProject(project); return project;
+  }
+  function storedProject(id){
+    try{return JSON.parse(safeLocalGet(challengeStorageKey(id))||'null')}catch{return null}
+  }
+  function countStoredProjects(){return challenges.reduce((n,c)=>n+(storedProject(c.id)?1:0),0)}
+
+  function tickActiveTime(){
+    if(!$('#viewLab').classList.contains('active') || !state.currentChallenge) return;
+    const p=challengeProgress(state.currentChallenge.id); p.activeSeconds=(p.activeSeconds||0)+15; p.lastAt=new Date().toISOString(); saveProgress();
+  }
+
+  function showView(id){
+    $$('.view').forEach(v=>v.classList.remove('active'));
+    $(id).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+    if(id==='#viewChallenges') renderChallenges();
+    if(id==='#viewPortfolio') renderPortfolio();
+  }
+
+  function toast(msg){
+    const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),2200);
+  }
+
+  function scoreForCategory(category='flux', progress=state.progress){
+    const pool=challenges.filter(c=>c.category===category);
+    const done=pool.filter(c=>progress[c.id]?.completed);
+    const points=done.reduce((a,c)=>a+(c.points||0),0);
+    const unlockedMax=done.reduce((a,c)=>Math.max(a,c.maxNote||0),0);
+    const note=Math.min(points,unlockedMax);
+    return {points,unlockedMax,note,completed:done.length,total:pool.length};
+  }
+  function categoryLabel(category){return categoryMeta[category]?.label||category}
+  function renderScorePanel(){
+    const box=$('#scorePanel'); if(!box) return;
+    const cat=state.challengeCategory||'flux', sc=scoreForCategory(cat), meta=categoryMeta[cat]||categoryMeta.flux;
+    const isFlux=cat==='flux';
+    box.innerHTML=`<div class="score-summary"><div class="score-copy"><span class="eyebrow">PROGRÉS PROVISIONAL · ${escapeHtml(meta.label.toUpperCase())}</span><h2>${isFlux?'Acumula punts i desbloqueja sostre':'Construeix evidències del teu progrés'}</h2><p>${isFlux?'ROBOTIA comprova sobretot l’<b>estructura</b> del diagrama.':'Els reptes pràctics es consideren <b>entregats</b> quan afegeixes evidències al portafoli. La correcció real la farà el professor.'}</p><div class="score-validation-note">◷ Pendent de validació docent: la nota final pot canviar després de revisar la lògica, el codi i les evidències.</div></div><div class="score-kpis"><div class="score-kpi"><span>Punts màxims actuals</span><b>${sc.points}</b><small>provisionals</small></div><div class="score-kpi"><span>Sostre desbloquejat</span><b>${sc.unlockedMax||0}</b><small>nota límit</small></div><div class="score-kpi note"><span>Nota màxima actual*</span><b>${sc.note}/10</b><small>si tot és correcte</small></div><div class="score-kpi"><span>Reptes entregats</span><b>${sc.completed}/${sc.total}</b><small>pendents de validar</small></div></div></div>`;
+  }
+  function setChallengeCategory(cat){
+    if(!categoryMeta[cat])return; state.challengeCategory=cat;
+    $$('#challengeTabs [data-category]').forEach(b=>b.classList.toggle('active',b.dataset.category===cat));
+    renderChallenges();
+  }
+  function linkedCounterpart(c){
+    if(!c)return null;
+    if(c.category==='flux'&&c.makeCodeBridge)return challenges.find(x=>x.id===c.makeCodeBridge)||null;
+    if(c.kind==='practical'&&c.linkedFlow)return challenges.find(x=>x.id===c.linkedFlow)||null;
+    return null;
+  }
+  function linkedBadge(c){
+    const link=linkedCounterpart(c);
+    if(c.category==='flux'&&link)return `<span class="bridge-chip strong">⚡ Versió ${escapeHtml(categoryLabel(link.category))} · +${link.points}</span>`;
+    if(c.kind==='practical'&&link)return `<span class="bridge-chip strong">◇ Diagrama vinculat · +${link.points} Flux</span>`;
+    if(c.kind==='practical')return '<span class="bridge-chip">◇ Diagrama opcional</span>';
+    return '';
+  }
+  function renderChallenges(){
+    const grid=$('#challengeGrid'),cat=state.challengeCategory||'flux',meta=categoryMeta[cat]||categoryMeta.flux;
+    const intro=$('#categoryIntro'); if(intro)intro.innerHTML=`<b>${escapeHtml(meta.label)}</b> · ${escapeHtml(meta.subtitle)}`;
+    const pool=challenges.filter(c=>c.category===cat);
+    grid.innerHTML=pool.map(c=>{
+      const p=challengeProgress(c.id),stars='★'.repeat(c.difficulty)+'☆'.repeat(5-c.difficulty),isDone=p.completed,isPractical=c.kind==='practical',link=linkedCounterpart(c);
+      const bridge=linkedBadge(c),linkProgress=link?challengeProgress(link.id):null;
+      const quickLink=link?`<button class="bridge-open-btn" data-open-linked="${link.id}">${c.category==='flux'?'⚡ '+escapeHtml(categoryLabel(link.category)):'◇ Diagrama'}${linkProgress?.completed?' ✓':''}</button>`:'';
+      return `<article class="challenge-card ${isDone?'completed':''} cat-${c.category}" style="--accent:${c.accent}"><div class="challenge-card-inner"><div class="challenge-mana">+${c.points}</div><div class="challenge-top"><span class="challenge-level">Nivell ${c.level}</span><span class="challenge-type-line">Màxim ${c.maxNote}</span></div>${isDone?'<div class="challenge-stamp">ENTREGAT</div>':''}<h3 class="challenge-name">${escapeHtml(c.title)}</h3><div class="challenge-subtype">${escapeHtml(categoryLabel(c.category))}</div><div class="challenge-art"><div class="challenge-art-glyph">${escapeHtml((c.title.match(/[A-ZÀ-Ú0-9]/gi)||[]).slice(0,2).join('').toUpperCase()||'R')}</div></div><p>${escapeHtml(c.brief)}</p><div class="challenge-metrics"><span class="metric gold">+${c.points} punt${c.points>1?'s':''}</span><span class="metric">Sostre ${c.maxNote}</span><span class="metric stars">${stars}</span>${bridge}</div><div class="tags">${c.tags.map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>${quickLink?`<div class="challenge-link-actions">${quickLink}</div>`:''}<div class="challenge-foot"><span class="status-pill ${isDone?'done':p.started?'progress':''}">${isDone?'Entregat · pendent de validar':p.started?'En curs':'Nou'}</span><button class="btn ${isDone?'secondary':'primary'}" data-open-challenge="${c.id}">${isPractical?(isDone?'Revisar':'Obrir repte'):(isDone?'Reobrir':'Començar')}</button></div></div></article>`;
+    }).join('');
+    $$('[data-open-challenge]').forEach(b=>b.addEventListener('click',()=>openChallengeCard(b.dataset.openChallenge)));
+    $$('[data-open-linked]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();openChallengeCard(b.dataset.openLinked)}));
+    renderScorePanel(); updateProgressUI();
+  }
+
+  function updateProgressUI(){
+    const cat=state.challengeCategory||'flux',pool=challenges.filter(c=>c.category===cat),done=pool.filter(c=>state.progress[c.id]?.completed).length,pct=pool.length?Math.round(done/pool.length*100):0;
+    $('#progressPercent').textContent=`${pct}%`; $('#progressRing').style.background=`conic-gradient(var(--primary) ${pct*3.6}deg,#e8edf6 0deg)`;
+  }
+
+  function projectStorageKey(){return state.currentChallenge?challengeStorageKey(state.currentChallenge.id):freeStorageKey()}
+
+  function openChallengeCard(id){
+    const c=challenges.find(x=>x.id===id); if(!c)return;
+    if(c.kind==='practical')openPracticalChallenge(id); else openChallenge(id);
+  }
+  function practicalEvidenceCount(id){
+    const r=portfolioEntry(id); return (r.attachments?.length||0)+(r.makeCodeUrl?1:0)+(r.codeText?1:0)+(storedProject(id)?1:0);
+  }
+  function practicalCanSubmit(id){const r=portfolioEntry(id);return !!((r.attachments?.length||0)||r.makeCodeUrl||r.codeText)}
+  function renderPracticalFiles(id){
+    const r=portfolioEntry(id),box=$('#practicalFilesList'); if(!box)return;
+    box.innerHTML=(r.attachments||[]).length?r.attachments.map((a,i)=>`<div class="attachment-chip"><a href="${a.data}" download="${escapeHtml(a.name)}">${escapeHtml(a.name)}</a><button data-prac-remove="${i}" title="Eliminar">×</button></div>`).join(''):'<span class="no-attachments">Encara no hi ha fitxers.</span>';
+    $$('[data-prac-remove]').forEach(b=>b.onclick=()=>{r.attachments.splice(Number(b.dataset.pracRemove),1);savePortfolio();renderPracticalFiles(id);updatePracticalStatus(id)});
+  }
+  function updatePracticalStatus(id){
+    const p=challengeProgress(id),ok=practicalCanSubmit(id),el=$('#practicalStatus'); if(el){el.textContent=p.completed?'Entregat · pendent de validar':ok?'A punt per entregar':'En curs';el.className=`status-pill ${p.completed?'done':ok?'progress':''}`}
+  }
+  function openPracticalChallenge(id){
+    if(!requireIdentity())return; const c=challenges.find(x=>x.id===id); if(!c)return; state.practicalId=id;
+    const p=challengeProgress(id);p.started=true;p.lastAt=new Date().toISOString();saveProgress();const r=portfolioEntry(id);
+    $('#practicalEyebrow').textContent=`${categoryLabel(c.category).toUpperCase()} · NIVELL ${c.level}`;$('#practicalTitle').textContent=c.title;$('#practicalBrief').textContent=c.brief;
+    $('#practicalMeta').innerHTML=`<span>+${c.points} punts</span><span>sostre ${c.maxNote}</span>${c.tags.map(t=>`<span>${escapeHtml(t)}</span>`).join('')}`;
+    $('#practicalDeliverables').innerHTML=`<b>Què pots entregar</b><ul>${(c.deliverables||['Projecte MakeCode i evidències']).map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul>`;
+    const linked=c.linkedFlow?challenges.find(x=>x.id===c.linkedFlow):null,lp=linked?challengeProgress(linked.id):null;
+    $('#practicalLinkedFlow').innerHTML=linked?`<b>Diagrama vinculat:</b> ${escapeHtml(linked.title)} · <b>+${linked.points} punts de Flux</b> <span class="linked-status ${lp?.completed?'done':''}">${lp?.completed?'fet ✓':lp?.started?'en curs':'no iniciat'}</span><br>No és obligatori fer tots dos, però el diagrama és la millor preparació abans de MakeCode.`:'<b>Diagrama opcional:</b> pots crear un diagrama específic d’aquest repte perquè quedi al portafoli juntament amb el codi.';
+    $('#practicalDiagram').textContent=linked?'◇ Fer / obrir diagrama vinculat':'◇ Afegir diagrama al projecte';
+    $('#practicalMakeCodeUrl').value=r.makeCodeUrl||'';$('#practicalCode').value=r.codeText||'';renderPracticalFiles(id);updatePracticalStatus(id);$('#modalPractical').showModal();
+  }
+  function savePractical(){
+    const id=state.practicalId;if(!id)return;const r=portfolioEntry(id);r.makeCodeUrl=$('#practicalMakeCodeUrl').value.trim();r.codeText=$('#practicalCode').value.trim();savePortfolio();const p=challengeProgress(id);p.started=true;p.lastAt=new Date().toISOString();if(practicalCanSubmit(id)){p.completed=true;p.completedAt=p.completedAt||new Date().toISOString()}saveProgress();updatePracticalStatus(id);renderChallenges();toast(p.completed?'Repte entregat al portafoli ✓':'Desat al portafoli');
+  }
+  function openPracticalDiagram(){
+    const id=state.practicalId,c=challenges.find(x=>x.id===id);if(!c)return;$('#modalPractical').close();openChallenge(c.linkedFlow||id);
+  }
+  function openChallenge(id){
+    if(!requireIdentity())return;
+    const c=challenges.find(x=>x.id===id); if(!c) return;
+    state.currentChallenge=c;
+    const p=challengeProgress(id); p.started=true; p.lastAt=new Date().toISOString(); saveProgress();
+    let project=null;
+    try{ project=JSON.parse(safeLocalGet(challengeStorageKey(id))||'null'); }catch{}
+    state.project=project||newProject(c.title,c.id);
+    state.history=[]; state.future=[]; state.selected=null; state.selectedNodes.clear(); state.tool='select'; state.connectSource=null; state.connectSourceSide=null; state.zoom=1;
+    $('#labEyebrow').textContent=`${c.kind==='practical'?'DIAGRAMA OPCIONAL · ': 'REPTE · '}NIVELL ${c.level}`; $('#labTitle').textContent=c.title; $('#labBrief').textContent=c.brief;
+    renderChallengePanel(); renderLab(); showView('#viewLab');
+  }
+
+  function openFreeLab(){
+    if(!requireIdentity())return;
+    state.currentChallenge=null;
+    let p=null; try{p=JSON.parse(safeLocalGet(freeStorageKey())||'null')}catch{}
+    state.project=p||newProject('Diagrama lliure',null); state.history=[];state.future=[];state.selected=null;state.selectedNodes.clear();state.tool='select';state.connectSource=null;state.connectSourceSide=null;state.zoom=1;
+    $('#labEyebrow').textContent='LABORATORI LLIURE'; $('#labTitle').textContent='Diagrama lliure'; $('#labBrief').textContent='Construeix, comprova i simula qualsevol algoritme.';
+    renderChallengePanel(); renderLab(); showView('#viewLab');
+  }
+
+  function renderChallengePanel(){
+    const box=$('#challengeMeta');
+    if(!state.currentChallenge){ box.innerHTML='<div class="challenge-mini-title">Sense repte</div><div class="challenge-mini-brief">Laboratori lliure. El comprovador revisarà l’estructura del diagrama.</div>'; $('#btnHint').classList.add('hidden'); return; }
+    const c=state.currentChallenge;
+    const req=[];
+    for(const [k,v] of Object.entries(c.minCounts||{})) req.push(`${v} × ${typeName(k)}`);
+    const p=challengeProgress(c.id);
+    const participants=state.project?.owners?.length?state.project.owners:currentOwnerNames();
+    const bridge=c.makeCodeBridge?challenges.find(x=>x.id===c.makeCodeBridge):null;
+    const bp=bridge?challengeProgress(bridge.id):null;
+    const mk=c.makeCodeCompatible?`<div class="makecode-bridge"><b>⚡ Té versió pràctica:</b> ${bridge?`${escapeHtml(bridge.title)} · +${bridge.points} punts de ${escapeHtml(categoryLabel(bridge.category))}`:'aquest diagrama es pot portar a MakeCode'}. ${bp?.completed?'Ja l’has entregat ✓':'La pots fer quan vulguis; no és obligatori haver completat les dues.'}${bridge?`<div style="margin-top:8px"><button class="bridge-open-btn" id="btnLinkedPractice">Obrir versió pràctica →</button></div>`:''}</div>`:'';
+    box.innerHTML=`<div class="challenge-mini-top"><div class="challenge-mini-title">${escapeHtml(c.title)}</div><div class="challenge-mini-points">+${c.points} · màxim ${c.maxNote}</div></div><div class="challenge-mini-brief">${escapeHtml(c.brief)}</div><div class="challenge-mini-state ${p.completed?'done':p.started?'progress':''}">${p.completed?'Terminat ✓':p.started?'En curs':'Nou'}</div><button class="participants-btn" id="btnEditParticipants">👥 ${escapeHtml(participants.join(' + ')||state.identity.name)}</button><div class="requirements">${req.map(r=>`<div class="req">✓ ${escapeHtml(r)}</div>`).join('')}</div>${mk}`;
+    if(bridge)$('#btnLinkedPractice')?.addEventListener('click',()=>openPracticalChallenge(bridge.id));
+    $('#btnEditParticipants').onclick=()=>{const others=(state.project?.owners||[]).filter(n=>normalize(n)!==normalize(state.identity.name));const answer=prompt('Company/a del repte (deixa-ho buit si és individual):',others.join(', '));if(answer===null)return;state.project.owners=[state.identity.name,...splitNames(answer)];state.identity.team=answer.trim();safeLocalSet(STORAGE.identity,JSON.stringify(state.identity));$('#teamNames').value=state.identity.team;autosave();renderChallengePanel();toast('Participants actualitzats')};
+    $('#btnHint').classList.remove('hidden'); $('#hintBox').classList.add('hidden'); $('#hintBox').textContent='';
+  }
+
+  function typeName(t){return ({start:'Inici/fi',process:'Procés',decision:'Decisió',io:'Entrada/sortida',variable:'Procés de variable/càlcul',connector:'Connector',subprocess:'Subprocés'})[t]||t}
+
+  function pushHistory(){
+    if(!state.project) return;
+    state.project.needsRecheck=true;
+    state.history.push(JSON.stringify(state.project)); if(state.history.length>60)state.history.shift(); state.future=[];
+  }
+  function undo(){ if(!state.history.length)return; state.future.push(JSON.stringify(state.project)); state.project=JSON.parse(state.history.pop()); state.selected=null; state.selectedNodes.clear(); renderLab(); autosave(); }
+  function redo(){ if(!state.future.length)return; state.history.push(JSON.stringify(state.project)); state.project=JSON.parse(state.future.pop()); state.selected=null; state.selectedNodes.clear(); renderLab(); autosave(); }
+
+  function addNode(type,x=700,y=420,label=null,semantic=null){
+    if(!state.project) return;
+    pushHistory();
+    const defaults={start:'INICI',process:'Acció',decision:'Condició?',io:'Entrada / sortida',variable:'i = 0',connector:'A',subprocess:'Subprocés'};
+    const node={id:uid('n'),type,x,y,label:label||defaults[type]||'Bloc',semantic};
+    state.project.nodes.push(node); state.selectedNodes.clear(); state.selectedNodes.add(node.id); state.selected={kind:'node',id:node.id}; renderLab(); autosave();
+  }
+
+  function edgeSourceSide(edge){
+    if(edge?.fromSide)return edge.fromSide;
+    const src=getNode(edge?.from),dst=getNode(edge?.to); if(!src)return null;
+    if(src.type==='decision'){
+      const lab=normalize(edge?.label||'');
+      if(yesWords.includes(lab))return 'left';
+      if(noWords.includes(lab))return 'right';
+      if(dst)return inferSides(src,dst)[0];
+    }
+    return firstPortByRole(src,'output')?.[0] || (dst?inferSides(src,dst)[0]:null);
+  }
+
+  function chooseSourceSide(src,requestedSide){
+    if(requestedSide)return requestedSide;
+    const outs=portSpecs(src).filter(([, , ,role])=>role==='output');
+    if(!outs.length)return null;
+    if(src.type==='decision'){
+      const used=new Set(state.project.edges.filter(e=>e.from===src.id).map(edgeSourceSide));
+      return (outs.find(([side])=>!used.has(side))||outs[0])[0];
+    }
+    return outs[0][0];
+  }
+
+  function addEdge(from,to,fromSide=null,toSide=null){
+    if(from===to){toast('Connecta amb un altre bloc');return}
+    const src=getNode(from),dst=getNode(to); if(!src||!dst)return;
+    const sourceSide=chooseSourceSide(src,fromSide);
+    const targetSide=toSide || bestInputPort(dst,src)?.[0] || inferSides(src,dst)[1];
+    if(!sourceSide){toast('Aquest bloc no té cap sortida disponible.');return}
+    const same=state.project.edges.find(e=>e.from===from&&e.to===to&&edgeSourceSide(e)===sourceSide);
+    if(same){toast('Aquesta connexió ja existeix');return}
+    const replaced=state.project.edges.filter(e=>e.from===from&&edgeSourceSide(e)===sourceSide);
+    pushHistory();
+    if(replaced.length) state.project.edges=state.project.edges.filter(e=>!(e.from===from&&edgeSourceSide(e)===sourceSide));
+    let label='';
+    if(src.type==='decision') label=sourceSide==='left'?'SÍ':sourceSide==='right'?'NO':'';
+    state.project.edges.push({id:uid('e'),from,to,label,fromSide:sourceSide,toSide:targetSide});
+    renderLab(); autosave();
+    if(replaced.length)toast('Connexió substituïda automàticament');
+  }
+
+  function getNode(id){return state.project?.nodes.find(n=>n.id===id)}
+  function getEdge(id){return state.project?.edges.find(e=>e.id===id)}
+  function edgesFrom(id){return state.project.edges.filter(e=>e.from===id)}
+  function edgesTo(id){return state.project.edges.filter(e=>e.to===id)}
+
+  function deleteSelected(){
+    const ids=[...state.selectedNodes];
+    if(!ids.length && !state.selected)return;
+    pushHistory();
+    if(ids.length){
+      const set=new Set(ids);
+      state.project.nodes=state.project.nodes.filter(n=>!set.has(n.id));
+      state.project.edges=state.project.edges.filter(e=>!set.has(e.from)&&!set.has(e.to));
+    }else if(state.selected?.kind==='edge'){
+      state.project.edges=state.project.edges.filter(e=>e.id!==state.selected.id);
+    }
+    state.selected=null; state.selectedNodes.clear(); renderLab(); autosave();
+  }
+
+  function setTool(tool){
+    state.tool=tool; state.connectSource=null; state.connectSourceSide=null;
+    $('#toolSelect').classList.toggle('active',tool==='select'); $('#toolConnect').classList.toggle('active',tool==='connect');
+    renderLab();
+  }
+
+  function nodeSize(node){
+    if(node.type==='decision')return {w:190,h:118};
+    if(node.type==='start')return {w:178,h:72};
+    if(node.type==='connector')return {w:64,h:64};
+    if(node.type==='subprocess')return {w:220,h:90};
+    return {w:200,h:86};
+  }
+
+  function shapeMarkup(node){
+    const {w,h}=nodeSize(node), st=nodeStyles[node.type]||nodeStyles.process;
+    const x=-w/2,y=-h/2;
+    if(node.type==='decision'){
+      return `<polygon class="node-shape" points="0,${-h/2} ${w/2},0 0,${h/2} ${-w/2},0" fill="${st.fill}" stroke="${st.stroke}" stroke-width="3"/>`;
+    }
+    if(node.type==='io'){
+      return `<polygon class="node-shape" points="${x+20},${y} ${x+w},${y} ${x+w-20},${y+h} ${x},${y+h}" fill="${st.fill}" stroke="${st.stroke}" stroke-width="3"/>`;
+    }
+    if(node.type==='connector'){
+      return `<circle class="node-shape" cx="0" cy="0" r="30" fill="${st.fill}" stroke="${st.stroke}" stroke-width="3"/>`;
+    }
+    if(node.type==='subprocess'){
+      return `<g><rect class="node-shape" x="${x}" y="${y}" width="${w}" height="${h}" rx="10" fill="${st.fill}" stroke="${st.stroke}" stroke-width="3"/><line x1="${x+17}" y1="${y}" x2="${x+17}" y2="${y+h}" stroke="${st.stroke}" stroke-width="2"/><line x1="${x+w-17}" y1="${y}" x2="${x+w-17}" y2="${y+h}" stroke="${st.stroke}" stroke-width="2"/></g>`;
+    }
+    // Variable/càlcul és deliberadament un rectangle de PROCÉS estàndard.
+    const rx=node.type==='start'?36:12;
+    return `<rect class="node-shape" x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${st.fill}" stroke="${st.stroke}" stroke-width="3"/>`;
+  }
+
+  function wrapText(text,max=22){
+    const words=(text||'').split(/\s+/); const lines=[]; let line='';
+    words.forEach(w=>{ const test=line?line+' '+w:w; if(test.length>max&&line){lines.push(line);line=w}else line=test; }); if(line)lines.push(line);
+    return lines.slice(0,3);
+  }
+
+  const CANVAS_MIN_W=1400, CANVAS_MIN_H=900, CANVAS_PAD=320, CANVAS_STEP=400;
+  function ensureCanvasSize(extraPoint=null){
+    if(!state.project)return {width:CANVAS_MIN_W,height:CANVAS_MIN_H};
+    const c=state.project.canvas||(state.project.canvas={width:CANVAS_MIN_W,height:CANVAS_MIN_H});
+    let maxX=0,maxY=0;
+    state.project.nodes.forEach(n=>{const sz=nodeSize(n);maxX=Math.max(maxX,n.x+sz.w/2);maxY=Math.max(maxY,n.y+sz.h/2)});
+    if(extraPoint){maxX=Math.max(maxX,extraPoint.x||0);maxY=Math.max(maxY,extraPoint.y||0)}
+    const neededW=Math.max(CANVAS_MIN_W,maxX+CANVAS_PAD);
+    const neededH=Math.max(CANVAS_MIN_H,maxY+CANVAS_PAD);
+    c.width=Math.max(c.width||CANVAS_MIN_W,Math.ceil(neededW/CANVAS_STEP)*CANVAS_STEP);
+    c.height=Math.max(c.height||CANVAS_MIN_H,Math.ceil(neededH/CANVAS_STEP)*CANVAS_STEP);
+    return c;
+  }
+  function applyCanvasSize(){
+    const c=ensureCanvasSize(),svg=$('#flowSvg');
+    svg.setAttribute('viewBox',`0 0 ${c.width} ${c.height}`);
+    svg.style.width=`${Math.round(c.width*state.zoom)}px`;
+    svg.style.height=`${Math.round(c.height*state.zoom)}px`;
+    $('#viewport').removeAttribute('transform');
+    const label=$('#canvasSizeLabel');if(label)label.textContent=`Llenç ${c.width}×${c.height}`;
+  }
+  function autoScrollCanvas(ev){
+    if(!state.drag&&!state.marquee)return;
+    const wrap=$('#canvasWrap'),r=wrap.getBoundingClientRect(),m=58,s=26;
+    if(ev.clientX>r.right-m)wrap.scrollLeft+=s; else if(ev.clientX<r.left+m)wrap.scrollLeft-=s;
+    if(ev.clientY>r.bottom-m)wrap.scrollTop+=s; else if(ev.clientY<r.top+m)wrap.scrollTop-=s;
+  }
+
+  function renderLab(){
+    if(!state.project)return;
+    const nLayer=$('#nodesLayer'), eLayer=$('#edgesLayer');
+    eLayer.innerHTML=state.project.edges.map(e=>edgeMarkup(e,false)).join('');
+    nLayer.innerHTML=state.project.nodes.map(n=>nodeMarkup(n,false)).join('');
+    applyCanvasSize(); $('#zoomLabel').textContent=`${Math.round(state.zoom*100)}%`; $('#flowSvg').classList.toggle('is-connecting',!!state.connectSource);
+    $('#emptyCanvas').classList.toggle('hidden',state.project.nodes.length>0);
+    renderMarquee(); bindSvgEvents(); renderInspector(); updateMakeCodeButton();
+  }
+
+  function portSpecs(n){
+    const {w,h}=nodeSize(n);
+    // Els laterals tenen entrades i sortides separades. Això permet fer bucles
+    // nets sense obligar totes les fletxes a entrar per dalt o sortir per baix.
+    const sideIO=(yIn=-17,yOut=17)=>[
+      ['left-in',-w/2,yIn,'input'],['left-out',-w/2,yOut,'output'],
+      ['right-in',w/2,yIn,'input'],['right-out',w/2,yOut,'output']
+    ];
+    if(n.type==='decision')return [
+      ['top',0,-h/2,'input'],
+      ['left-in',-Math.round(w*.31),-Math.round(h*.20),'input'],
+      ['right-in',Math.round(w*.31),-Math.round(h*.20),'input'],
+      ['left',-w/2,0,'output'],['right',w/2,0,'output']
+    ];
+    if(n.type==='start'){
+      const label=normalize(n.label||'');
+      if(label==='fi'||label==='final'||label==='end') return [
+        ['top',0,-h/2,'input'],['left-in',-w/2,0,'input'],['right-in',w/2,0,'input']
+      ];
+      if(label==='inici'||label==='start') return [
+        ['bottom',0,h/2,'output'],['left-out',-w/2,0,'output'],['right-out',w/2,0,'output']
+      ];
+      return [['top',0,-h/2,'input'],['bottom',0,h/2,'output'],...sideIO(-14,14)];
+    }
+    if(n.type==='connector') return [['top',0,-h/2,'input'],['bottom',0,h/2,'output'],...sideIO(-9,9)];
+    return [['top',0,-h/2,'input'],['bottom',0,h/2,'output'],...sideIO()];
+  }
+  function portMarkup(n,isSelected=false){
+    return portSpecs(n).map(([side,x,y,role])=>{
+      const caption=n.type==='decision'&&role==='output'?(side==='left'?'SÍ':side==='right'?'NO':''):'';
+      const physical=physicalSide(side);
+      const tx=physical==='left'?x-20:physical==='right'?x+20:x, ty=physical==='top'?y-15:physical==='bottom'?y+21:y-12;
+      const activeStyle=isSelected?'style="opacity:1!important;pointer-events:auto!important"':'';
+      return `<circle class="connection-port port-${role}" ${activeStyle} data-port-role="${role}" data-port-side="${side}" data-node-id="${n.id}" cx="${x}" cy="${y}" r="8"/>${caption?`<text class="port-caption" x="${tx}" y="${ty}">${caption}</text>`:''}`;
+    }).join('');
+  }
+
+  function nodeMarkup(n,forExport=false){
+    const isSelected=!forExport && state.selectedNodes.has(n.id);
+    const isPrimary=isSelected && state.selected?.kind==='node' && state.selected.id===n.id;
+    const selected=isSelected?'selected':'';
+    const primary=isPrimary?'primary-selected':isSelected?'group-selected':'';
+    const conn=!forExport && state.connectSource===n.id?'connect-source':'';
+    const lines=wrapText(n.label,n.type==='decision'?18:n.type==='connector'?5:n.type==='subprocess'?25:24);
+    const startY=lines.length===1?0:-(lines.length-1)*10;
+    const text=lines.map((l,i)=>`<text class="node-text" x="0" y="${startY+i*21}">${escapeHtml(l)}</text>`).join('');
+    const badge=n.semantic?`<text class="node-sub" x="0" y="${nodeSize(n).h/2-8}">micro:bit</text>`:'';
+    return `<g class="flow-node ${selected} ${primary} ${conn}" data-node-id="${n.id}" transform="translate(${n.x} ${n.y})" filter="url(#shadow)">${shapeMarkup(n)}${text}${badge}${forExport?'':portMarkup(n,isSelected)}</g>`;
+  }
+
+  function physicalSide(side=''){return side.startsWith('left')?'left':side.startsWith('right')?'right':side.startsWith('top')?'top':'bottom'}
+  function portPoint(n,side){
+    const spec=portSpecBySide(n,side);
+    if(spec)return {x:n.x+spec[1],y:n.y+spec[2]};
+    const {w,h}=nodeSize(n),physical=physicalSide(side);
+    if(physical==='top') return {x:n.x,y:n.y-h/2};
+    if(physical==='right') return {x:n.x+w/2,y:n.y};
+    if(physical==='left') return {x:n.x-w/2,y:n.y};
+    return {x:n.x,y:n.y+h/2};
+  }
+  function inferSides(a,b){
+    const dx=b.x-a.x,dy=b.y-a.y;
+    if(Math.abs(dx)>Math.abs(dy)) return dx>=0?['right','left']:['left','right'];
+    return dy>=0?['bottom','top']:['top','bottom'];
+  }
+  function sideVector(side){const p=physicalSide(side);return p==='top'?{x:0,y:-1}:p==='bottom'?{x:0,y:1}:p==='left'?{x:-1,y:0}:{x:1,y:0}}
+  function edgeGeometry(e){
+    const a=getNode(e.from),b=getNode(e.to); if(!a||!b)return null;
+    const inferred=inferSides(a,b),fromSide=e.fromSide||inferred[0],toSide=e.toSide||inferred[1];
+    const p1=portPoint(a,fromSide),p2=portPoint(b,toSide),v1=sideVector(fromSide),v2=sideVector(toSide);
+    const dist=Math.hypot(p2.x-p1.x,p2.y-p1.y); const k=Math.max(48,Math.min(150,dist*.32));
+    const c1={x:p1.x+v1.x*k,y:p1.y+v1.y*k},c2={x:p2.x+v2.x*k,y:p2.y+v2.y*k};
+    const d=`M ${p1.x} ${p1.y} C ${c1.x} ${c1.y}, ${c2.x} ${c2.y}, ${p2.x} ${p2.y}`;
+    const t=.5,u=1-t; const mx=u*u*u*p1.x+3*u*u*t*c1.x+3*u*t*t*c2.x+t*t*t*p2.x; const my=u*u*u*p1.y+3*u*u*t*c1.y+3*u*t*t*c2.y+t*t*t*p2.y;
+    return {d,mx,my};
+  }
+  function edgeMarkup(e,forExport=false){
+    const g=edgeGeometry(e); if(!g)return'';
+    const selected=!forExport && state.selected?.kind==='edge'&&state.selected.id===e.id?'selected':'';
+    return `<g class="edge-group ${selected}" data-edge-id="${e.id}"><path class="edge-hit" d="${g.d}"/><path class="edge-path" d="${g.d}"/>${e.label?`<text class="edge-label" x="${g.mx}" y="${g.my-8}">${escapeHtml(e.label)}</text>`:''}</g>`;
+  }
+
+  function clientToWorld(evt){
+    const svg=$('#flowSvg'); const pt=svg.createSVGPoint(); pt.x=evt.clientX;pt.y=evt.clientY; const p=pt.matrixTransform(svg.getScreenCTM().inverse()); return {x:p.x,y:p.y};
+  }
+
+  function portSpecBySide(node,side){return portSpecs(node).find(([s])=>s===side)||null}
+  function firstPortByRole(node,role){return portSpecs(node).find(([, , ,r])=>r===role)||null}
+  function bestInputPort(target,source){
+    const inputs=portSpecs(target).filter(([, , ,role])=>role==='input');
+    if(!inputs.length)return null;
+    if(!source)return inputs[0];
+    return inputs.slice().sort((a,b)=>{
+      const pa={x:target.x+a[1],y:target.y+a[2]},pb={x:target.x+b[1],y:target.y+b[2]};
+      return Math.hypot(pa.x-source.x,pa.y-source.y)-Math.hypot(pb.x-source.x,pb.y-source.y);
+    })[0];
+  }
+  function selectNodeVisual(id,additive=false,toggle=false){
+    if(!additive) state.selectedNodes.clear();
+    if(toggle && state.selectedNodes.has(id)) state.selectedNodes.delete(id); else state.selectedNodes.add(id);
+    if(state.selectedNodes.has(id)) state.selected={kind:'node',id};
+    else {
+      const last=[...state.selectedNodes].at(-1);
+      state.selected=last?{kind:'node',id:last}:null;
+    }
+    renderLab();
+  }
+  function clearNodeSelection(){state.selectedNodes.clear(); if(state.selected?.kind==='node')state.selected=null;}
+  function selectedNodeCount(){return state.selectedNodes.size}
+  function isBlankCanvasTarget(t){return t===$('#flowSvg')||t.id==='viewport'||t.id==='nodesLayer'||t.id==='edgesLayer'||t.id==='marqueeLayer'}
+  function renderMarquee(){
+    const layer=$('#marqueeLayer'); if(!layer)return;
+    if(!state.marquee){layer.innerHTML='';return}
+    const m=state.marquee,x=Math.min(m.x0,m.x1),y=Math.min(m.y0,m.y1),w=Math.abs(m.x1-m.x0),h=Math.abs(m.y1-m.y0);
+    layer.innerHTML=`<rect class="selection-marquee" x="${x}" y="${y}" width="${w}" height="${h}" rx="5"/>`;
+  }
+  function finishMarquee(){
+    const m=state.marquee;if(!m)return;
+    const x1=Math.min(m.x0,m.x1),x2=Math.max(m.x0,m.x1),y1=Math.min(m.y0,m.y1),y2=Math.max(m.y0,m.y1);
+    state.project.nodes.forEach(n=>{const sz=nodeSize(n);const left=n.x-sz.w/2,right=n.x+sz.w/2,top=n.y-sz.h/2,bottom=n.y+sz.h/2;if(right>=x1&&left<=x2&&bottom>=y1&&top<=y2)state.selectedNodes.add(n.id)});
+    const last=[...state.selectedNodes].at(-1);state.selected=last?{kind:'node',id:last}:null;
+    state.marquee=null;
+    renderMarquee(); // esborra immediatament el rectangle de selecció
+    renderLab();
+  }
+
+  function copySelectedNodes(){
+    if(!state.project||!state.selectedNodes.size){toast('Selecciona un o més blocs per copiar');return false}
+    const ids=new Set(state.selectedNodes);
+    const nodes=state.project.nodes.filter(n=>ids.has(n.id)).map(n=>JSON.parse(JSON.stringify(n)));
+    const edges=state.project.edges.filter(e=>ids.has(e.from)&&ids.has(e.to)).map(e=>JSON.parse(JSON.stringify(e)));
+    state.clipboard={nodes,edges}; state.pasteSerial=0;
+    toast(`${nodes.length} bloc${nodes.length===1?'':'s'} copiat${nodes.length===1?'':'s'}`); return true;
+  }
+
+  function pasteSelectedNodes(){
+    if(!state.project||!state.clipboard?.nodes?.length){toast('No hi ha blocs copiats');return false}
+    pushHistory();
+    state.pasteSerial=(state.pasteSerial||0)+1;
+    const offset=36*state.pasteSerial, idMap=new Map(), newIds=[];
+    const copies=state.clipboard.nodes.map(src=>{
+      const n=JSON.parse(JSON.stringify(src)); const old=n.id; n.id=uid('n'); idMap.set(old,n.id); newIds.push(n.id);
+      n.x=Math.max(90,(n.x||0)+offset); n.y=Math.max(60,(n.y||0)+offset); return n;
+    });
+    const copiedEdges=state.clipboard.edges.map(src=>{
+      const e=JSON.parse(JSON.stringify(src)); e.id=uid('e'); e.from=idMap.get(e.from); e.to=idMap.get(e.to); return e;
+    }).filter(e=>e.from&&e.to);
+    state.project.nodes.push(...copies); state.project.edges.push(...copiedEdges);
+    state.selectedNodes=new Set(newIds); const last=newIds.at(-1); state.selected=last?{kind:'node',id:last}:null;
+    const far=copies.reduce((p,n)=>({x:Math.max(p.x,n.x+180),y:Math.max(p.y,n.y+150)}),{x:0,y:0}); ensureCanvasSize(far);
+    renderLab(); autosave(); toast(`${copies.length} bloc${copies.length===1?'':'s'} enganxat${copies.length===1?'':'s'}`); return true;
+  }
+
+  function bindSvgEvents(){
+    $$('.connection-port').forEach(port=>{
+      port.onpointerdown=(ev)=>{
+        ev.preventDefault();ev.stopPropagation();
+        const id=port.dataset.nodeId, side=port.dataset.portSide, role=port.dataset.portRole;
+        if(!state.connectSource){
+          if(role!=='output'){toast('Comença per un punt de sortida blau.');return}
+          state.selectedNodes.clear();state.selectedNodes.add(id);state.selected={kind:'node',id};
+          state.connectSource=id; state.connectSourceSide=side; renderLab();
+          toast('Connexió iniciada · ara tria una entrada');
+        }else if(state.connectSource===id){
+          state.connectSource=null; state.connectSourceSide=null; renderLab(); toast('Connexió cancel·lada');
+        }else{
+          if(role!=='input'){toast('Aquest punt és de sortida. Tria una entrada.');return}
+          const from=state.connectSource, fromSide=state.connectSourceSide;
+          state.connectSource=null; state.connectSourceSide=null; addEdge(from,id,fromSide,side); setTool('select');
+        }
+      };
+    });
+    $$('.flow-node').forEach(g=>{
+      g.onpointerdown=(ev)=>{
+        ev.preventDefault();ev.stopPropagation(); const id=g.dataset.nodeId;
+        if(state.connectSource && state.connectSource!==id){
+          const from=state.connectSource, fromSide=state.connectSourceSide, target=getNode(id), source=getNode(from); const input=bestInputPort(target,source);
+          if(!input){toast('Aquest bloc no té entrada disponible.');return}
+          state.connectSource=null; state.connectSourceSide=null; addEdge(from,id,fromSide,input[0]); setTool('select'); return;
+        }
+        if(state.tool==='connect'){
+          if(!state.connectSource){const out=firstPortByRole(getNode(id),'output');if(!out){toast('Aquest bloc no té sortida.');return}state.selectedNodes.clear();state.selectedNodes.add(id);state.connectSource=id;state.connectSourceSide=out[0];state.selected={kind:'node',id};renderLab();toast('Ara clica el bloc destí');}
+          else {const target=getNode(id),source=getNode(state.connectSource),input=bestInputPort(target,source);if(!input){toast('Aquest bloc no té entrada.');return}const from=state.connectSource,fromSide=state.connectSourceSide;state.connectSource=null;state.connectSourceSide=null;addEdge(from,id,fromSide,input[0]);setTool('select');}
+          return;
+        }
+        const additive=ev.ctrlKey||ev.metaKey||ev.shiftKey;
+        if(ev.ctrlKey||ev.metaKey){
+          const was=state.selectedNodes.has(id);selectNodeVisual(id,true,true); if(was)return;
+        }else if(ev.shiftKey){
+          if(!state.selectedNodes.has(id)) selectNodeVisual(id,true,false);
+        }else if(!state.selectedNodes.has(id) || state.selectedNodes.size===1){
+          selectNodeVisual(id,false,false);
+        }else{
+          state.selected={kind:'node',id};renderLab();
+        }
+        if(!state.selectedNodes.has(id))return;
+        const p=clientToWorld(ev); pushHistory();
+        const positions={};[...state.selectedNodes].forEach(nid=>{const n=getNode(nid);if(n)positions[nid]={x:n.x,y:n.y}});
+        state.drag={ids:[...state.selectedNodes],startX:p.x,startY:p.y,positions};
+      };
+      g.ondblclick=(ev)=>{ev.stopPropagation(); if(!state.selectedNodes.has(g.dataset.nodeId))selectNodeVisual(g.dataset.nodeId,false,false);state.selected={kind:'node',id:g.dataset.nodeId};renderInspector();$('#nodeLabel')?.focus()};
+      g.oncontextmenu=(ev)=>{ev.preventDefault();ev.stopPropagation();if(!state.selectedNodes.has(g.dataset.nodeId)){state.selectedNodes.clear();state.selectedNodes.add(g.dataset.nodeId)}state.selected={kind:'node',id:g.dataset.nodeId};renderLab();showNodeContextMenu(ev,g.dataset.nodeId)};
+    });
+    $$('.edge-group').forEach(g=>g.onpointerdown=(ev)=>{ev.stopPropagation();state.selectedNodes.clear();state.selected={kind:'edge',id:g.dataset.edgeId};renderLab();});
+  }
+
+  $('#flowSvg').addEventListener('pointermove',(ev)=>{
+    autoScrollCanvas(ev);
+    if(state.marquee){const p=clientToWorld(ev);state.marquee.x1=Math.max(20,p.x);state.marquee.y1=Math.max(20,p.y);ensureCanvasSize(p);renderMarquee();return}
+    if(!state.drag)return; const p=clientToWorld(ev);const dx=p.x-state.drag.startX,dy=p.y-state.drag.startY;
+    let far={x:0,y:0};
+    state.drag.ids.forEach(id=>{const n=getNode(id),orig=state.drag.positions[id];if(!n||!orig)return;n.x=Math.max(90,orig.x+dx);n.y=Math.max(60,orig.y+dy);far.x=Math.max(far.x,n.x+180);far.y=Math.max(far.y,n.y+150)});
+    ensureCanvasSize(far);renderLab();
+  });
+  window.addEventListener('pointerup',()=>{ if(state.marquee){finishMarquee();return} if(state.drag){state.drag=null;autosave();} });
+  document.addEventListener('pointerdown',ev=>{if(!ev.target.closest?.('#nodeContextMenu'))hideNodeContextMenu()});
+  $('#flowSvg').addEventListener('pointerdown',(ev)=>{
+    if(!isBlankCanvasTarget(ev.target))return;
+    if(ev.shiftKey){
+      ev.preventDefault();const p=clientToWorld(ev); if(!(ev.ctrlKey||ev.metaKey)){state.selectedNodes.clear();state.selected=null}
+      state.marquee={x0:p.x,y0:p.y,x1:p.x,y1:p.y};renderMarquee();return;
+    }
+    state.selectedNodes.clear();state.selected=null;renderLab();
+  });
+
+  function renderInspector(){
+    $('#inspectorEmpty').classList.add('hidden'); $('#nodeInspector').classList.add('hidden'); $('#edgeInspector').classList.add('hidden');
+    if(!state.selected){$('#inspectorEmpty').textContent='Selecciona un bloc o una fletxa.';$('#inspectorEmpty').classList.remove('hidden');return}
+    if(state.selectedNodes.size>1){$('#inspectorEmpty').textContent=`${state.selectedNodes.size} blocs seleccionats · arrossega qualsevol d’ells per moure el grup.`;$('#inspectorEmpty').classList.remove('hidden');return}
+    if(state.selected.kind==='node'){
+      const n=getNode(state.selected.id); if(!n)return; $('#nodeInspector').classList.remove('hidden'); $('#nodeLabel').value=n.label||'';
+      const help={
+        start:'Terminador estàndard. Escriu INICI o FI.',
+        process:'Procés estàndard: una acció o instrucció.',
+        variable:'Variable/càlcul: visualment és un PROCÉS estàndard. Ex.: i = 0, i = i + 1.',
+        decision:'Decisió: entrada superior i dues sortides laterals SÍ / NO.',
+        io:'Entrada/sortida: llegir dades o mostrar un resultat.',
+        connector:'Connector: continua el flux en un altre punt del mateix diagrama.',
+        subprocess:'Subprocés: una rutina que pot tenir el seu propi diagrama.'
+      };
+      $('#nodeTypeHelp').textContent=help[n.type]||'';
+      const wrap=$('#semanticWrap'),sel=$('#nodeSemantic');
+      if(n.semantic){wrap.classList.remove('hidden'); sel.innerHTML='<option value="">— Lliure —</option>'+Object.entries(microSemantics).filter(([,v])=>v.type===n.type).map(([k,v])=>`<option value="${k}" ${n.semantic===k?'selected':''}>${escapeHtml(v.label)}</option>`).join('');}
+      else wrap.classList.add('hidden');
+    }else{
+      const e=getEdge(state.selected.id); if(!e)return; $('#edgeInspector').classList.remove('hidden'); $('#edgeLabel').value=e.label||'';
+    }
+  }
+
+  function hideNodeContextMenu(){const m=$('#nodeContextMenu');if(m)m.classList.add('hidden')}
+  function showNodeContextMenu(ev,nodeId){
+    const n=getNode(nodeId),m=$('#nodeContextMenu'); if(!n||!m)return;
+    const compatible=Object.entries(microSemantics).filter(([,v])=>v.type===n.type && v.type!=='loop');
+    const groups=[];
+    groups.push(`<button data-ctx-edit="${n.id}">✎ Editar text</button>`);
+    if(n.type==='process'||n.type==='variable'){
+      groups.push('<div class="ctx-title">Variables i càlculs</div>');
+      groups.push(`<button data-ctx-template="init" data-node="${n.id}">x = 0 · Inicialitzar</button>`);
+      groups.push(`<button data-ctx-template="assign" data-node="${n.id}">x = valor · Assignar</button>`);
+      groups.push(`<button data-ctx-template="inc" data-node="${n.id}">x = x + 1 · Incrementar</button>`);
+      groups.push(`<button data-ctx-template="dec" data-node="${n.id}">x = x - 1 · Decrementar</button>`);
+      groups.push(`<button data-ctx-template="calc" data-node="${n.id}">resultat = a + b · Càlcul</button>`);
+    }
+    if(n.type==='decision'){
+      groups.push('<div class="ctx-title">Condicions habituals</div>');
+      groups.push(`<button data-ctx-condition="compare" data-node="${n.id}">x &gt; valor?</button>`);
+      groups.push(`<button data-ctx-condition="equal" data-node="${n.id}">x = valor?</button>`);
+      groups.push(`<button data-ctx-condition="range" data-node="${n.id}">x dins del rang?</button>`);
+    }
+    if(compatible.length){
+      groups.push('<div class="ctx-title">Opcions micro:bit</div>');
+      compatible.forEach(([key,v])=>groups.push(`<button data-ctx-micro="${key}" data-node="${n.id}">${escapeHtml(v.label)}</button>`));
+      if(n.semantic)groups.push(`<button class="ctx-clear" data-ctx-clear="${n.id}">× Treure opció micro:bit</button>`);
+    }
+    groups.push(`<div class="ctx-sep"></div><button class="ctx-danger" data-ctx-delete="${n.id}">⌫ Eliminar bloc</button>`);
+    m.innerHTML=groups.join(''); m.style.left=`${Math.min(ev.clientX,window.innerWidth-290)}px`;m.style.top=`${Math.min(ev.clientY,window.innerHeight-360)}px`;m.classList.remove('hidden');
+    m.querySelector('[data-ctx-edit]')?.addEventListener('click',()=>{hideNodeContextMenu();renderInspector();$('#nodeLabel')?.focus()});
+    m.querySelectorAll('[data-ctx-template]').forEach(b=>b.addEventListener('click',()=>{
+      const node=getNode(b.dataset.node);if(!node)return;pushHistory();node.type='variable';node.semantic=null;
+      node.label=({init:'x = 0',assign:'x = valor',inc:'x = x + 1',dec:'x = x - 1',calc:'resultat = a + b'})[b.dataset.ctxTemplate]||node.label;
+      hideNodeContextMenu();renderLab();autosave();toast('Plantilla de variable aplicada');
+    }));
+    m.querySelectorAll('[data-ctx-condition]').forEach(b=>b.addEventListener('click',()=>{
+      const node=getNode(b.dataset.node);if(!node)return;pushHistory();node.type='decision';node.semantic=null;
+      node.label=({compare:'x > valor?',equal:'x = valor?',range:'x dins del rang?'})[b.dataset.ctxCondition]||node.label;
+      hideNodeContextMenu();renderLab();autosave();toast('Condició preparada');
+    }));
+    m.querySelectorAll('[data-ctx-micro]').forEach(b=>b.addEventListener('click',()=>{const node=getNode(b.dataset.node),sem=microSemantics[b.dataset.ctxMicro];if(!node||!sem)return;pushHistory();node.semantic=b.dataset.ctxMicro;node.label=sem.label;hideNodeContextMenu();renderLab();autosave();toast('Opció micro:bit aplicada')}));
+    m.querySelector('[data-ctx-clear]')?.addEventListener('click',()=>{const node=getNode(n.id);if(node){pushHistory();node.semantic=null;hideNodeContextMenu();renderLab();autosave()}});
+    m.querySelector('[data-ctx-delete]')?.addEventListener('click',()=>{state.selected={kind:'node',id:n.id};hideNodeContextMenu();deleteSelected()});
+  }
+
+  function autosave(){
+    if(!state.project)return; syncProjectMeta(); state.project.updatedAt=new Date().toISOString();
+    safeLocalSet(projectStorageKey(),JSON.stringify(state.project),{quiet:true});
+  }
+
+  function validateGraph(show=true, track=true){
+    const issues=[],nodes=state.project?.nodes||[],edges=state.project?.edges||[];
+    if(!nodes.length){issues.push({code:'empty',severity:'error',text:'El diagrama és buit.'});return finishValidation(issues,show,track)}
+    const startCandidates=nodes.filter(n=>n.type==='start'&&edgesTo(n.id).length===0&&edgesFrom(n.id).length>0);
+    if(startCandidates.length===0)issues.push({code:'no_start',severity:'error',text:'Falta un bloc INICI connectat al flux.'});
+    if(startCandidates.length>1)issues.push({code:'multi_start',severity:'warn',text:'Hi ha més d’un possible inici. És intencionat?'});
+    const endCandidates=nodes.filter(n=>n.type==='start'&&edgesFrom(n.id).length===0&&edgesTo(n.id).length>0);
+    const hasCycle=detectCycle();
+    if(endCandidates.length===0&&!hasCycle)issues.push({code:'no_end',severity:'warn',text:'No hi ha cap final explícit ni un bucle tancat.'});
+    if(startCandidates[0]){
+      const reached=reachableFrom(startCandidates[0].id); const missing=nodes.filter(n=>!reached.has(n.id));
+      if(missing.length)issues.push({code:'unreachable',severity:'error',text:`Hi ha ${missing.length} bloc(s) desconnectat(s) del flux principal.`});
+    }
+    nodes.forEach(n=>{
+      const out=edgesFrom(n.id);
+      if(n.type==='decision'){
+        if(out.length<2)issues.push({code:'decision_outputs',severity:'error',text:`La decisió “${n.label}” necessita almenys dues sortides.`});
+        else {
+          const labels=out.map(e=>normalize(e.label)); const hasYes=labels.some(l=>yesWords.includes(l)); const hasNo=labels.some(l=>noWords.includes(l));
+          if(!(hasYes&&hasNo))issues.push({code:'decision_labels',severity:'warn',text:`Etiqueta les sortides de “${n.label}” com SÍ i NO.`});
+        }
+      } else if(n.type!=='start' && out.length===0){
+        issues.push({code:'dangling',severity:'error',text:`El bloc “${n.label}” no continua cap enlloc.`});
+      }
+    });
+    if(edges.some(e=>e.from===e.to))issues.push({code:'self_loop',severity:'warn',text:'Hi ha un bloc connectat directament amb si mateix.'});
+    const variableNodes=nodes.filter(n=>n.type==='variable');
+    variableNodes.forEach(n=>{if(!/[=←]/.test(n.label||''))issues.push({code:'variable_format',severity:'warn',text:`La variable “${n.label}” hauria d'indicar una assignació, per exemple x = 0.`})});
+
+    const c=state.currentChallenge;
+    if(c && c.category==='flux'){
+      const counts={};
+      nodes.forEach(n=>{
+        counts[n.type]=(counts[n.type]||0)+1;
+        // Una variable és un procés estàndard. També reconeixem assignacions escrites manualment en un procés.
+        if(n.type==='variable') counts.process=(counts.process||0)+1;
+        if(n.type==='process' && /(^|\s)[A-Za-zÀ-ÿ_][\wÀ-ÿ_]*\s*=/.test(n.label||'')) counts.variable=(counts.variable||0)+1;
+      });
+      for(const [type,min] of Object.entries(c.minCounts||{})) if((counts[type]||0)<min) issues.push({code:'missing_required',severity:'error',text:`El repte demana com a mínim ${min} bloc(s) de tipus ${typeName(type)}.`});
+      if(edges.length<(c.minEdges||0))issues.push({code:'few_edges',severity:'error',text:`El repte necessita una estructura més completa: ara hi ha ${edges.length} connexions.`});
+      if(c.decisionLabels){
+        const decisions=nodes.filter(n=>n.type==='decision'); if(decisions.some(n=>{const ls=edgesFrom(n.id).map(e=>normalize(e.label));return !(ls.some(l=>yesWords.includes(l))&&ls.some(l=>noWords.includes(l)))})){
+          if(!issues.some(i=>i.code==='decision_labels'))issues.push({code:'decision_labels',severity:'warn',text:'En aquest repte convé marcar clarament SÍ i NO.'});
+        }
+      }
+      if(c.cycleExpected&&!hasCycle)issues.push({code:'missing_required',severity:'error',text:'Aquest repte necessita un bucle: alguna part del flux ha de tornar enrere.'});
+    }
+    return finishValidation(issues,show,track);
+  }
+
+  function finishValidation(issues,show,track){
+    const errors=issues.filter(i=>i.severity==='error');
+    if(state.project){
+      state.project.lastValidation={ok:!errors.length,at:new Date().toISOString(),issues:issues.map(i=>({code:i.code,severity:i.severity,text:i.text}))};
+      state.project.needsRecheck=!!errors.length;
+      if(!errors.length){state.project.completed=true;state.project.completedAt=state.project.completedAt||new Date().toISOString();}
+      syncProjectMeta(); autosave();
+    }
+    if(state.currentChallenge && track){
+      const p=challengeProgress(state.currentChallenge.id); const wasCompleted=!!p.completed; p.attempts=(p.attempts||0)+1; p.lastAt=new Date().toISOString();
+      issues.forEach(i=>p.issues[i.code]=(p.issues[i.code]||0)+1);
+      if(!errors.length && state.project.nodes.length && state.currentChallenge?.category==='flux'){p.completed=true;p.completedAt=p.completedAt||new Date().toISOString(); if(!wasCompleted) p.justCompleted=true;}
+      saveProgress();
+    }
+    if(show)renderDiagnostics(issues);
+    if(show){
+      const p=state.currentChallenge?challengeProgress(state.currentChallenge.id):null;
+      if(p?.justCompleted){toast('Repte completat! ✨'); p.justCompleted=false; renderChallengePanel(); renderChallenges(); updateMakeCodeButton();}
+      else toast(!errors.length?'Diagrama coherent ✓':'Hi ha coses per revisar');
+    }
+    return {issues,ok:!errors.length};
+  }
+
+  function renderDiagnostics(issues){
+    const box=$('#diagnostics');
+    if(!issues.length){box.innerHTML='<div class="diag ok">✓ Estructura coherent. Pots simular-la o entregar-la.</div>';return}
+    box.innerHTML=issues.map(i=>`<div class="diag ${i.severity==='error'?'error':'warn'}">${i.severity==='error'?'●':'▲'} ${escapeHtml(i.text)}</div>`).join('');
+  }
+
+  function reachableFrom(id){
+    const set=new Set(),stack=[id]; while(stack.length){const x=stack.pop();if(set.has(x))continue;set.add(x);edgesFrom(x).forEach(e=>stack.push(e.to));} return set;
+  }
+
+  function detectCycle(){
+    const visited=new Set(),stack=new Set();
+    const visit=(id)=>{if(stack.has(id))return true;if(visited.has(id))return false;visited.add(id);stack.add(id);for(const e of edgesFrom(id))if(visit(e.to))return true;stack.delete(id);return false};
+    return state.project.nodes.some(n=>visit(n.id));
+  }
+
+  function askHint(){
+    if(!state.currentChallenge)return; const p=challengeProgress(state.currentChallenge.id); const idx=Math.min(p.hints||0,state.currentChallenge.hints.length-1); const hint=state.currentChallenge.hints[idx]; p.hints=(p.hints||0)+1;p.lastAt=new Date().toISOString();saveProgress();
+    $('#hintBox').textContent=`Pista ${idx+1}: ${hint}`;$('#hintBox').classList.remove('hidden');
+  }
+
+  function startSimulation(){
+    const result=validateGraph(false,false); if(result.issues.some(i=>i.code==='no_start'||i.code==='empty')){renderDiagnostics(result.issues);toast('Cal un inici abans de simular');return}
+    const start=state.project.nodes.find(n=>n.type==='start'&&edgesTo(n.id).length===0&&edgesFrom(n.id).length>0) || state.project.nodes[0];
+    state.sim={active:true,current:start.id,steps:0}; if(state.currentChallenge){const p=challengeProgress(state.currentChallenge.id);p.simulations=(p.simulations||0)+1;saveProgress();}
+    $('#modalSim').showModal(); renderSimStep();
+  }
+
+  function renderSimStep(){
+    $$('.flow-node').forEach(x=>x.classList.remove('sim-active')); const n=getNode(state.sim.current); if(!n){$('#simMessage').textContent='La simulació ha acabat.';return}
+    document.querySelector(`[data-node-id="${CSS.escape(n.id)}"]`)?.classList.add('sim-active');
+    $('#simMessage').innerHTML=`Ara s'executa: <strong>${escapeHtml(n.label)}</strong>`; $('#simDecision').classList.add('hidden');$('#simNext').classList.remove('hidden');
+    if(n.type==='decision'&&edgesFrom(n.id).length>=2){$('#simDecision').classList.remove('hidden');$('#simNext').classList.add('hidden');}
+    if(edgesFrom(n.id).length===0){$('#simMessage').innerHTML=`<strong>${escapeHtml(n.label)}</strong><br>Fi del recorregut.`;$('#simNext').classList.add('hidden');}
+  }
+
+  function simAdvance(choice=null){
+    const n=getNode(state.sim.current); if(!n)return; let outs=edgesFrom(n.id); let edge=null;
+    if(n.type==='decision'&&choice){
+      const words=choice==='yes'?yesWords:noWords; edge=outs.find(e=>words.includes(normalize(e.label))) || outs[choice==='yes'?0:1] || outs[0];
+    }else edge=outs[0];
+    if(!edge){state.sim.current=null;renderSimStep();return}
+    state.sim.current=edge.to;state.sim.steps++;if(state.sim.steps>80){$('#simMessage').textContent='Aturat després de 80 passos: sembla un bucle continu.';$('#simNext').classList.add('hidden');return}renderSimStep();
+  }
+
+  function restartSimulation(){
+    const start=state.project.nodes.find(n=>n.type==='start'&&edgesTo(n.id).length===0&&edgesFrom(n.id).length>0) || state.project.nodes[0];state.sim.current=start?.id||null;state.sim.steps=0;renderSimStep();
+  }
+
+  function saveProjectFile(){
+    if(!requireIdentity()||!state.project)return; autosave(); syncProjectMeta();
+    state.project.exportedBy=state.identity.name; state.project.exportedAt=new Date().toISOString();
+    autosave();
+    downloadBlob(JSON.stringify(state.project,null,2),fileBase()+'.robotia','application/json');
+  }
+  function exportProject(){saveProjectFile()}
+  function importProjectData(project,{open=false,source='activitat importada'}={}){
+    if(!project?.nodes||!project?.edges)throw new Error('invalid');
+    if(!requireIdentity())return false;
+    project=migrateProject(project);
+    if(projectOwners(project).length && !currentUserOwns(project)){
+      toast(`Aquest treball pertany a ${projectOwners(project).join(' + ')}`); return false;
+    }
+    if(!projectOwners(project).length)project.owners=currentOwnerNames();
+    const id=project.challengeId;
+    if(id){
+      const c=challenges.find(x=>x.id===id);
+      if(!c){toast(`Activitat antiga “${project.title||id}”: es conserva al fitxer però aquest catàleg ja no la reconeix.`);return false}
+      const incomingRef=project.reflection||null;
+      if(!chooseImportedActivity(id,project,incomingRef,source)){
+        if(open){const keep=storedProject(id);if(keep){state.project=keep;state.currentChallenge=c;state.history=[];state.future=[];state.selected=null;renderChallengePanel();renderLab();showView('#viewLab')}}
+        return true;
+      }
+      mergeProgressRecord(id,project.progressRecord||{started:true});
+      if(incomingRef)state.portfolio[id]={...portfolioEntry(id),...incomingRef,versionHistory:portfolioEntry(id).versionHistory||incomingRef.versionHistory||[]};
+      savePortfolio(); safeLocalSet(challengeStorageKey(id),JSON.stringify(project),{quiet:true});
+    }
+    if(open){
+      state.project=project;state.currentChallenge=challenges.find(c=>c.id===project.challengeId)||null;state.history=[];state.future=[];state.selected=null;state.selectedNodes.clear();
+      if(state.currentChallenge){$('#labEyebrow').textContent=`${state.currentChallenge.kind==='practical'?'DIAGRAMA OPCIONAL · ':'REPTE · '}NIVELL ${state.currentChallenge.level}`;$('#labTitle').textContent=state.currentChallenge.title;$('#labBrief').textContent=state.currentChallenge.brief}else{$('#labEyebrow').textContent='LABORATORI LLIURE';$('#labTitle').textContent=project.title||'Diagrama lliure';$('#labBrief').textContent='Projecte importat.'}
+      renderChallengePanel();renderLab();autosave();showView('#viewLab');
+    }
+    return true;
+  }
+
+  function loadProjectFile(file){
+    const r=new FileReader(); r.onload=()=>{try{const project=JSON.parse(r.result);if(importProjectData(project,{open:true,source:file.name}))toast('Projecte obert')}catch{toast('Aquest fitxer no és un projecte ROBOTIA vàlid')}};r.readAsText(file);
+  }
+
+  function fileBase(){
+    const owners=(state.project?.owners?.length?state.project.owners:currentOwnerNames()).join('_').replace(/[^a-z0-9à-ÿ]+/gi,'_')||'alumne';
+    const title=(state.project?.title||'diagrama').replace(/[^a-z0-9à-ÿ]+/gi,'_'); return `ROBOTIA_${owners}_${title}`;
+  }
+  function downloadBlob(content,name,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
+
+  function exportLayout(){
+    const nodes=state.project?.nodes||[];
+    if(!nodes.length) return {minX:0,minY:0,maxX:900,maxY:560,width:1000,height:760,header:126,pad:50,footer:42};
+    let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+    nodes.forEach(n=>{const {w,h}=nodeSize(n);minX=Math.min(minX,n.x-w/2);maxX=Math.max(maxX,n.x+w/2);minY=Math.min(minY,n.y-h/2);maxY=Math.max(maxY,n.y+h/2)});
+    const pad=70,header=126,footer=42; const contentW=Math.max(620,maxX-minX); const contentH=Math.max(280,maxY-minY);
+    return {minX,minY,maxX,maxY,pad,header,footer,width:Math.ceil(contentW+pad*2),height:Math.ceil(contentH+pad*2+header+footer)};
+  }
+  function buildExportSvg(){
+    const L=exportLayout(); const title=escapeHtml(state.project?.title||'Diagrama');
+    const owners=(state.project?.owners?.length?state.project.owners:currentOwnerNames());
+    const mainName=owners.length?escapeHtml(owners.join(' · ')):'Nom no indicat';
+    const team='';
+    const cls=(state.project?.className||state.identity.className)?` · ${escapeHtml(state.project?.className||state.identity.className)}`:'';
+    const tx=-L.minX+L.pad,ty=-L.minY+L.header+L.pad;
+    const edges=(state.project?.edges||[]).map(e=>edgeMarkup(e,true)).join('');
+    const nodes=(state.project?.nodes||[]).map(n=>nodeMarkup(n,true)).join('');
+    const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${L.width}" height="${L.height}" viewBox="0 0 ${L.width} ${L.height}">
+      <defs>
+        <marker id="arrowHead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#64748b"/></marker>
+        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="5" stdDeviation="6" flood-opacity=".12"/></filter>
+      </defs>
+      <style>
+        text{font-family:Arial,Helvetica,sans-serif}.node-text{font-size:16px;font-weight:700;fill:#0f172a;text-anchor:middle;dominant-baseline:middle}.node-sub{font-size:10px;fill:#64748b;text-anchor:middle}.edge-path{fill:none;stroke:#64748b;stroke-width:3;marker-end:url(#arrowHead)}.edge-hit{display:none}.edge-label{font-size:12px;font-weight:700;fill:#475569;text-anchor:middle;paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round}
+      </style>
+      <rect width="100%" height="100%" fill="#ffffff"/>
+      <rect x="0" y="0" width="100%" height="${L.header}" fill="#f8fafc"/>
+      <text x="${L.pad}" y="42" font-size="13" font-weight="700" fill="#2563eb" letter-spacing="1.4">ROBOTIA · FLOWLAB</text>
+      <text x="${L.pad}" y="76" font-size="27" font-weight="700" fill="#111827">${title}</text>
+      <text x="${L.pad}" y="103" font-size="14" fill="#475569">Alumne/s: ${mainName}${team}${cls}</text>
+      <line x1="${L.pad}" y1="${L.header-1}" x2="${L.width-L.pad}" y2="${L.header-1}" stroke="#e2e8f0"/>
+      <g transform="translate(${tx} ${ty})"><g>${edges}</g><g>${nodes}</g></g>
+      <line x1="${L.pad}" y1="${L.height-L.footer}" x2="${L.width-L.pad}" y2="${L.height-L.footer}" stroke="#eef2f7"/>
+      <text x="${L.pad}" y="${L.height-14}" font-size="11" fill="#94a3b8">Creat per Jordi Lesan · ROBOTIA FlowLab</text>
+    </svg>`;
+    return {svg,width:L.width,height:L.height};
+  }
+  function svgForExport(){return buildExportSvg().svg}
+  function exportSvg(){const out=buildExportSvg();downloadBlob(out.svg,fileBase()+'.svg','image/svg+xml;charset=utf-8')}
+  function exportPng(){
+    const out=buildExportSvg(),blob=new Blob([out.svg],{type:'image/svg+xml;charset=utf-8'}),url=URL.createObjectURL(blob),img=new Image();
+    img.onload=()=>{const scale=2;const c=document.createElement('canvas');c.width=out.width*scale;c.height=out.height*scale;const ctx=c.getContext('2d');ctx.scale(scale,scale);ctx.fillStyle='#ffffff';ctx.fillRect(0,0,out.width,out.height);ctx.drawImage(img,0,0,out.width,out.height);URL.revokeObjectURL(url);c.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=fileBase()+'.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)},'image/png')};img.src=url;
+  }
+
+  function makeReport(){
+    if(state.project)autosave(); const nowProgress=JSON.parse(JSON.stringify(state.progress));
+    const projects={};
+    challenges.forEach(c=>{const p=storedProject(c.id);if(p&&currentUserOwns(p))projects[c.id]=p});
+    const report={
+      app:'ROBOTIA FlowLab',version:5,appBuild:'student-v0.13',exportedAt:new Date().toISOString(),identity:state.identity,
+      progress:nowProgress,summary:buildSummary(nowProgress),projects
+    };
+    return report;
+  }
+  function buildSummary(progress){
+    const entries=Object.entries(progress); const completed=entries.filter(([,p])=>p.completed).length; const attempts=entries.reduce((a,[,p])=>a+(p.attempts||0),0); const hints=entries.reduce((a,[,p])=>a+(p.hints||0),0); const seconds=entries.reduce((a,[,p])=>a+(p.activeSeconds||0),0); const issueCounts={};
+    entries.forEach(([,p])=>Object.entries(p.issues||{}).forEach(([k,v])=>issueCounts[k]=(issueCounts[k]||0)+v));
+    const topIssue=Object.entries(issueCounts).sort((a,b)=>b[1]-a[1])[0]?.[0]||null;
+    const started=entries.filter(([,p])=>p.started).length; const logicCompleted=challenges.filter(c=>progress[c.id]?.completed&&c.criteria.includes('C3.2')).length; const logicTotal=challenges.filter(c=>c.criteria.includes('C3.2')).length;
+    const c22=started?Math.min(4,Math.max(1,Math.round((completed/challenges.length)*4))):0;
+    const c23=started?Math.min(4,Math.max(1,Math.round(((completed/challenges.length)*.75 + Math.min(1, attempts/18)*.25)*4))):0;
+    const c32=logicTotal?Math.min(4,Math.round(logicCompleted/logicTotal*4)):0;
+    const flowScore=scoreForCategory('flux', progress);
+    return {completed,total:challenges.length,attempts,hints,activeSeconds:seconds,topIssue,issueCounts,flowScore:{...flowScore,status:'provisional_pending_teacher_validation'},indicators:{C22:c22,C23:c23,C32:c32}};
+  }
+  function exportReport(){const report=makeReport();downloadBlob(JSON.stringify(report,null,2),fileBase()+'.robotia-report.json','application/json')}
+
+  function printDiagram(){
+    const svg=svgForExport(); const w=window.open('','_blank'); if(!w){toast('El navegador ha bloquejat la finestra');return} const title=escapeHtml(state.project?.title||'Diagrama'); const who=escapeHtml((state.project?.owners?.length?state.project.owners:currentOwnerNames()).join(' · '));
+    w.document.write(`<!doctype html><html><head><title>${title}</title><style>body{font-family:Arial;margin:24px;color:#111}h1{margin:0}.meta{color:#666;margin:5px 0 20px}svg{width:100%;height:auto;border:1px solid #ddd}@media print{body{margin:8mm}}</style></head><body><h1>${title}</h1><div class="meta">${who}${(state.project?.className||state.identity.className)?' · '+escapeHtml(state.project?.className||state.identity.className):''}</div>${svg}<script>setTimeout(()=>window.print(),400)<\/script></body></html>`);w.document.close();
+  }
+
+  function deliver(){
+    if(!state.project){toast('Obre primer un diagrama');return}
+    $('#deliverIdentity').textContent=[...(state.project?.owners||currentOwnerNames()),state.project?.className||state.identity.className].filter(Boolean).join(' · ')||'Completa el teu nom a la pantalla inicial abans d’entregar.';
+    $('#modalDeliver').showModal();
+  }
+
+  function portfolioFileBase(){return `ROBOTIA_Portafoli_${(state.identity.name||'alumne').replace(/[^a-z0-9à-ÿ]+/gi,'_')}`}
+
+  function renderPortfolio(){
+    const owner=$('#portfolioOwner'), list=$('#portfolioList'); if(!owner||!list)return;
+    if(!state.identity.name){
+      owner.innerHTML='<div><b>Identifica’t primer</b><p>Escriu el teu nom i cognoms a Inici abans de carregar o descarregar treballs.</p></div><button class="btn primary" id="portfolioGoIdentity">Anar a Inici</button>';
+      $('#portfolioGoIdentity').onclick=()=>showView('#viewHome'); list.innerHTML=''; return;
+    }
+    const ownerNames=currentOwnerNames();
+    owner.innerHTML=`<div><span class="eyebrow">PORTAFOLI DE</span><h2>${escapeHtml(state.identity.name)}</h2><p>${state.identity.className?escapeHtml(state.identity.className)+' · ':''}${state.identity.team?'Company/a habitual: '+escapeHtml(state.identity.team):'Els reptes en parella guardaran els dos noms dins del fitxer.'}</p></div><div class="owner-lock">◉ Identitat activa</div>`;
+    const flux=scoreForCategory('flux'),micro=scoreForCategory('microbit'),sensors=scoreForCategory('sensors'),robot=scoreForCategory('robot'),k=$$('#portfolioKpis .kpi b');
+    const delivered=[...new Set(challenges.filter(c=>state.progress[c.id]?.completed).map(c=>c.id))].length;
+    if(k.length>=4){k[0].textContent=delivered;k[1].textContent=`${flux.note}/10`;k[2].textContent=`${micro.note}/10`;k[3].textContent=`${sensors.completed+robot.completed}`}
+    const active=challenges.filter(c=>state.progress[c.id]?.started||storedProject(c.id)||state.portfolio[c.id]?.attachments?.length||state.portfolio[c.id]?.makeCodeUrl||state.portfolio[c.id]?.codeText);
+    if(!active.length){list.innerHTML='<div class="card portfolio-empty"><b>Encara no hi ha treballs al portafoli.</b><p>Comença un repte o importa una activitat .robotia.</p></div>';return}
+    list.innerHTML=active.map(c=>{
+      const p=challengeProgress(c.id),r=portfolioEntry(c.id),project=storedProject(c.id),owners=projectOwners(project),atts=r.attachments||[];
+      return `<article class="portfolio-item card ${p.completed?'done':''}">
+        <div class="portfolio-item-head">
+          <div><div class="portfolio-status ${p.completed?'done':'progress'}">${p.completed?'Entregat · pendent de validar':'En curs'}</div><span class="portfolio-category">${escapeHtml(categoryLabel(c.category))}</span><h2>${escapeHtml(c.title)}</h2><p>+${c.points} punts · màxim ${c.maxNote}${owners.length?' · '+escapeHtml(owners.join(' + ')):''}</p>${r.versionHistory?.length?`<div class="version-count">${r.versionHistory.length} versió/versions alternatives preservades</div>`:''}</div>
+          <div class="portfolio-item-actions">${project?`<button class="btn secondary" data-port-open="${c.id}">Obrir</button><button class="btn ghost" data-port-download="${c.id}">Descarregar .robotia</button>`:''}</div>
+        </div>
+        <div class="portfolio-reflection-grid">
+          <label>Anotacions<textarea rows="3" data-ref-field="notes" data-ref-id="${c.id}" placeholder="Què has fet? Què vols recordar?">${escapeHtml(r.notes||'')}</textarea></label>
+          <label>Dificultats<textarea rows="3" data-ref-field="difficulties" data-ref-id="${c.id}" placeholder="On t'has encallat? Què ha fallat?">${escapeHtml(r.difficulties||'')}</textarea></label>
+          <label>Què ha funcionat / què t'ha agradat<textarea rows="3" data-ref-field="successes" data-ref-id="${c.id}" placeholder="Què repetiria? Què has après?">${escapeHtml(r.successes||'')}</textarea></label>
+        </div>
+        ${(c.kind==='practical'||c.makeCodeCompatible)?`<div class="portfolio-practical-fields"><label>Enllaç MakeCode<input data-ref-field="makeCodeUrl" data-ref-id="${c.id}" value="${escapeHtml(r.makeCodeUrl||'')}" placeholder="Enllaç compartit opcional"></label><label>Codi JavaScript MakeCode<textarea rows="4" data-ref-field="codeText" data-ref-id="${c.id}" placeholder="Opcional però útil per corregir">${escapeHtml(r.codeText||'')}</textarea></label></div>`:''}
+        <div class="portfolio-evidence"><div><b>Evidències</b><span>${p.attempts||0} comprovacions · ${p.hints||0} pistes · ${Math.round((p.activeSeconds||0)/60)} min aprox.</span></div><label class="btn ghost file-label">+ Adjuntar arxius<input data-attach-id="${c.id}" type="file" accept=".hex,.png,.jpg,.jpeg,.webp,.pdf,.txt,.js,.json,.robotia" multiple hidden></label></div>
+        <div class="attachment-list">${atts.length?atts.map((a,i)=>`<div class="attachment-chip"><a href="${a.data}" download="${escapeHtml(a.name)}">${escapeHtml(a.name)}</a><button data-remove-attachment="${c.id}" data-attachment-index="${i}" title="Eliminar">×</button></div>`).join(''):'<span class="no-attachments">Sense adjunts</span>'}</div>
+      </article>`;
+    }).join('');
+    $$('[data-ref-field]').forEach(el=>el.addEventListener('input',()=>{const id=el.dataset.refId,r=portfolioEntry(id);r[el.dataset.refField]=el.value;const c=challenges.find(x=>x.id===id);if(c?.kind==='practical'&&(r.makeCodeUrl||r.codeText||r.attachments?.length)){const p=challengeProgress(id);p.started=true;p.completed=true;p.completedAt=p.completedAt||new Date().toISOString();saveProgress()}savePortfolio();if(state.project?.challengeId===id)syncProjectMeta()}));
+    $$('[data-port-open]').forEach(b=>b.onclick=()=>openStoredPortfolioProject(b.dataset.portOpen));
+    $$('[data-port-download]').forEach(b=>b.onclick=()=>downloadStoredPortfolioProject(b.dataset.portDownload));
+    $$('[data-attach-id]').forEach(inp=>inp.onchange=e=>addPortfolioAttachments(inp.dataset.attachId,e.target.files));
+    $$('[data-remove-attachment]').forEach(b=>b.onclick=()=>{const r=portfolioEntry(b.dataset.removeAttachment);r.attachments.splice(Number(b.dataset.attachmentIndex),1);savePortfolio();renderPortfolio()});
+  }
+
+  function addPortfolioAttachments(id,files){
+    const arr=[...files]; if(!arr.length)return; const entry=portfolioEntry(id); let pending=arr.length,added=0;
+    arr.forEach(file=>{
+      if(file.size>2500000){toast(`${file.name}: massa gran (màx. 2,5 MB)`);if(--pending===0)renderPortfolio();return}
+      const reader=new FileReader(); reader.onload=()=>{entry.attachments.push({name:file.name,type:file.type||'application/octet-stream',size:file.size,data:reader.result});added++;const c=challenges.find(x=>x.id===id);if(c?.kind==='practical'){const p=challengeProgress(id);p.started=true;p.completed=true;p.completedAt=p.completedAt||new Date().toISOString();saveProgress()}if(--pending===0){savePortfolio();renderPortfolio();renderChallenges();if(state.practicalId===id){renderPracticalFiles(id);updatePracticalStatus(id)}toast(`${added} adjunt(s) afegit(s)`)}};reader.onerror=()=>{if(--pending===0)renderPortfolio()};reader.readAsDataURL(file);
+    });
+  }
+
+  function openStoredPortfolioProject(id){
+    if(!requireIdentity())return; const project=storedProject(id); if(!project){toast('No trobo el projecte desat');return}
+    if(projectOwners(project).length&&!currentUserOwns(project)){toast(`Aquest treball pertany a ${projectOwners(project).join(' + ')}`);return}
+    importProjectData(project,{open:true});
+  }
+  function downloadStoredPortfolioProject(id){
+    if(!requireIdentity())return; const project=storedProject(id); if(!project){toast('No trobo el projecte desat');return}
+    if(projectOwners(project).length&&!currentUserOwns(project)){toast('Aquest treball no correspon a la identitat activa');return}
+    const oldProject=state.project;state.project=project;syncProjectMeta(project);project.exportedBy=state.identity.name;project.exportedAt=new Date().toISOString();safeLocalSet(challengeStorageKey(id),JSON.stringify(project),{quiet:true});downloadBlob(JSON.stringify(project,null,2),fileBase()+'.robotia','application/json');state.project=oldProject;
+  }
+
+  function importPortfolioProjects(files){
+    if(!requireIdentity())return; const arr=[...files]; if(!arr.length)return; let pending=arr.length,ok=0;
+    arr.forEach(file=>{const reader=new FileReader();reader.onload=()=>{try{const project=JSON.parse(reader.result);if(importProjectData(project,{open:false,source:file.name}))ok++}catch{}finally{if(--pending===0){renderPortfolio();renderChallenges();toast(`${ok} activitat(s) incorporada(es)`)}}};reader.readAsText(file)});
+  }
+
+  function makePortfolioBundle(){
+    if(state.project)autosave(); const projects={},activities={};
+    challenges.forEach(c=>{
+      const project=storedProject(c.id),r=state.portfolio[c.id]||null,p=state.progress[c.id]||null;
+      if(project&&currentUserOwns(project))projects[c.id]=project;
+      if(project||r||p?.started){
+        const owners=projectOwners(project).length?projectOwners(project):(r?.owners?.length?r.owners:currentOwnerNames());
+        activities[c.id]={challengeMeta:challengeMetaFor(c.id),progressRecord:p||{},reflection:r||{},project:project||null,workId:project?.workId||r?.workId||generateWorkId(),owners,className:project?.className||r?.className||state.identity.className||'',createdAt:project?.createdAt||r?.createdAt||'',updatedAt:project?.updatedAt||r?.updatedAt||'',exportedAt:new Date().toISOString()};
+      }
+    });
+    return {app:'ROBOTIA FlowLab Portfolio',version:4,appBuild:'student-v0.13',exportedAt:new Date().toISOString(),identity:state.identity,progress:state.progress,reflections:state.portfolio,projects,activities,summary:buildSummary(state.progress)};
+  }
+  function exportPortfolioBundle(){
+    if(!requireIdentity())return; const bundle=makePortfolioBundle();downloadBlob(JSON.stringify(bundle,null,2),portfolioFileBase()+'.robotiaportfolio','application/json');toast('Portafoli descarregat');
+  }
+  function importPortfolioBundle(file, done){
+    if(!requireIdentity())return; const reader=new FileReader();reader.onload=()=>{try{
+      const bundle=JSON.parse(reader.result);if(bundle.app!=='ROBOTIA FlowLab Portfolio')throw 0;
+      if(normalize(bundle.identity?.name||'')!==normalize(state.identity.name)){toast(`Aquest portafoli és de ${bundle.identity?.name||'un altre alumne'}`);return}
+      const activityMap=bundle.activities&&Object.keys(bundle.activities).length?bundle.activities:null;
+      const ids=new Set([...(activityMap?Object.keys(activityMap):[]),...Object.keys(bundle.projects||{}),...Object.keys(bundle.progress||{}),...Object.keys(bundle.reflections||{})]);
+      let merged=0,kept=0;
+      ids.forEach(id=>{
+        const c=challenges.find(x=>x.id===id); if(!c)return;
+        const a=activityMap?.[id]||{};
+        let project=a.project||bundle.projects?.[id]||null;
+        const incomingRef=a.reflection||bundle.reflections?.[id]||project?.reflection||null;
+        const incomingProg=a.progressRecord||bundle.progress?.[id]||project?.progressRecord||null;
+        if(project){project=migrateProject(project);project.reflection=incomingRef||project.reflection;project.progressRecord=incomingProg||project.progressRecord;if(importProjectData(project,{open:false,source:file.name}))merged++}
+        else{
+          if(!chooseImportedActivity(id,null,incomingRef,file.name)){kept++;return}
+          if(incomingRef)state.portfolio[id]={...portfolioEntry(id),...incomingRef,versionHistory:portfolioEntry(id).versionHistory||incomingRef.versionHistory||[]};
+          if(incomingProg)mergeProgressRecord(id,incomingProg); merged++;
+        }
+      });
+      savePortfolio();saveProgress();
+      if(!state.identity.className&&bundle.identity?.className){state.identity.className=bundle.identity.className;safeLocalSet(STORAGE.identity,JSON.stringify(state.identity))}
+      renderPortfolio();renderChallenges();toast(`Portafoli fusionat ✓ · ${merged} activitat(s)`);
+    }catch(err){console.error(err);toast('Aquest fitxer no és un portafoli ROBOTIA vàlid')}finally{if(typeof done==='function')done()}};reader.readAsText(file);
+  }
+
+  function storedProjectSvg(project){
+    const prev=state.project;state.project=project;let svg='';try{svg=buildExportSvg().svg}catch{}state.project=prev;return svg;
+  }
+  function generatePortfolioDossier(){
+    if(!requireIdentity())return; if(state.project)autosave(); const sc=scoreForCategory('flux'),mc=scoreForCategory('microbit'),ss=scoreForCategory('sensors'),rr=scoreForCategory('robot');
+    const active=challenges.filter(c=>state.progress[c.id]?.started||storedProject(c.id)||state.portfolio[c.id]?.attachments?.length||state.portfolio[c.id]?.makeCodeUrl||state.portfolio[c.id]?.codeText);
+    const sections=active.map(c=>{const p=challengeProgress(c.id),r=portfolioEntry(c.id),project=storedProject(c.id),svg=project?storedProjectSvg(project):'';const atts=(r.attachments||[]).map(a=>a.type?.startsWith('image/')?`<figure><img src="${a.data}" alt="${escapeHtml(a.name)}"><figcaption>${escapeHtml(a.name)}</figcaption></figure>`:`<a class="attachment" href="${a.data}" download="${escapeHtml(a.name)}">Adjunt: ${escapeHtml(a.name)}</a>`).join('');return `<section class="work"><div class="workhead"><div><span>${escapeHtml(categoryLabel(c.category))} · ${p.completed?'ENTREGAT · PENDENT DE VALIDAR':'EN CURS'}</span><h2>${escapeHtml(c.title)}</h2></div><b>+${c.points} · màx. ${c.maxNote}</b></div><p class="meta">${p.attempts||0} comprovacions · ${p.hints||0} pistes · ${Math.round((p.activeSeconds||0)/60)} min aprox.</p>${svg?`<div class="diagram">${svg}</div>`:''}${r.makeCodeUrl?`<p><b>MakeCode:</b> ${escapeHtml(r.makeCodeUrl)}</p>`:''}${r.codeText?`<pre style="white-space:pre-wrap;background:#111827;color:#d1fae5;padding:12px;border-radius:10px">${escapeHtml(r.codeText)}</pre>`:''}<div class="reflection"><h3>Anotacions</h3><p>${escapeHtml(r.notes||'—').replace(/\n/g,'<br>')}</p><h3>Dificultats</h3><p>${escapeHtml(r.difficulties||'—').replace(/\n/g,'<br>')}</p><h3>Què ha funcionat / què m'ha agradat</h3><p>${escapeHtml(r.successes||'—').replace(/\n/g,'<br>')}</p></div>${atts?`<div class="attachments">${atts}</div>`:''}</section>`}).join('');
+    const html=`<!doctype html><html lang="ca"><head><meta charset="utf-8"><title>${escapeHtml(portfolioFileBase())}</title><style>body{font-family:Arial,sans-serif;margin:0;background:#f5f6f8;color:#111827}.page{max-width:1000px;margin:auto;padding:36px}.head{background:#111827;color:white;border-radius:22px;padding:28px}.head h1{margin:6px 0}.stats{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}.stat{background:white;color:#111827;border-radius:12px;padding:10px 14px}.work{background:white;margin:22px 0;border:1px solid #dfe4eb;border-radius:18px;padding:22px;break-inside:avoid}.workhead{display:flex;justify-content:space-between;gap:15px}.workhead span{font-size:11px;font-weight:bold;color:#2563eb}.workhead h2{margin:4px 0}.meta{color:#667085}.diagram svg{width:100%;height:auto;border:1px solid #e5e7eb;border-radius:12px}.reflection{display:grid;grid-template-columns:180px 1fr;gap:8px 18px;margin-top:18px}.reflection h3,.reflection p{margin:0;padding:7px 0;border-bottom:1px solid #eef1f5}.attachments img{max-width:360px;max-height:260px}.attachment{display:block;margin:8px 0}.foot{text-align:center;color:#98a2b3;font-size:12px;margin:28px}@media print{body{background:#fff}.page{padding:0}.work{box-shadow:none}}</style></head><body><main class="page"><header class="head"><small>ROBOTIA FLOWLAB · PORTAFOLI</small><h1>${escapeHtml(state.identity.name)}</h1><p>${escapeHtml(state.identity.className||'')}</p><div class="stats"><div class="stat"><b>${sc.note}/10</b><br>flux prov.</div><div class="stat"><b>${mc.note}/10</b><br>micro:bit prov.</div><div class="stat"><b>${ss.note}/10</b><br>sensors prov.</div><div class="stat"><b>${rr.note}/10</b><br>robot prov.</div></div><p style="margin:16px 0 0;color:#fde68a;font-size:12px">* Resultat provisional pendent de validació docent dels algoritmes.</p></header>${sections||'<p>Encara no hi ha treballs.</p>'}<div class="foot">Creat amb ROBOTIA FlowLab · Jordi Lesan · ${new Date().toLocaleDateString('ca-ES')}</div></main></body></html>`;
+    downloadBlob(html,portfolioFileBase()+'_Dossier.html','text/html;charset=utf-8');toast('Dossier generat');
+  }
+
+  function updateMakeCodeButton(){
+    const hasSemantic=!!state.project?.nodes?.some(n=>n.semantic);
+    const c=state.currentChallenge,p=c?challengeProgress(c.id):null;
+    const flowReady=!!(c?.category==='flux'&&c?.makeCodeCompatible&&p?.completed);
+    const hasMicro=hasSemantic||flowReady||c?.kind==='practical';
+    $('#btnMakeCode').classList.toggle('hidden',!hasMicro);
+    $('#btnMakeCode').textContent=hasSemantic?'⌁ Generar pont MakeCode':'⚡ Fes-ho a MakeCode';
+  }
+
+  function generateMakeCode(){
+    if(!state.project?.nodes.length)return '// Diagrama buit';
+    const start=state.project.nodes.find(n=>n.type==='start'&&edgesTo(n.id).length===0&&edgesFrom(n.id).length>0)||state.project.nodes[0];
+    const ids=new Map(state.project.nodes.map((n,i)=>[n.id,i])); let needsDau=state.project.nodes.some(n=>n.semantic==='random_1_5'); let needsDist=state.project.nodes.some(n=>n.semantic==='cond_distance');
+    const lines=[]; lines.push('// Generat per ROBOTIA FlowLab');lines.push('// Enganxa-ho a MakeCode > JavaScript i completa els TODO si cal.'); if(needsDau)lines.push('let dau = 0'); if(needsDist)lines.push('let distancia = 0 // TODO: llegir sensor ultrasons');lines.push(`let estat = ${ids.get(start.id)}`);lines.push('basic.forever(function () {');lines.push('    switch (estat) {');
+    state.project.nodes.forEach((n,i)=>{
+      const outs=edgesFrom(n.id); lines.push(`        case ${i}: // ${n.label.replace(/\n/g,' ')}`);
+      if(n.type==='decision'){
+        const sem=microSemantics[n.semantic]; const cond=sem?.condition||'/* TODO condició */ false'; const y=outs.find(e=>yesWords.includes(normalize(e.label)))||outs[0]; const no=outs.find(e=>noWords.includes(normalize(e.label)))||outs[1];
+        lines.push(`            if (${cond}) {`); lines.push(`                estat = ${y?ids.get(y.to):i}`); lines.push('            } else {');lines.push(`                estat = ${no?ids.get(no.to):i}`);lines.push('            }');
+        if(sem?.todo)lines.push(`            // TODO: ${sem.todo}`);
+      } else {
+        const sem=microSemantics[n.semantic]; if(sem?.code)lines.push(`            ${sem.code}`); else if(n.type!=='start')lines.push(`            // TODO: ${n.label}`);
+        lines.push(`            estat = ${outs[0]?ids.get(outs[0].to):i}`);
+      }
+      lines.push('            break');
+    });
+    lines.push('    }');lines.push('    basic.pause(20)');lines.push('})');return lines.join('\n');
+  }
+
+  function openCodeModal(){ $('#codeOutput').value=generateMakeCode();$('#modalCode').showModal(); }
+
+  let liveSaveTimer=null;
+  function scheduleLiveAutosave(){clearTimeout(liveSaveTimer);liveSaveTimer=setTimeout(()=>autosave(),260)}
+  function beginInspectorLiveEdit(kind,id){state.liveEdit={kind,id,before:JSON.stringify(state.project),historySaved:false}}
+  function ensureInspectorUndoPoint(){
+    if(!state.liveEdit||state.liveEdit.historySaved)return;
+    state.history.push(state.liveEdit.before);if(state.history.length>60)state.history.shift();state.future=[];state.liveEdit.historySaved=true;
+  }
+  function renderGraphOnly(){
+    if(!state.project)return;
+    $('#edgesLayer').innerHTML=state.project.edges.map(e=>edgeMarkup(e,false)).join('');
+    $('#nodesLayer').innerHTML=state.project.nodes.map(n=>nodeMarkup(n,false)).join('');
+    applyCanvasSize();$('#flowSvg').classList.toggle('is-connecting',!!state.connectSource);bindSvgEvents();
+  }
+  function liveUpdateNodeLabel(){
+    if(state.selected?.kind!=='node')return;const n=getNode(state.selected.id);if(!n)return;
+    ensureInspectorUndoPoint();n.label=$('#nodeLabel').value;renderGraphOnly();scheduleLiveAutosave();
+  }
+  function liveUpdateEdgeLabel(){
+    if(state.selected?.kind!=='edge')return;const e=getEdge(state.selected.id);if(!e)return;
+    ensureInspectorUndoPoint();e.label=$('#edgeLabel').value;renderGraphOnly();scheduleLiveAutosave();
+  }
+
+  function applyNodeInspector(){
+    if(state.selected?.kind!=='node')return; const n=getNode(state.selected.id);if(!n)return;pushHistory(); n.label=$('#nodeLabel').value.trim()||n.label; if(!$('#semanticWrap').classList.contains('hidden')){const sem=$('#nodeSemantic').value||null;if(sem&&microSemantics[sem]){n.semantic=sem;n.type=microSemantics[sem].type;n.label=microSemantics[sem].label}else n.semantic=null;}renderLab();autosave();
+  }
+  function applyEdgeInspector(){ if(state.selected?.kind!=='edge')return; const e=getEdge(state.selected.id);if(!e)return;pushHistory();e.label=$('#edgeLabel').value.trim();renderLab();autosave(); }
+
+  function addNodeRaw(type,x,y,label,semantic=null){
+    const node={id:uid('n'),type,x,y,label,semantic};state.project.nodes.push(node);return node;
+  }
+  function addEdgeRaw(from,to,fromSide=null,toSide=null,label=''){
+    state.project.edges.push({id:uid('e'),from:from.id||from,to:to.id||to,label,fromSide,toSide});
+  }
+  function addStructure(kind){
+    if(!state.project)return;pushHistory();
+    const x=700,y=300;let focus=null;
+    if(kind==='if'){
+      const d=addNodeRaw('decision',x,y,'Condició?');const yes=addNodeRaw('process',x-220,y+210,'Acció si SÍ');const no=addNodeRaw('process',x+220,y+210,'Acció si NO');
+      addEdgeRaw(d,yes,'left','top','SÍ');addEdgeRaw(d,no,'right','top','NO');focus=d;
+    }else if(kind==='while'){
+      const d=addNodeRaw('decision',x,y,'Condició per continuar?');const a=addNodeRaw('process',x,y+220,'Acció que es repeteix');
+      addEdgeRaw(d,a,'left','top','SÍ');addEdgeRaw(a,d,'bottom','top','');focus=d;
+    }else if(kind==='repeat'){
+      const init=addNodeRaw('variable',x,y-120,'i = 0');const d=addNodeRaw('decision',x,y+40,'i < N?');const a=addNodeRaw('process',x,y+230,'Acció que es repeteix');const inc=addNodeRaw('variable',x,y+390,'i = i + 1');
+      addEdgeRaw(init,d,'bottom','top','');addEdgeRaw(d,a,'left','top','SÍ');addEdgeRaw(a,inc,'bottom','top','');addEdgeRaw(inc,d,'bottom','top','');focus=init;
+    }else if(kind==='forever'){
+      const a=addNodeRaw('process',x,y,'Acció 1');const b=addNodeRaw('process',x,y+210,'Acció 2');addEdgeRaw(a,b,'bottom','top','');addEdgeRaw(b,a,'bottom','top','');focus=a;
+    }
+    if(focus)state.selected={kind:'node',id:focus.id};renderLab();autosave();toast('Estructura creada · edita els textos');
+  }
+
+  function initDragDropPalette(){
+    $$('.palette-item').forEach(btn=>{
+      btn.draggable=true;
+      btn.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/robotia-type',btn.dataset.type);e.dataTransfer.setData('text/robotia-label',btn.dataset.label||'')});
+      btn.addEventListener('click',()=>addNode(btn.dataset.type,700,420,btn.dataset.label||null));
+    });
+    $$('[data-structure]').forEach(btn=>btn.addEventListener('click',()=>addStructure(btn.dataset.structure)));
+    const wrap=$('#canvasWrap');wrap.addEventListener('dragover',e=>e.preventDefault());wrap.addEventListener('drop',e=>{e.preventDefault();const type=e.dataTransfer.getData('text/robotia-type');if(!type)return;const label=e.dataTransfer.getData('text/robotia-label')||null;const p=clientToWorld(e);ensureCanvasSize(p);addNode(type,Math.max(p.x,90),Math.max(p.y,60),label);});
+  }
+
+  function bindUI(){
+    $('#btnHome').onclick=()=>showView('#viewHome'); $('#btnLearn').onclick=()=>showView('#viewLearn'); $('#btnChallenges').onclick=()=>showView('#viewChallenges'); $('#btnPortfolio').onclick=()=>showView('#viewPortfolio');
+    $$('#challengeTabs [data-category]').forEach(b=>b.onclick=()=>setChallengeCategory(b.dataset.category));
+    $('#btnDeliver').onclick=deliver; $('#btnStartChallenge').onclick=()=>showView('#viewChallenges'); $('#btnFreeLab').onclick=openFreeLab; $('#btnBackChallenges').onclick=()=>showView('#viewChallenges'); $('#btnSaveIdentity').onclick=saveIdentity;
+    $('#btnUndo').onclick=undo;$('#btnRedo').onclick=redo;$('#btnValidate').onclick=()=>validateGraph(true);$('#btnSimulate').onclick=startSimulation;$('#btnSaveProject').onclick=saveProjectFile;$('#btnLoadProject').onclick=()=>$('#projectImport').click();$('#projectImport').onchange=e=>e.target.files[0]&&loadProjectFile(e.target.files[0]);
+    $('#btnOpenMakeCodeQuick').onclick=()=>window.open('https://makecode.microbit.org/','_blank','noopener');
+    $('#toolSelect').onclick=()=>setTool('select');$('#toolConnect').onclick=()=>setTool('connect');$('#toolDelete').onclick=deleteSelected;$('#btnHint').onclick=askHint;$('#btnApplyNode').onclick=applyNodeInspector;$('#btnApplyEdge').onclick=applyEdgeInspector;
+    $('#nodeLabel').addEventListener('focus',()=>state.selected?.kind==='node'&&beginInspectorLiveEdit('node',state.selected.id));
+    $('#nodeLabel').addEventListener('input',liveUpdateNodeLabel);
+    $('#nodeLabel').addEventListener('blur',()=>{state.liveEdit=null;scheduleLiveAutosave()});
+    $('#edgeLabel').addEventListener('focus',()=>state.selected?.kind==='edge'&&beginInspectorLiveEdit('edge',state.selected.id));
+    $('#edgeLabel').addEventListener('input',liveUpdateEdgeLabel);
+    $('#edgeLabel').addEventListener('blur',()=>{state.liveEdit=null;scheduleLiveAutosave()});
+    $('#nodeSemantic').addEventListener('change',applyNodeInspector);
+    $('#zoomIn').onclick=()=>{state.zoom=clamp(state.zoom+.1,.35,1.7);renderLab()};$('#zoomOut').onclick=()=>{state.zoom=clamp(state.zoom-.1,.35,1.7);renderLab()};$('#zoomFit').onclick=()=>{const c=ensureCanvasSize(),w=$('#canvasWrap');state.zoom=clamp(Math.min((w.clientWidth-24)/c.width,(w.clientHeight-24)/c.height),.35,1);renderLab();w.scrollTo({left:0,top:0,behavior:'smooth'})};
+    $('#btnMakeCode').onclick=()=>{const hasSemantic=!!state.project?.nodes?.some(n=>n.semantic);if(hasSemantic)openCodeModal();else{window.open('https://makecode.microbit.org/','_blank','noopener');toast('Quan acabis, descarrega el .hex i adjunta’l al portafoli.')}};
+    $('#btnTutorialStart').onclick=()=>{state.tutorialStep=0;renderTutorial();$('#modalTutorial').showModal()};$('#tutorialPrev').onclick=()=>{state.tutorialStep=clamp(state.tutorialStep-1,0,tutorialSteps.length-1);renderTutorial()};$('#tutorialNext').onclick=()=>{if(state.tutorialStep===tutorialSteps.length-1){$('#modalTutorial').close();openChallenge('f0')}else{state.tutorialStep++;renderTutorial()}};
+    $('#simClose').onclick=()=>$('#modalSim').close();$('#simNext').onclick=()=>simAdvance();$('#simRestart').onclick=restartSimulation;$$('#simDecision button').forEach(b=>b.onclick=()=>simAdvance(b.dataset.choice));
+    $('#deliverClose').onclick=()=>$('#modalDeliver').close();$('#btnExportPng').onclick=exportPng;$('#btnExportSvg').onclick=exportSvg;$('#btnExportProject').onclick=exportProject;$('#btnExportReport').onclick=exportReport;$('#btnOpenClassroom').onclick=()=>window.open('https://classroom.google.com/','_blank','noopener');$('#btnPrint').onclick=printDiagram;
+    $('#practicalClose').onclick=()=>$('#modalPractical').close();
+    $('#practicalMakeCode').onclick=()=>window.open('https://makecode.microbit.org/','_blank','noopener');
+    $('#practicalDiagram').onclick=openPracticalDiagram;
+    $('#practicalSave').onclick=savePractical;
+    $('#practicalMakeCodeUrl').addEventListener('input',()=>{const id=state.practicalId;if(!id)return;portfolioEntry(id).makeCodeUrl=$('#practicalMakeCodeUrl').value;savePortfolio();updatePracticalStatus(id)});
+    $('#practicalCode').addEventListener('input',()=>{const id=state.practicalId;if(!id)return;portfolioEntry(id).codeText=$('#practicalCode').value;savePortfolio();updatePracticalStatus(id)});
+    $('#practicalFiles').onchange=e=>{const id=state.practicalId;if(id)addPortfolioAttachments(id,e.target.files);setTimeout(()=>{renderPracticalFiles(id);updatePracticalStatus(id)},50)};
+    $('#codeClose').onclick=()=>$('#modalCode').close();$('#btnCopyCode').onclick=async()=>{await navigator.clipboard.writeText($('#codeOutput').value);toast('Codi copiat')};$('#btnOpenMakeCode').onclick=()=>window.open('https://makecode.microbit.org/','_blank','noopener');
+    $('#portfolioProjectImport').onchange=e=>importPortfolioProjects(e.target.files);
+    $('#portfolioBundleImport').onchange=e=>e.target.files[0]&&importPortfolioBundle(e.target.files[0]);
+    $('#btnPortfolioBackup').onclick=exportPortfolioBundle;$('#btnPortfolioDossier').onclick=generatePortfolioDossier;
+    document.addEventListener('keydown',e=>{
+      if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName))return;
+      const inLab=$('#viewLab').classList.contains('active'),mod=e.ctrlKey||e.metaKey,key=e.key.toLowerCase();
+      if(e.key==='Escape'){state.selectedNodes.clear();state.selected=null;state.connectSource=null;state.connectSourceSide=null;state.marquee=null;renderMarquee();renderLab();return}
+      if((e.key==='Delete'||e.key==='Backspace')&&inLab){e.preventDefault();deleteSelected();return}
+      if(mod&&key==='a'&&inLab){e.preventDefault();state.selectedNodes=new Set(state.project.nodes.map(n=>n.id));const last=[...state.selectedNodes].at(-1);state.selected=last?{kind:'node',id:last}:null;renderLab();return}
+      if(mod&&key==='c'&&inLab){e.preventDefault();copySelectedNodes();return}
+      if(mod&&key==='v'&&inLab){e.preventDefault();pasteSelectedNodes();return}
+      if(mod&&key==='z'){e.preventDefault();e.shiftKey?redo():undo();return}
+      if(mod&&key==='s'){e.preventDefault();saveProjectFile();return}
+    });
+  }
+
+  function renderTutorial(){const [title,text,visual]=tutorialSteps[state.tutorialStep];$('#tutorialTitle').textContent=title;$('#tutorialText').textContent=text;$('#tutorialVisual').innerHTML=visual;$('#tutorialStep').textContent=`${state.tutorialStep+1} / ${tutorialSteps.length}`;$('#tutorialPrev').disabled=state.tutorialStep===0;$('#tutorialNext').textContent=state.tutorialStep===tutorialSteps.length-1?'Fer primer repte':'Següent'}
+
+  window.ROBOTIA_CLOUD_APP={state,makePortfolioBundle,exportPortfolioBundle,importPortfolioBundle,activateIdentity,renderChallenges,renderPortfolio};
+  loadStored(); bindUI(); initDragDropPalette(); renderChallenges(); updateProgressUI(); setInterval(tickActiveTime,15000);
+})();
+
+</script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="nuvol/config.js"></script>
+<script src="nuvol/cloud.js" defer></script>
+</body>
+</html>
