@@ -1,0 +1,13 @@
+<!doctype html><html><head><base target="_top"></head><body><script>
+'use strict';
+const ORIGIN='https://lesan2.github.io';
+const METHODS=new Set(['cloudRegister','cloudInfo','cloudSave','cloudInvite','cloudAccept']);
+window.addEventListener('message',e=>{
+ if(e.origin!==ORIGIN||e.source!==parent||!e.data||e.data.robotiaBridge!==1)return;
+ const {id,method,args}=e.data;
+ if(!Number.isSafeInteger(id)||!METHODS.has(method)||!Array.isArray(args))return;
+ google.script.run.withSuccessHandler(result=>parent.postMessage({robotiaBridge:1,id,result},ORIGIN))
+ .withFailureHandler(error=>parent.postMessage({robotiaBridge:1,id,error:String(error&&error.message||error)},ORIGIN))[method](...args);
+});
+parent.postMessage({robotiaBridge:1,ready:true},ORIGIN);
+</script></body></html>
