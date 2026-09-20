@@ -107,6 +107,7 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23111827'/%3E%3Cpath d='M14 22h18l8 10-8 10H14l8-10z' fill='%236ee7b7'/%3E%3Ccircle cx='48' cy='32' r='7' fill='%2360a5fa'/%3E%3C/svg%3E" />
 </head>
 <body>
+<div style="background:#7c2d12;color:white;padding:10px;text-align:center;font-weight:bold;position:relative;z-index:9999">⚠️ VERSIÓ DE PROVES · No utilitzar amb alumnat ni dades personals fins que s’autoritzi</div>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <div id="storageNotice" class="storage-notice hidden" role="status"><b>Mode local:</b> el navegador no permet desar automàticament en aquest fitxer. Pots continuar treballant, però descarrega el projecte o el portafoli per conservar-lo.</div>
 
@@ -1568,7 +1569,7 @@
     const entries=Object.entries(progress); const completed=entries.filter(([,p])=>p.completed).length; const attempts=entries.reduce((a,[,p])=>a+(p.attempts||0),0); const hints=entries.reduce((a,[,p])=>a+(p.hints||0),0); const seconds=entries.reduce((a,[,p])=>a+(p.activeSeconds||0),0); const issueCounts={};
     entries.forEach(([,p])=>Object.entries(p.issues||{}).forEach(([k,v])=>issueCounts[k]=(issueCounts[k]||0)+v));
     const topIssue=Object.entries(issueCounts).sort((a,b)=>b[1]-a[1])[0]?.[0]||null;
-    const started=entries.filter(([,p])=>p.started).length; const logicCompleted=challenges.filter(c=>progress[c.id]?.completed&&c.criteria.includes('C3.2')).length; const logicTotal=challenges.filter(c=>c.criteria.includes('C3.2')).length;
+    const started=entries.filter(([,p])=>p.started).length; const logicCompleted=challenges.filter(c=>progress[c.id]?.completed&&(Array.isArray(c.criteria)&&c.criteria.includes('C3.2'))).length; const logicTotal=challenges.filter(c=>(Array.isArray(c.criteria)&&c.criteria.includes('C3.2'))).length;
     const c22=started?Math.min(4,Math.max(1,Math.round((completed/challenges.length)*4))):0;
     const c23=started?Math.min(4,Math.max(1,Math.round(((completed/challenges.length)*.75 + Math.min(1, attempts/18)*.25)*4))):0;
     const c32=logicTotal?Math.min(4,Math.round(logicCompleted/logicTotal*4)):0;
@@ -1666,7 +1667,7 @@
   function exportPortfolioBundle(){
     if(!requireIdentity())return; const bundle=makePortfolioBundle();downloadBlob(JSON.stringify(bundle,null,2),portfolioFileBase()+'.robotiaportfolio','application/json');toast('Portafoli descarregat');
   }
-  function importPortfolioBundle(file){
+  function importPortfolioBundle(file, done){
     if(!requireIdentity())return; const reader=new FileReader();reader.onload=()=>{try{
       const bundle=JSON.parse(reader.result);if(bundle.app!=='ROBOTIA FlowLab Portfolio')throw 0;
       if(normalize(bundle.identity?.name||'')!==normalize(state.identity.name)){toast(`Aquest portafoli és de ${bundle.identity?.name||'un altre alumne'}`);return}
@@ -1689,7 +1690,7 @@
       savePortfolio();saveProgress();
       if(!state.identity.className&&bundle.identity?.className){state.identity.className=bundle.identity.className;safeLocalSet(STORAGE.identity,JSON.stringify(state.identity))}
       renderPortfolio();renderChallenges();toast(`Portafoli fusionat ✓ · ${merged} activitat(s)`);
-    }catch(err){console.error(err);toast('Aquest fitxer no és un portafoli ROBOTIA vàlid')}};reader.readAsText(file);
+    }catch(err){console.error(err);toast('Aquest fitxer no és un portafoli ROBOTIA vàlid')}finally{if(typeof done==='function')done()}};reader.readAsText(file);
   }
 
   function storedProjectSvg(project){
@@ -1840,9 +1841,13 @@
 
   function renderTutorial(){const [title,text,visual]=tutorialSteps[state.tutorialStep];$('#tutorialTitle').textContent=title;$('#tutorialText').textContent=text;$('#tutorialVisual').innerHTML=visual;$('#tutorialStep').textContent=`${state.tutorialStep+1} / ${tutorialSteps.length}`;$('#tutorialPrev').disabled=state.tutorialStep===0;$('#tutorialNext').textContent=state.tutorialStep===tutorialSteps.length-1?'Fer primer repte':'Següent'}
 
+  window.ROBOTIA_CLOUD_APP={state,makePortfolioBundle,exportPortfolioBundle,importPortfolioBundle,activateIdentity,renderChallenges,renderPortfolio,scoreForCategory};
   loadStored(); bindUI(); initDragDropPalette(); renderChallenges(); updateProgressUI(); setInterval(tickActiveTime,15000);
 })();
 
 </script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="proves/nuvol/config.js"></script>
+<script src="proves/nuvol/cloud.js" defer></script>
 </body>
 </html>
