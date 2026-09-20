@@ -1569,7 +1569,7 @@
     const entries=Object.entries(progress); const completed=entries.filter(([,p])=>p.completed).length; const attempts=entries.reduce((a,[,p])=>a+(p.attempts||0),0); const hints=entries.reduce((a,[,p])=>a+(p.hints||0),0); const seconds=entries.reduce((a,[,p])=>a+(p.activeSeconds||0),0); const issueCounts={};
     entries.forEach(([,p])=>Object.entries(p.issues||{}).forEach(([k,v])=>issueCounts[k]=(issueCounts[k]||0)+v));
     const topIssue=Object.entries(issueCounts).sort((a,b)=>b[1]-a[1])[0]?.[0]||null;
-    const started=entries.filter(([,p])=>p.started).length; const logicCompleted=challenges.filter(c=>progress[c.id]?.completed&&c.criteria.includes('C3.2')).length; const logicTotal=challenges.filter(c=>c.criteria.includes('C3.2')).length;
+    const started=entries.filter(([,p])=>p.started).length; const logicCompleted=challenges.filter(c=>progress[c.id]?.completed&&(Array.isArray(c.criteria)&&c.criteria.includes('C3.2'))).length; const logicTotal=challenges.filter(c=>(Array.isArray(c.criteria)&&c.criteria.includes('C3.2'))).length;
     const c22=started?Math.min(4,Math.max(1,Math.round((completed/challenges.length)*4))):0;
     const c23=started?Math.min(4,Math.max(1,Math.round(((completed/challenges.length)*.75 + Math.min(1, attempts/18)*.25)*4))):0;
     const c32=logicTotal?Math.min(4,Math.round(logicCompleted/logicTotal*4)):0;
