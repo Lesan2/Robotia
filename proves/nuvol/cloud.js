@@ -5,7 +5,7 @@ const app=window.ROBOTIA_CLOUD_APP;
 const config=window.ROBOTIA_CLOUD_CONFIG||{};
 if(!app){console.error('ROBOTIA: manca el pont intern de l’aplicació original');return}
 const $=s=>document.querySelector(s);
-const cloud={token:'',email:'',revision:0,shared:{},bridge:null,ready:false,seq:0,pending:new Map(),saving:false,savedSig:'',timer:0,poll:0,blocked:false};
+const cloud={token:'',email:'',revision:0,shared:{},bridge:null,remoteWindow:null,remoteOrigin:'',ready:false,seq:0,pending:new Map(),saving:false,savedSig:'',timer:0,poll:0,blocked:false};
 const disabled=!/^\d+-[a-z0-9_-]+\.apps\.googleusercontent\.com$/i.test(config.clientId||'')||!/^https:\/\/script\.google\.com\/(?:a\/macros\/instituticaria\.cat\/s\/|macros\/s\/)[\w-]+\/exec$/.test(config.bridgeUrl||'');
 const html=`<section id="robotia-cloud" class="card" style="padding:18px;margin:15px 0;border:1px solid #93c5fd;border-radius:15px">
  <h2 style="margin-top:0">☁️ ROBOTIA · Núvol <small style="font-size:12px;color:#64748b">PROVES</small></h2>
@@ -25,7 +25,7 @@ function buttons(){['load','out'].forEach(k=>{$('#cloud-'+k).disabled=!cloud.ema
 function call(method,args){return new Promise((resolve,reject)=>{
  if(!cloud.ready)return reject(Error('El pont de Google encara no està preparat'));
  const id=++cloud.seq;const timeout=setTimeout(()=>{cloud.pending.delete(id);reject(Error('La connexió ha superat el temps d’espera'))},45000);
- cloud.pending.set(id,{resolve,reject,timeout});cloud.bridge.contentWindow.postMessage({robotiaBridge:1,id,method,args},'*');
+ cloud.pending.set(id,{resolve,reject,timeout});cloud.remoteWindow.postMessage({robotiaBridge:1,id,method,args},cloud.remoteOrigin);
 })}
 function stable(obj){return JSON.stringify(obj,(key,value)=>['exportedAt','updatedAt','appBuild'].includes(key)?undefined:value)}
 function snapshot(){const p=app.makePortfolioBundle();p.identity.email=cloud.email;return p}
@@ -139,20 +139,27 @@ async function inbox(){
 }
 function logout(){
  clearTimeout(cloud.timer);if(window.google?.accounts?.id)google.accounts.id.disableAutoSelect();
- cloud.token='';cloud.email='';cloud.ready=!!cloud.bridge;cloud.blocked=true;cloud.shared={};cloud.savedSig='';buttons();
+ cloud.token='';cloud.email='';cloud.ready=!!cloud.remoteWindow;cloud.blocked=true;cloud.shared={};cloud.savedSig='';buttons();
  message('Sessió desconnectada. Les dades locals continuen en aquest navegador.');
 }
 function init(){
  $('#cloud-load').onclick=()=>void load();$('#cloud-save').onclick=()=>void save(false);
  $('#cloud-invite').onclick=()=>void invite();$('#cloud-inbox').onclick=()=>void inbox();$('#cloud-out').onclick=logout;
  if(disabled){message('Núvol en preparació. Configura l’ID de Google i el desplegament d’Apps Script; mentrestant, utilitza les còpies locals.');return}
- cloud.bridge=document.createElement('iframe');cloud.bridge.src=config.bridgeUrl;cloud.bridge.hidden=true;cloud.bridge.title='ROBOTIA núvol';document.body.appendChild(cloud.bridge);
  window.addEventListener('message',event=>{
-  if(event.source!==cloud.bridge.contentWindow||event.data?.robotiaBridge!==1)return;
-  if(event.data.ready){cloud.ready=true;message('Connexió preparada. Entra amb el compte de l’institut.');return}
+  if(event.data?.robotiaBridge!==1)return;
+  // Apps Script inserta marcs interns: els missatges arriben des del marc HTML de Google, no del marc exterior.
+  if(event.data.ready){
+    if(!/^https:\/\/[a-z0-9.-]*googleusercontent\.com$/i.test(event.origin))return;
+    cloud.remoteWindow=event.source;cloud.remoteOrigin=event.origin;cloud.ready=true;
+    message('Connexió preparada. Entra amb el compte de l’institut.');return;
+  }
+  if(!cloud.ready||event.source!==cloud.remoteWindow||event.origin!==cloud.remoteOrigin)return;
   const r=cloud.pending.get(event.data.id);if(!r)return;cloud.pending.delete(event.data.id);clearTimeout(r.timeout);
   event.data.error?r.reject(Error(event.data.error)):r.resolve(event.data.result);
  });
+ cloud.bridge=document.createElement('iframe');cloud.bridge.src=config.bridgeUrl;cloud.bridge.hidden=true;cloud.bridge.title='ROBOTIA núvol';document.body.appendChild(cloud.bridge);
+ setTimeout(()=>{if(!cloud.ready)message('⚠️ Sense connexió amb Apps Script. Revisa que el pont estigui desplegat i que el navegador permeti les galetes de Google en aquesta pàgina. El portafoli local continua disponible.');},16000);
  const initGoogle=()=>{
   if(!window.google?.accounts?.id){setTimeout(initGoogle,350);return}
   google.accounts.id.initialize({client_id:config.clientId,callback:r=>void enter(r.credential),auto_select:false,hd:'instituticaria.cat'});
