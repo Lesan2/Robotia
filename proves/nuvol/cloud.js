@@ -8,7 +8,7 @@ const $=s=>document.querySelector(s);
 const cloud={token:'',email:'',revision:0,shared:{},bridge:null,remoteWindow:null,remoteOrigin:'',ready:false,seq:0,pending:new Map(),saving:false,savedSig:'',timer:0,poll:0,blocked:false};
 const disabled=!/^\d+-[a-z0-9_-]+\.apps\.googleusercontent\.com$/i.test(config.clientId||'')||!/^https:\/\/script\.google\.com\/(?:a\/macros\/instituticaria\.cat\/s\/|macros\/s\/)[\w-]+\/exec$/.test(config.bridgeUrl||'');
 const html=`<section id="robotia-cloud" class="card" style="padding:18px;margin:15px 0;border:1px solid #93c5fd;border-radius:15px">
- <h2 style="margin-top:0">☁️ ROBOTIA · Núvol <small style="font-size:12px;color:#64748b">PROVES</small></h2>
+ <h2 style="margin-top:0">☁️ ROBOTIA · Núvol <small style="font-size:12px;color:#64748b">${location.pathname.includes("/proves/")?"PROVES":"ALUMNAT"}</small></h2>
  <p id="cloud-message" role="status">Preparant la connexió…</p><div id="cloud-login"></div>
  <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">
  <button class="btn secondary" id="cloud-load" disabled>Carregar / fusionar</button>
