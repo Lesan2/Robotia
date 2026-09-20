@@ -28,7 +28,7 @@ function call(method,args){return new Promise((resolve,reject)=>{
  cloud.pending.set(id,{resolve,reject,timeout});cloud.remoteWindow.postMessage({robotiaBridge:1,id,method,args},cloud.remoteOrigin);
 })}
 function stable(obj){return JSON.stringify(obj,(key,value)=>['exportedAt','updatedAt','appBuild'].includes(key)?undefined:value)}
-function snapshot(){const p=app.makePortfolioBundle();p.identity.email=cloud.email;return p}
+function snapshot(){const p=app.makePortfolioBundle();p.identity.email=cloud.email;if(typeof app.scoreForCategory==='function'){p.cloudSummary={flux:app.scoreForCategory('flux'),microbit:app.scoreForCategory('microbit'),sensors:app.scoreForCategory('sensors'),robot:app.scoreForCategory('robot')}}return p}
 function localHasWork(){const b=app.makePortfolioBundle();return Object.keys(b.activities||{}).length>0||Object.keys(b.projects||{}).length>0}
 function downloadLocal(){app.exportPortfolioBundle()}
 function syncSharedFromInfo(r){
