@@ -107,7 +107,7 @@ async function save(automatic=false){
   }
   cloud.revision=r.revision;
   for(const [id,revision] of Object.entries(r.sharedRevisions||{}))if(cloud.shared[id])cloud.shared[id].revision=revision;
-  cloud.savedSig=sig;message('✓ Desat al núvol · '+new Date().toLocaleTimeString('ca-ES'));
+  cloud.savedSig=sig;message((r.gradeWarning?'✓ Portafoli desat · ⚠️ Seguiment docent pendent':'✓ Desat al núvol')+' · '+new Date().toLocaleTimeString('ca-ES'));
  }catch(err){message('⚠️ No s’ha pogut desar: '+err.message+'. Conserva i descarrega el teu portafoli.');}
  finally{cloud.saving=false}
 }
