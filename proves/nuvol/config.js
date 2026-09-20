@@ -1,6 +1,5 @@
-/* Omple els dos valors després de desplegar el servei des del compte institucional.
-   L'ID del client OAuth i l'URL pública del web app NO són contrasenyes. */
+/* ROBOTIA · Núvol: configuració de proves. No incloguis mai secrets OAuth en aquest fitxer. */
 window.ROBOTIA_CLOUD_CONFIG = {
-  clientId: 'CONFIGURA_CLIENT_ID.apps.googleusercontent.com',
+  clientId: '166223369600-lm01f0kigsvj29mdu3sugs850a16ri5v.apps.googleusercontent.com',
   bridgeUrl: 'CONFIGURA_URL_APPS_SCRIPT_EXEC'
 };
