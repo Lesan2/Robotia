@@ -931,7 +931,7 @@
     try{
       const url=new URL(u);
       shared=url.hostname==='makecode.microbit.org' &&
-        ((/^\/_?[A-Za-z0-9-]{4,}$/.test(url.pathname)) || (url.hash.startsWith('#pub:')&&url.hash.length>8));
+        ((/^\/_[A-Za-z0-9-]{4,}$/.test(url.pathname)) || (/^\/S[A-Za-z0-9-]{8,}$/.test(url.pathname)) || (url.hash.startsWith('#pub:')&&url.hash.length>8));
     }catch(error){}
     return !!((r.attachments?.length||0)||shared||(r.codeText||'').trim().length>12);
   }
