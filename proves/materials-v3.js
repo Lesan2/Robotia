@@ -17,12 +17,15 @@
     ["rele","🚰","Relé i bomba","Commutació","P2 exemple avançat","El mòdul relé rep un senyal de control des de P2; la bomba s'alimenta pel seu circuit de baixa tensió passant pels contactes del relé. Mai des d'un pin de micro:bit.","Prova el relé sense aigua primer; separa el circuit de les gotes.","RELÉ"]
   ];
   function illustration(item){
-    const type=item[8];
-    if(type==="INTERN"||type==="SENSE CABLE")return '<div class="v3-wire-free">📶 No requereix cablejat entre plaques ni sensors externs.</div>';
-    const mid = type==="MOTOR"?"PORT MOTOR DC":type==="SERVO"?"CONNECTOR SERVOS":type==="RELÉ"?"PIN CONTROL + RELÉ":type==="INTEGRAT"?"MICRO:SHIELD":type==="Placa"?"CONNECTORS":type==="Mòdul"?"TRIG / ECHO (segons model)":"G · V · S";
-    return `<div class="v3-connect-diagram"><div class="v3-cd-row"><div><b>micro:bit</b><span>Micro:Shield</span></div><div class="v3-cd-wires"><i></i><i></i><i></i></div><div><b>${mid}</b><span>${item[2]}</span></div></div><small>Esquema orientatiu. Consulta el model, la tensió i la posició dels connectors abans de fer el muntatge.</small></div>`;
-  }
-  const box=document.createElement("section");box.className="v3-component-section";
+ const type=item[8];
+ if(type==="INTERN"||type==="SENSE CABLE")return '<div class="v3-wire-free">📶 No requereix cables externs. Comprova els programes i el mateix grup de ràdio.</div>';
+ if(type==="Placa")return '<div class="v3-wire-free"><b>Micro:Shield:</b> connectors GVS de sensors, connectors específics de servo, ports de motor DC i font d’alimentació. Tria el port segons el dispositiu.</div>';
+ const wires=type==="MOTOR"?["MOTOR +","MOTOR −"]:type==="RELÉ"?["GND","Vcc del mòdul","S = control P2"]:type==="Mòdul"?["GND","Vcc","TRIG","ECHO"]:["GND = G","V = tensió compatible","S = senyal"];
+ const label=type==="MOTOR"?"PORT MOTOR DC":type==="SERVO"?"CONNECTOR SERVO":type==="RELÉ"?"ENTRADA DEL RELÉ":type==="Mòdul"?"SENSOR SEGONS MODEL":"GVS";
+ const note=type==="MOTOR"?"El controlador i la bateria alimenten el motor; no utilitzis pins GVS.":type==="RELÉ"?"L'alimentació de la bomba passa pels contactes del relé, en un circuit separat; mai pels pins de micro:bit.":type==="Mòdul"?"Verifica si el mòdul porta TRIG i ECHO separats i comprova la tensió dels senyals.":"Comprova la tensió del component i orienta G, V i S correctament.";
+ return `<div class="v3-connect-diagram"><div class="v3-cd-row"><div><b>Micro:Shield</b><span>${label}</span></div><div class="v3-cd-lines">${wires.map((w,i)=>`<div><i class="line-${i}"></i><small>${w}</small></div>`).join("")}</div><div><b>${item[2]}</b><span>${item[4]}</span></div></div><small>${note} Esquema orientatiu: revisa el connector real del kit abans d'endollar.</small></div>`;
+}
+const box=document.createElement("section");box.className="v3-component-section";
   box.innerHTML=`<h2>Biblioteca de sensors, actuadors i connexions</h2>
   <p>Selecciona el component que tens. Cada fitxa indica on es connecta i què has de provar abans d'entregar el repte.</p>
   <input type="search" id="v3-component-filter" aria-label="Cercar sensors i actuadors" placeholder="Cerca PIR, servo, NeoPixel, motor, Micro:Shield...">
@@ -79,6 +82,11 @@
     .v3-cd-row>div:first-child,.v3-cd-row>div:last-child{padding:9px 5px;background:white;border:1px solid #c0d0de;border-radius:7px;min-height:65px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center}
     .v3-cd-row b{font-size:11px}.v3-cd-row span{font-size:10px}
     .v3-cd-wires{width:33px;display:grid;gap:6px}
+    .v3-cd-lines{width:95px;display:grid;gap:4px}
+    .v3-cd-lines>div{display:flex;align-items:center;gap:4px}
+    .v3-cd-lines i{width:23px;height:3px;display:block;background:#111827;flex-shrink:0}
+    .v3-cd-lines .line-1{background:#c97b28}.v3-cd-lines .line-2{background:#2364a3}.v3-cd-lines .line-3{background:#7c3aed}
+    .v3-cd-lines small{font-size:9px;line-height:1.2;color:#40546a}
     .v3-cd-wires i{height:3px;background:#111827}.v3-cd-wires i:nth-child(2){background:#c97b28}.v3-cd-wires i:nth-child(3){background:#2364a3}
     .v3-connect-diagram small{display:block;color:#61768e;font-size:10px;line-height:1.4;margin-top:8px}
     .v3-wire-free{background:#f3f8fd;padding:12px;border-radius:10px}
