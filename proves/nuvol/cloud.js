@@ -46,14 +46,27 @@ function downloadLocal(){app.exportPortfolioBundle()}
 function syncSharedFromInfo(r){
  cloud.shared=r.shared||{};
  const remote=r.portfolio;if(!remote)return remote;
- // Un treball compartit té una sola còpia central. Les activitats no compartides no es toquen.
+ // Només s'aplica un treball compartit que ja estigui assignat pel servidor
+ // al mateix identificador de treball. No se substitueixen altres reptes.
+ const recipient=remote.identity?.name||'';
+ const norm=x=>String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
  for(const item of Object.values(cloud.shared)){
-   if(!Object.prototype.hasOwnProperty.call(remote.activities||{},item.challengeId))continue;
-   if(remote.activities[item.challengeId].workId!==item.id)continue;
-   remote.activities[item.challengeId]=JSON.parse(JSON.stringify(item.activity));
-   if(item.activity.project)remote.projects[item.challengeId]=item.activity.project;
-   if(item.activity.reflection)remote.reflections[item.challengeId]=item.activity.reflection;
-   if(item.activity.progressRecord)remote.progress[item.challengeId]=item.activity.progressRecord;
+   const id=item?.challengeId;
+   if(!id||!Object.prototype.hasOwnProperty.call(remote.activities||{},id))continue;
+   if(remote.activities[id]?.workId!==item.id||!item.activity)continue;
+   const activity=JSON.parse(JSON.stringify(item.activity));
+   const owners=[...(Array.isArray(activity.project?.owners)?activity.project.owners:[]),recipient]
+     .filter(Boolean).filter((v,i,a)=>a.findIndex(x=>norm(x)===norm(v))===i);
+   if(activity.project)activity.project.owners=owners;
+   activity.owners=owners;
+   const oldRef=remote.reflections?.[id]||remote.activities[id]?.reflection||null;
+   const refl={...(activity.reflection||{}),owners,
+     versionHistory:Array.isArray(oldRef?.versionHistory)?oldRef.versionHistory:[]};
+   activity.reflection=refl;
+   remote.activities[id]=activity;
+   if(activity.project)remote.projects[id]=activity.project;
+   remote.reflections[id]=refl;
+   if(activity.progressRecord)remote.progress[id]=activity.progressRecord;
  }
  return remote;
 }
