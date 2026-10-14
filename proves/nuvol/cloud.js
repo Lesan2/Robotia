@@ -8,7 +8,7 @@ const $=s=>document.querySelector(s);
 const cloud={token:'',email:'',revision:0,shared:{},bridge:null,remoteWindow:null,remoteOrigin:'',ready:false,seq:0,pending:new Map(),saving:false,savedSig:'',timer:0,poll:0,blocked:false};
 const disabled=!/^\d+-[a-z0-9_-]+\.apps\.googleusercontent\.com$/i.test(config.clientId||'')||!/^https:\/\/script\.google\.com\/(?:a\/macros\/instituticaria\.cat\/s\/|macros\/s\/)[\w-]+\/exec$/.test(config.bridgeUrl||'');
 const html=`<section id="robotia-cloud" class="card" style="padding:18px;margin:15px 0;border:1px solid #93c5fd;border-radius:15px">
- <h2 style="margin-top:0">☁️ ROBOTIA · Núvol <small style="font-size:12px;color:#64748b">${location.pathname.includes("/proves/")?"PROVES":"ALUMNAT"}</small></h2>
+ <h2 style="margin-top:0">☁️ Desar els meus treballs al núvol</h2>
  <p id="cloud-message" role="status">Preparant la connexió…</p><div id="cloud-login"></div>
  <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">
  <button class="btn secondary" id="cloud-load" disabled>Carregar / fusionar</button>
@@ -45,12 +45,22 @@ function syncSharedFromInfo(r){
  }
  return remote;
 }
-async function cloudInfo(){const r=await call('cloudInfo',[cloud.token]);if(r.email!==cloud.email)throw Error('Identitat de sessió incorrecta');return r}
+async function cloudInfo(){
+  const r=await call('cloudInfo',[cloud.token]);
+  if(r.email!==cloud.email)throw Error('Identitat de sessió incorrecta');
+  // Compatible amb serveis antics: només mostra valoracions quan el
+  // servidor les retorna per a l'usuari autenticat.
+  if(r.publishedFeedback && r.publishedFeedback.email===cloud.email){
+    window.dispatchEvent(new CustomEvent('robotia:publishedFeedback',{detail:r.publishedFeedback}));
+  }
+  return r;
+}
 async function enter(token){
  cloud.token=token;cloud.blocked=true;buttons();message('Verificant el compte institucional…');
  try{
    const registration=await call('cloudRegister',[token]);cloud.email=registration.email;
    const info=await cloudInfo();cloud.revision=info.revision;syncSharedFromInfo(info);
+   window.dispatchEvent(new CustomEvent('robotia:teacherSession',{detail:{email:cloud.email}}));
    cloud.blocked=!!info.portfolio;buttons();$('#cloud-invite-count').textContent=info.invites?.length||'';
    if(!app.state.identity.name){
      app.activateIdentity({name:registration.name,team:'',className:''});
@@ -140,6 +150,7 @@ async function inbox(){
 function logout(){
  clearTimeout(cloud.timer);if(window.google?.accounts?.id)google.accounts.id.disableAutoSelect();
  cloud.token='';cloud.email='';cloud.ready=!!cloud.remoteWindow;cloud.blocked=true;cloud.shared={};cloud.savedSig='';buttons();
+ window.dispatchEvent(new CustomEvent('robotia:teacherSession',{detail:{email:''}}));
  message('Sessió desconnectada. Les dades locals continuen en aquest navegador.');
 }
 function init(){
