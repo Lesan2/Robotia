@@ -29,7 +29,12 @@
   <div><strong>2 · Corregir activitats</strong><p>A <b>Correccions</b>, busca el correu i l'ID del repte. Escriu la nota docent de 0 a 10, el comentari que llegirà l'alumne i la teva anotació privada.</p></div>
   <div><strong>3 · Fer el seguiment</strong><p>A <b>Observacions</b> escriu les notes generals; a <b>Alumnes</b> hi ha les notes de flux, micro:bit, sensors, actitud i projecte final.</p></div>
  </div>
- <a class="btn primary" href="${sheet}" target="_blank" rel="noopener noreferrer">Obrir tauler de qualificacions ↗</a>
+ <div class="v3-teacher-links">
+ <a class="btn primary" href="${sheet}#gid=1269118972" target="_blank" rel="noopener noreferrer">👥 Alumnes i portafolis ↗</a>
+ <a class="btn secondary" href="${sheet}#gid=15321901" target="_blank" rel="noopener noreferrer">📝 Corregir exercicis ↗</a>
+ <a class="btn secondary" href="${sheet}#gid=15321902" target="_blank" rel="noopener noreferrer">💬 Observacions ↗</a>
+ <a class="btn secondary" href="${sheet}#gid=15321903" target="_blank" rel="noopener noreferrer">📏 Rúbriques ↗</a>
+ </div>
  <div class="v3-teacher-flow">
    <article><b>Alumnes</b><p>Consulta els portafolis i les notes de flux, micro:bit, sensors, actitud i robot final.</p></article>
    <article><b>Correccions</b><p>Per cada repte, escriu o modifica la nota, el comentari per a l'alumne i l'anotació privada.</p></article>
@@ -89,6 +94,8 @@
  .v3-teacher-panel h3{font-size:18px;margin:22px 0 10px}
  .v3-teacher-panel p{font-size:14px;line-height:1.6;color:#526278}
  .v3-teacher-panel>a{display:inline-flex;margin:8px 0}
+ .v3-teacher-links{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0 20px}
+ .v3-teacher-links a{text-decoration:none}
  .v3-teacher-flow{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:16px 0}
  .v3-teacher-flow article{border:1px solid #dce7f1;border-radius:12px;padding:15px;background:#f8fbff}
  .v3-teacher-flow b{font-size:14px}
