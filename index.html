@@ -715,7 +715,7 @@
     return [...new Map(names.map(n=>[normalize(n),n])).values()];
   }
   function requireIdentity(){
-    if(!window.ROBOTIA_AUTH?.ready){toast('Cal iniciar sessió amb Google de l’institut.');return false}
+    if(!window.ROBOTIA_AUTH?.authenticated){toast('Cal iniciar sessió amb Google de l’institut.');return false}
     const typed=$('#studentName')?.value?.trim();
     if(typed && typed!==state.identity.name){
       activateIdentity({name:typed,team:$('#teamNames')?.value.trim()||'',className:$('#className')?.value.trim()||'',email:state.identity.email});
