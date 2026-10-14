@@ -105,6 +105,17 @@
 
 </style>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23111827'/%3E%3Cpath d='M14 22h18l8 10-8 10H14l8-10z' fill='%236ee7b7'/%3E%3Ccircle cx='48' cy='32' r='7' fill='%2360a5fa'/%3E%3C/svg%3E" />
+<style id="v3-grade-style">
+.v3-grades-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0}
+.v3-grade-card{display:flex;flex-direction:column;gap:8px;padding:22px;min-height:196px}
+.v3-area-label{font-size:14px;color:#334155;font-weight:850}
+.v3-grade-card strong{font-size:32px;color:#1d4e73}
+.v3-grade-card small,.v3-grade-count{font-size:12px;color:#64748b}
+.v3-grade-card p{font-size:13px;margin:9px 0 0;line-height:1.6}
+.v3-grades-info{padding:24px}
+.v3-grades-info p{font-size:14px;line-height:1.7;color:#475467}
+@media(max-width:800px){.v3-grades-grid{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
 <div style="background:#7c2d12;color:white;padding:10px;text-align:center;font-weight:bold;position:relative;z-index:9999">ROBOTIA V3 PILOT · Tria lliurement els reptes · Versió per provar abans de fer-la servir amb tota la classe</div>
@@ -123,7 +134,7 @@
       <button class="btn ghost" id="btnHome">Inici</button>
       <button class="btn ghost" id="btnLearn">Aprendre</button>
       <button class="btn ghost" id="btnChallenges">Reptes</button>
-      <button class="btn ghost" id="btnPortfolio">Portafoli</button>
+      <button class="btn ghost" id="btnPortfolio">Portafoli</button><button class="btn ghost" id="btnV3Grades">Les meves notes</button>
       <button class="btn primary" id="btnDeliver">Entrega</button>
     </nav>
   </header>
@@ -224,6 +235,44 @@
 <div id="categoryIntro" class="category-intro"></div>
       <div id="scorePanel" class="score-panel card"></div>
       <div id="challengeGrid" class="challenge-grid"></div>
+    </section>
+
+    
+    <section id="viewV3Grades" class="view">
+      <div class="section-head">
+        <div><span class="eyebrow">NOTES REALS I PROGRÉS</span><h1>Les meves notes</h1>
+        <p>Cap repte és obligatori. Cada àrea es valora a partir de les evidències dels reptes que hagis triat.</p></div>
+      </div>
+      <div class="v3-grades-grid">
+        <article class="card v3-grade-card">
+          <span class="v3-area-label">1 · Diagrames de flux</span>
+          <strong id="v3fluxPotential">0/10</strong><small>Potencial dels reptes</small>
+          <p>Nota real del professor: <b>Pendent</b></p>
+          <span id="v3fluxCount" class="v3-grade-count">0 reptes entregats</span>
+        </article>
+        <article class="card v3-grade-card">
+          <span class="v3-area-label">2 · Programació micro:bit</span>
+          <strong id="v3microbitPotential">0/10</strong><small>Potencial dels reptes</small>
+          <p>Nota real del professor: <b>Pendent</b></p>
+          <span id="v3microbitCount" class="v3-grade-count">0 reptes entregats</span>
+        </article>
+        <article class="card v3-grade-card">
+          <span class="v3-area-label">3 · Sensors i actuadors</span>
+          <strong id="v3sensorsPotential">0/10</strong><small>Potencial dels reptes</small>
+          <p>Nota real del professor: <b>Pendent</b></p>
+          <span id="v3sensorsCount" class="v3-grade-count">0 reptes entregats</span>
+        </article>
+      </div>
+      <div class="card v3-grades-info">
+        <h2>Com es calcula l'avaluació?</h2>
+        <p><b>20%</b> Comportament, puntualitat, participació i material · <b>50%</b> Pràctiques de les tres àrees · <b>30%</b> Projecte final del robot.</p>
+        <p>Les tres notes de pràctiques es registraran per separat. La mitjana de les tres àrees formarà la nota de pràctiques quan el professor les hagi avaluat. Els reptes no són obligatoris i no haver fet una categoria no representa automàticament un zero.</p>
+        <hr>
+        <p><b>Projecte final:</b> nota docent pendent. És una avaluació independent de les tres àrees anteriors.</p>
+        <p><b>Observacions del professor:</b> pendents de sincronització. La nova vista no inventa qualificacions i, per ara, no publica comentaris del full de seguiment.</p>
+        <p><b>Atenció:</b> el potencial de ROBOTIA és una xifra del joc, no una nota validada.</p>
+        <button type="button" class="btn secondary" id="v3GoPortfolio">Obrir el portafoli</button>
+      </div>
     </section>
 
     <section id="viewLab" class="view lab-view">
@@ -781,6 +830,19 @@
     const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),2200);
   }
 
+  function renderV3Grades(){
+    ['flux','microbit','sensors'].forEach(function(cat){
+      const x=scoreForCategory(cat);
+      const note=document.getElementById('v3'+cat+'Potential');
+      const count=document.getElementById('v3'+cat+'Count');
+      if(note) note.textContent=x.note+'/10';
+      if(count) count.textContent=x.completed+' reptes registrats · pendent de validar';
+    });
+  }
+  function showV3Grades(){
+    renderV3Grades();
+    showView('#viewV3Grades');
+  }
   function scoreForCategory(category='flux', progress=state.progress){
     const pool=challenges.filter(c=>c.category===category);
     const done=pool.filter(c=>progress[c.id]?.completed);
@@ -1868,7 +1930,12 @@
   function renderTutorial(){const [title,text,visual]=tutorialSteps[state.tutorialStep];$('#tutorialTitle').textContent=title;$('#tutorialText').textContent=text;$('#tutorialVisual').innerHTML=visual;$('#tutorialStep').textContent=`${state.tutorialStep+1} / ${tutorialSteps.length}`;$('#tutorialPrev').disabled=state.tutorialStep===0;$('#tutorialNext').textContent=state.tutorialStep===tutorialSteps.length-1?'Fer primer repte':'Següent'}
 
   window.ROBOTIA_CLOUD_APP={state,makePortfolioBundle,exportPortfolioBundle,importPortfolioBundle,activateIdentity,renderChallenges,renderPortfolio,scoreForCategory};
-  loadStored(); bindUI(); initDragDropPalette(); renderChallenges(); updateProgressUI(); setInterval(tickActiveTime,15000);
+  loadStored(); bindUI();
+  const gradesButton=document.getElementById('btnV3Grades');
+  if(gradesButton) gradesButton.onclick=showV3Grades;
+  const backPortfolio=document.getElementById('v3GoPortfolio');
+  if(backPortfolio) backPortfolio.onclick=()=>showView('#viewPortfolio');
+  initDragDropPalette(); renderChallenges(); updateProgressUI(); setInterval(tickActiveTime,15000);
 })();
 
 </script>
