@@ -276,19 +276,11 @@ async function refreshPublishedFeedback(){
    message('⚠️ Error en consultar les notes: '+err.message);
  }
 }
-window.addEventListener('robotia:refreshFeedback',()=>void refreshPublishedFeedback());
 function logout(){
  clearTimeout(cloud.timer);if(window.google?.accounts?.id)google.accounts.id.disableAutoSelect();
  cloud.token='';cloud.email='';cloud.ready=!!cloud.remoteWindow;cloud.blocked=true;cloud.shared={};cloud.savedSig='';$('#cloud-share-panel').hidden=true;buttons();
  window.dispatchEvent(new CustomEvent('robotia:teacherSession',{detail:{email:''}}));
  message('Sessió desconnectada. Les dades locals continuen en aquest navegador.');
-}
-async function refreshPublishedFeedback(){
- if(!cloud.email||!cloud.token){message('Inicia sessió amb Google per consultar les notes del professor.');return}
- try{
-  await cloudInfo();
-  message('✓ Qualificacions publicades actualitzades. Consulta «Les meves notes».');
- }catch(err){message('⚠️ No s’han pogut actualitzar les qualificacions: '+err.message);}
 }
 function init(){
  window.addEventListener('robotia:refreshFeedback',()=>void refreshPublishedFeedback());
