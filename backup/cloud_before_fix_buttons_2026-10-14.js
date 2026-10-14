@@ -1,0 +1,271 @@
+/* ROBOTIA cloud add-on. Does not replace original editor or existing exports. */
+(()=>{
+'use strict';
+const app=window.ROBOTIA_CLOUD_APP;
+const config=window.ROBOTIA_CLOUD_CONFIG||{};
+if(!app){console.error('ROBOTIA: manca el pont intern de l’aplicació original');return}
+const $=s=>document.querySelector(s);
+const cloud={token:'',email:'',revision:0,shared:{},bridge:null,remoteWindow:null,remoteOrigin:'',ready:false,seq:0,pending:new Map(),saving:false,savedSig:'',timer:0,poll:0,blocked:false};
+const disabled=!/^\d+-[a-z0-9_-]+\.apps\.googleusercontent\.com$/i.test(config.clientId||'')||!/^https:\/\/script\.google\.com\/(?:a\/macros\/instituticaria\.cat\/s\/|macros\/s\/)[\w-]+\/exec$/.test(config.bridgeUrl||'');
+const html=`<section id="robotia-cloud" class="card" style="padding:18px;margin:15px 0;border:1px solid #93c5fd;border-radius:15px">
+ <h2 style="margin-top:0">☁️ Desar els meus treballs al núvol</h2>
+ <p id="cloud-message" role="status">Preparant la connexió…</p><div id="cloud-login"></div>
+ <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">
+ <button class="btn secondary" id="cloud-load" disabled>Carregar / fusionar</button>
+ <button class="btn primary" id="cloud-save" disabled>Desar al núvol</button>
+ <button class="btn secondary" id="cloud-invite" disabled>Compartir activitat</button>
+ <button class="btn secondary" id="cloud-inbox" disabled>📩 Invitacions <span id="cloud-invite-count"></span></button>
+ <button class="btn secondary" id="cloud-out" disabled>Desconnectar</button></div>
+ <div id="cloud-share-panel" hidden style="background:#f1f7ff;padding:14px;margin-top:12px;border-radius:12px;border:1px solid #bed7ef">
+  <b style="display:block;margin-bottom:10px">Convida un company a treballar en un repte</b>
+  <label style="display:block;font-size:13px;margin-bottom:8px">Repte amb diagrama guardat
+   <select id="cloud-share-challenge" style="display:block;width:100%;padding:9px;margin-top:5px;border:1px solid #bdd1e2;border-radius:9px"></select>
+  </label>
+  <label style="display:block;font-size:13px;margin-bottom:8px">Correu institucional del company
+   <input type="email" id="cloud-share-email" placeholder="company@instituticaria.cat" autocomplete="off" style="display:block;width:100%;padding:9px;margin-top:5px;border:1px solid #bdd1e2;border-radius:9px">
+  </label>
+  <p style="font-size:12px;color:#52667e">El company haurà d'acceptar la invitació. Si ja té aquest repte, podrà substituir-lo i guardar l'anterior a l'historial. Els altres reptes es conserven.</p>
+  <button type="button" class="btn primary" id="cloud-share-send">Enviar invitació</button>
+  <button type="button" class="btn ghost" id="cloud-share-cancel">Cancel·lar</button>
+ </div>
+ <p style="font-size:12px;color:#64748b">Les còpies .robotiaportfolio i el desament local continuen disponibles. Si el núvol falla, descarrega una còpia manual.</p>
+ </section>`;
+$('#portfolioOwner')?.insertAdjacentHTML('beforebegin',html);
+const message=t=>{$('#cloud-message').textContent=t};
+const active=()=>!!cloud.email&&!cloud.blocked;
+function buttons(){['load','out'].forEach(k=>{$('#cloud-'+k).disabled=!cloud.email});['save','invite','inbox'].forEach(k=>{$('#cloud-'+k).disabled=!active()})}
+function call(method,args){return new Promise((resolve,reject)=>{
+ if(!cloud.ready)return reject(Error('El pont de Google encara no està preparat'));
+ const id=++cloud.seq;const timeout=setTimeout(()=>{cloud.pending.delete(id);reject(Error('La connexió ha superat el temps d’espera'))},45000);
+ cloud.pending.set(id,{resolve,reject,timeout});cloud.remoteWindow.postMessage({robotiaBridge:1,id,method,args},cloud.remoteOrigin);
+})}
+function stable(obj){return JSON.stringify(obj,(key,value)=>['exportedAt','updatedAt','appBuild'].includes(key)?undefined:value)}
+function snapshot(){const p=app.makePortfolioBundle();p.identity.email=cloud.email;if(typeof app.scoreForCategory==='function'){p.cloudSummary={flux:app.scoreForCategory('flux'),microbit:app.scoreForCategory('microbit'),sensors:app.scoreForCategory('sensors'),robot:app.scoreForCategory('robot')}}return p}
+function localHasWork(){const b=app.makePortfolioBundle();return Object.keys(b.activities||{}).length>0||Object.keys(b.projects||{}).length>0}
+function downloadLocal(){app.exportPortfolioBundle()}
+function syncSharedFromInfo(r){
+ cloud.shared=r.shared||{};
+ const remote=r.portfolio;if(!remote)return remote;
+ // Només s'aplica un treball compartit que ja estigui assignat pel servidor
+ // al mateix identificador de treball. No se substitueixen altres reptes.
+ const recipient=remote.identity?.name||'';
+ const norm=x=>String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+ for(const item of Object.values(cloud.shared)){
+   const id=item?.challengeId;
+   if(!id||!Object.prototype.hasOwnProperty.call(remote.activities||{},id))continue;
+   if(remote.activities[id]?.workId!==item.id||!item.activity)continue;
+   const activity=JSON.parse(JSON.stringify(item.activity));
+   const owners=[...(Array.isArray(activity.project?.owners)?activity.project.owners:[]),recipient]
+     .filter(Boolean).filter((v,i,a)=>a.findIndex(x=>norm(x)===norm(v))===i);
+   if(activity.project)activity.project.owners=owners;
+   activity.owners=owners;
+   const oldRef=remote.reflections?.[id]||remote.activities[id]?.reflection||null;
+   const refl={...(activity.reflection||{}),owners,
+     versionHistory:Array.isArray(oldRef?.versionHistory)?oldRef.versionHistory:[]};
+   activity.reflection=refl;
+   remote.activities[id]=activity;
+   if(activity.project)remote.projects[id]=activity.project;
+   remote.reflections[id]=refl;
+   if(activity.progressRecord)remote.progress[id]=activity.progressRecord;
+ }
+ return remote;
+}
+async function cloudInfo(){
+  const r=await call('cloudInfo',[cloud.token]);
+  if(r.email!==cloud.email)throw Error('Identitat de sessió incorrecta');
+  // Compatible amb serveis antics: només mostra valoracions quan el
+  // servidor les retorna per a l'usuari autenticat.
+  if(r.publishedFeedback && r.publishedFeedback.email===cloud.email){
+    window.dispatchEvent(new CustomEvent('robotia:publishedFeedback',{detail:r.publishedFeedback}));
+  }
+  return r;
+}
+async function enter(token){
+ cloud.token=token;cloud.blocked=true;buttons();message('Verificant el compte institucional…');
+ try{
+   const registration=await call('cloudRegister',[token]);cloud.email=registration.email;
+   const info=await cloudInfo();cloud.revision=info.revision;syncSharedFromInfo(info);
+   window.dispatchEvent(new CustomEvent('robotia:teacherSession',{detail:{email:cloud.email}}));
+   if(info.publishedFeedback?.email===cloud.email){window.dispatchEvent(new CustomEvent('robotia:publishedFeedback',{detail:info.publishedFeedback}));}
+   cloud.blocked=!!info.portfolio;buttons();$('#cloud-invite-count').textContent=info.invites?.length||'';
+   if(!app.state.identity.name){
+     app.activateIdentity({name:registration.name,team:'',className:''});
+     app.renderChallenges();app.renderPortfolio();
+   }
+   if(info.portfolio){
+     message('Sessió: '+cloud.email+' · Hi ha un portafoli al núvol. Prem «Carregar / fusionar» per recuperar-lo abans de continuar.');
+     // No substituïm una versió local sense consentiment explícit.
+     if(!localHasWork())await load(true,info);
+   }else{
+     message('Sessió: '+cloud.email+' · Encara no tens portafoli al núvol. Desarem el treball actual.');
+     markDirty();
+   }
+ }catch(err){cloud.blocked=true;buttons();message('⚠️ '+err.message)}
+}
+async function load(auto=false,knownInfo=null){
+ if(!cloud.email)return;
+ cloud.blocked=true;buttons();
+ try{
+  message('Comprovant el portafoli del núvol…');const info=knownInfo||await cloudInfo();cloud.revision=info.revision;
+  const incoming=syncSharedFromInfo(info);
+  if(!incoming){cloud.blocked=false;buttons();message('No hi ha encara cap portafoli al núvol.');return}
+  const localName=app.state.identity.name;
+  if(localName&&localName.localeCompare(incoming.identity?.name||'',undefined,{sensitivity:'base'})!==0){
+    message('⚠️ Aquest ordinador té un perfil local diferent: exporta’l abans de canviar de compte.');
+    if(!confirm('Hi ha treballs d’un altre perfil en aquest ordinador. Vols descarregar-ne una còpia i canviar al teu compte institucional?')){message('Carrega el teu portafoli abans de desar al núvol.');return}
+    downloadLocal();app.activateIdentity({name:incoming.identity.name,team:incoming.identity.team||'',className:incoming.identity.className||'',email:cloud.email});
+  }
+  if(!auto&&localHasWork()){
+    downloadLocal();
+    if(!confirm('Hem descarregat una còpia del treball local. Ara fusionarem el portafoli del núvol amb els teus treballs. Vols continuar?')){message('Carrega el teu portafoli abans de desar al núvol.');return}
+  }
+  if(!app.state.identity.name){app.activateIdentity({name:incoming.identity.name,team:incoming.identity.team||'',className:incoming.identity.className||'',email:cloud.email})}
+  await new Promise(resolve=>app.importPortfolioBundle(new File([JSON.stringify(incoming)],'ROBOTIA_NUVOL.robotiaportfolio',{type:'application/json'}),resolve));
+  cloud.savedSig=stable(snapshot());cloud.blocked=false;
+  message('✓ Portafoli del núvol carregat / fusionat. Revisa els reptes; conserva la còpia descarregada si n’hi havia.');
+  $('#cloud-invite-count').textContent=info.invites?.length||'';buttons();
+ }catch(err){message('⚠️ Error en carregar: '+err.message)}
+}
+function markDirty(){if(!active())return;clearTimeout(cloud.timer);cloud.timer=setTimeout(()=>{void save(true)},6500)}
+async function save(automatic=false){
+ if(!active()||cloud.saving||!app.state.identity.name)return false;
+ if(cloud.poll)clearTimeout(cloud.poll);
+ const p=snapshot();const sig=stable(p);
+ if(automatic&&sig===cloud.savedSig)return true;
+ cloud.saving=true;message('☁️ Desant al núvol…');
+ try{
+  const revs=Object.fromEntries(Object.values(cloud.shared).map(x=>[x.id,x.revision]));
+  const r=await call('cloudSave',[cloud.token,p,cloud.revision,revs]);
+  if(r.conflict||r.sharedConflict){
+    cloud.blocked=true;buttons();downloadLocal();
+    message('⚠️ Una altra sessió ha modificat el portafoli o l’activitat compartida. S’ha descarregat una còpia local: recarrega i fusiona abans de continuar.');
+    return false;
+  }
+  cloud.revision=r.revision;
+  for(const [id,revision] of Object.entries(r.sharedRevisions||{}))if(cloud.shared[id])cloud.shared[id].revision=revision;
+  cloud.savedSig=sig;message((r.gradeWarning?'✓ Portafoli desat · ⚠️ Seguiment docent pendent':'✓ Desat al núvol')+' · '+new Date().toLocaleTimeString('ca-ES'));
+  return true;
+ }catch(err){message('⚠️ No s’ha pogut desar: '+err.message+'. Conserva i descarrega el teu portafoli.');return false;}
+ finally{cloud.saving=false}
+}
+function invite(){
+ if(!active()||cloud.saving)return;
+ const p=snapshot();
+ const options=Object.entries(p.activities||{}).filter(([,a])=>a.project?.nodes?.length);
+ if(!options.length){message('Primer crea i desa un diagrama en un repte.');return}
+ const select=$('#cloud-share-challenge');
+ select.replaceChildren();
+ for(const [id,a] of options){
+   const option=document.createElement('option');
+   option.value=id;option.textContent=(a.challengeMeta?.title||id)+' · '+id;
+   select.appendChild(option);
+ }
+ $('#cloud-share-email').value='';
+ $('#cloud-share-panel').hidden=false;
+ $('#cloud-share-email').focus();
+ message('Escull el repte i escriu el correu institucional del company.');
+}
+async function sendInvite(){
+ if(!active()||cloud.saving)return;
+ const id=$('#cloud-share-challenge').value;
+ const to=$('#cloud-share-email').value.trim().toLowerCase();
+ const p=snapshot();
+ if(!p.activities?.[id]?.project?.nodes?.length){message('El repte seleccionat no té un diagrama per compartir.');return}
+ if(!/^[a-z0-9._%+-]+@instituticaria\.cat$/.test(to)){message('Introdueix un correu vàlid de l’institut.');return}
+ if(to===cloud.email.toLowerCase()){message('No pots enviar-te una invitació a tu mateix.');return}
+ const button=$('#cloud-share-send');button.disabled=true;
+ try{
+  if(!await save(false)||!active())return;
+  await call('cloudInvite',[cloud.token,to,id]);
+  $('#cloud-share-panel').hidden=true;
+  message('📩 Invitació enviada a '+to+' per compartir «'+(p.activities[id]?.challengeMeta?.title||id)+'». El company l’ha d’acceptar perquè afecti el seu portafoli.');
+ }catch(err){message('⚠️ No s’ha pogut enviar la invitació: '+err.message)}
+ finally{button.disabled=false}
+}
+async function inbox(){
+ if(!active())return;
+ try{
+  const first=await cloudInfo();
+  cloud.revision=first.revision;
+  cloud.shared=first.shared||{};
+  const items=first.invites||[];
+  $('#cloud-invite-count').textContent=items.length||'';
+  if(!items.length){message('No tens invitacions pendents.');return}
+  for(const item of items){
+    const title=item.title||item.challengeId||'repte sense títol';
+    const existingId=item.challengeId;
+    const localProject=existingId && app.makePortfolioBundle()?.activities?.[existingId];
+    const warning=localProject?'\n\nJa tens una versió d’aquest repte. Si acceptes, es desarà a l’historial i la rebuda serà la versió activa.':'\n\nSi ja tens aquest repte, se’n guardarà la versió anterior abans de substituir-la.';
+    if(!confirm((item.from||'Un company')+' et convida a compartir «'+title+'».'
+      +warning+'\n\nD’acord = acceptar; Cancel·lar = deixar pendent.'))continue;
+    // Còpia de seguretat completa abans de modificar res.
+    if(localHasWork())downloadLocal();
+    if(!await save(false)||!active())return;
+    const before=new Set(Object.values(cloud.shared||{}).map(x=>x.id));
+    const ack=await call('cloudAccept',[cloud.token,item.id,'accept']);
+    cloud.revision=ack.revision;
+    cloud.blocked=true;buttons();
+    const refreshed=await cloudInfo();
+    cloud.revision=refreshed.revision??cloud.revision;
+    cloud.shared=refreshed.shared||{};
+    const sources=Object.entries(cloud.shared).map(([key,v])=>({...v,id:v.id||key}));
+    const after=sources.filter(v=>!before.has(v.id));
+    const specificId=item.challengeId||ack.challengeId||null;
+    const announcedId=ack.sharedId||ack.workId||null;
+    const chosen=(announcedId&&sources.find(v=>v.id===announcedId))
+      ||(specificId&&sources.find(v=>v.challengeId===specificId))
+      ||(after.length===1?after[0]:null);
+    const remote=chosen?.activity || (chosen?.challengeId?refreshed.portfolio?.activities?.[chosen.challengeId]:null);
+    if(!chosen||!remote?.project?.nodes?.length){
+      message('✓ Invitació acceptada al núvol, però no s’ha pogut verificar el diagrama rebut. Prem «Carregar / fusionar» i revisa el treball abans de continuar.');
+      return;
+    }
+    // Només s'adopta el repte que retorna el servidor per a aquest destinatari.
+    const result=app.applyAcceptedSharedActivity(remote,{
+      id:chosen.id,challengeId:chosen.challengeId,from:item.from||''
+    });
+    cloud.blocked=false;buttons();
+    if(!await save(false)||!active()){
+      message('⚠️ La invitació s’ha acceptat i el repte és al navegador, però encara no s’ha confirmat el desament al núvol. Conserva una còpia local i revisa la connexió.');return;
+    }
+    message('✓ «'+title+'» compartit i carregat al teu portafoli.'
+      +(result.hasPrevious?' La teva versió anterior s’ha guardat a l’historial.':'')
+      +' La resta de reptes no s’han modificat.');
+    $('#cloud-invite-count').textContent=refreshed.invites?.length||'';
+  }
+ }catch(err){cloud.blocked=true;buttons();message('⚠️ Invitacions: '+err.message+'. Revisa i carrega el portafoli abans de continuar.')}
+}
+function logout(){
+ clearTimeout(cloud.timer);if(window.google?.accounts?.id)google.accounts.id.disableAutoSelect();
+ cloud.token='';cloud.email='';cloud.ready=!!cloud.remoteWindow;cloud.blocked=true;cloud.shared={};cloud.savedSig='';$('#cloud-share-panel').hidden=true;buttons();
+ window.dispatchEvent(new CustomEvent('robotia:teacherSession',{detail:{email:''}}));
+ message('Sessió desconnectada. Les dades locals continuen en aquest navegador.');
+}
+function init(){
+ $('#cloud-load').onclick=()=>void load();$('#cloud-save').onclick=()=>void save(false);
+ $('#cloud-invite').onclick=invite;$('#cloud-share-send').onclick=()=>void sendInvite();$('#cloud-share-cancel').onclick=()=>{$('#cloud-share-panel').hidden=true};$('#cloud-inbox').onclick=()=>void inbox();$('#cloud-out').onclick=logout;
+ if(disabled){message('Núvol en preparació. Configura l’ID de Google i el desplegament d’Apps Script; mentrestant, utilitza les còpies locals.');return}
+ window.addEventListener('message',event=>{
+  if(event.data?.robotiaBridge!==1)return;
+  // Apps Script inserta marcs interns: els missatges arriben des del marc HTML de Google, no del marc exterior.
+  if(event.data.ready){
+    if(!/^https:\/\/[a-z0-9.-]*googleusercontent\.com$/i.test(event.origin))return;
+    cloud.remoteWindow=event.source;cloud.remoteOrigin=event.origin;cloud.ready=true;
+    message('Connexió preparada. Entra amb el compte de l’institut.');return;
+  }
+  if(!cloud.ready||event.source!==cloud.remoteWindow||event.origin!==cloud.remoteOrigin)return;
+  const r=cloud.pending.get(event.data.id);if(!r)return;cloud.pending.delete(event.data.id);clearTimeout(r.timeout);
+  event.data.error?r.reject(Error(event.data.error)):r.resolve(event.data.result);
+ });
+ cloud.bridge=document.createElement('iframe');cloud.bridge.src=config.bridgeUrl;cloud.bridge.hidden=true;cloud.bridge.title='ROBOTIA núvol';document.body.appendChild(cloud.bridge);
+ setTimeout(()=>{if(!cloud.ready)message('⚠️ Sense connexió amb Apps Script. Revisa que el pont estigui desplegat i que el navegador permeti les galetes de Google en aquesta pàgina. El portafoli local continua disponible.');},16000);
+ const initGoogle=()=>{
+  if(!window.google?.accounts?.id){setTimeout(initGoogle,350);return}
+  google.accounts.id.initialize({client_id:config.clientId,callback:r=>void enter(r.credential),auto_select:false,hd:'instituticaria.cat'});
+  google.accounts.id.renderButton($('#cloud-login'),{type:'standard',size:'large',theme:'outline',text:'signin_with',locale:'ca'});
+ };initGoogle();
+ document.addEventListener('input',markDirty);document.addEventListener('change',markDirty);
+ setInterval(()=>{if(active())void save(true)},25000);
+}
+init();
+})();
