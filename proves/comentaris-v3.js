@@ -66,8 +66,8 @@ function refreshNotes(){
  const entries=Array.isArray(published.exercises)?published.exercises:[];
  if(!entries.length){const p=document.createElement("p");p.textContent="Encara no hi ha correccions per exercici publicades.";card.append(p)}
  for(const item of entries){
- if(!item||typeof item.comment!=="string")continue;
- addComment(card,(item.title||item.id||"Repte")+(Number.isFinite(item.grade)?" · "+item.grade+"/10":""),item.comment);
+ if(!item||(!item.comment&&!Number.isFinite(item.grade)))continue;
+ addComment(card,(item.title||item.id||"Repte")+(Number.isFinite(item.grade)?" · "+item.grade+"/10":""),item.comment||"Qualificació publicada pel professor.");
  }
  }
  refreshPerChallenge();
