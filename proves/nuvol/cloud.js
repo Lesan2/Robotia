@@ -122,8 +122,10 @@ async function load(auto=false,knownInfo=null){
   }
   if(!app.state.identity.name){app.activateIdentity({name:incoming.identity.name,team:incoming.identity.team||'',className:incoming.identity.className||'',email:cloud.email})}
   await new Promise(resolve=>app.importPortfolioBundle(new File([JSON.stringify(incoming)],'ROBOTIA_NUVOL.robotiaportfolio',{type:'application/json'}),resolve));
+  app.activateIdentity({...app.state.identity,email:cloud.email});
   cloud.savedSig=stable(snapshot());cloud.blocked=false;
-  message('✓ Portafoli del núvol carregat / fusionat. Revisa els reptes; conserva la còpia descarregada si n’hi havia.');
+  $('#gate-merge').style.display='none';gateHide();
+  message('✓ Portafoli del núvol carregat / fusionat: '+cloud.email);
   $('#cloud-invite-count').textContent=info.invites?.length||'';buttons();
  }catch(err){message('⚠️ Error en carregar: '+err.message)}
 }
@@ -176,10 +178,22 @@ async function inbox(){
 }
 function logout(){
  clearTimeout(cloud.timer);if(window.google?.accounts?.id)google.accounts.id.disableAutoSelect();
- cloud.token='';cloud.email='';cloud.ready=!!cloud.remoteWindow;cloud.blocked=true;cloud.shared={};cloud.savedSig='';buttons();
- message('Sessió desconnectada. Les dades locals continuen en aquest navegador.');
+ cloud.token='';cloud.email='';cloud.blocked=true;cloud.shared={};cloud.savedSig='';buttons();gateShow();
+ $('#gate-name-step').style.display='none';$('#gate-merge').style.display='none';
+ message('Sessió desconnectada. Inicia sessió per treballar.');
 }
 function init(){
+ $('#gate-merge').onclick=()=>void load();
+ $('#gate-confirm').onclick=()=>{
+   if(!cloud.ready||!cloud.email)return message('Inicia sessió amb Google primer.');
+   const name=$('#gate-name').value.trim();
+   if(name.length<3)return message('Escriu nom i cognoms.');
+   app.activateIdentity({name,team:'',className:'',email:cloud.email});
+   app.renderChallenges();app.renderPortfolio();
+   $('#gate-name-step').style.display='none';
+   cloud.blocked=false;buttons();gateHide();markDirty();
+   message('✓ Sessió iniciada: '+cloud.email+' · '+name);
+ };
  $('#cloud-load').onclick=()=>void load();$('#cloud-save').onclick=()=>void save(false);
  $('#cloud-invite').onclick=()=>void invite();$('#cloud-inbox').onclick=()=>void inbox();$('#cloud-out').onclick=logout;
  if(disabled){message('Núvol en preparació. Configura l’ID de Google i el desplegament d’Apps Script; mentrestant, utilitza les còpies locals.');return}
@@ -189,7 +203,7 @@ function init(){
   if(event.data.ready){
     if(!/^https:\/\/[a-z0-9.-]*googleusercontent\.com$/i.test(event.origin))return;
     cloud.remoteWindow=event.source;cloud.remoteOrigin=event.origin;cloud.ready=true;
-    message('Connexió preparada. Entra amb el compte de l’institut.');return;
+    message('Connexió preparada. Entra amb el compte de l’institut.');initGoogle();return;
   }
   if(!cloud.ready||event.source!==cloud.remoteWindow||event.origin!==cloud.remoteOrigin)return;
   const r=cloud.pending.get(event.data.id);if(!r)return;cloud.pending.delete(event.data.id);clearTimeout(r.timeout);
@@ -197,11 +211,14 @@ function init(){
  });
  cloud.bridge=document.createElement('iframe');cloud.bridge.src=config.bridgeUrl;cloud.bridge.hidden=true;cloud.bridge.title='ROBOTIA núvol';document.body.appendChild(cloud.bridge);
  setTimeout(()=>{if(!cloud.ready)message('⚠️ Sense connexió amb Apps Script. Revisa que el pont estigui desplegat i que el navegador permeti les galetes de Google en aquesta pàgina. El portafoli local continua disponible.');},16000);
- const initGoogle=()=>{
+ let googleInitialized=false;
+ function initGoogle(){
+  if(!cloud.ready||googleInitialized)return;
   if(!window.google?.accounts?.id){setTimeout(initGoogle,350);return}
+  googleInitialized=true;
   google.accounts.id.initialize({client_id:config.clientId,callback:r=>void enter(r.credential),auto_select:false,hd:'instituticaria.cat'});
   google.accounts.id.renderButton($('#cloud-login'),{type:'standard',size:'large',theme:'outline',text:'signin_with',locale:'ca'});
- };initGoogle();
+ }
  document.addEventListener('input',markDirty);document.addEventListener('change',markDirty);
  setInterval(()=>{if(active())void save(true)},25000);
 }
