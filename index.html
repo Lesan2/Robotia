@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="theme-color" content="#111827" />
-  <title>ROBOTIA · FlowLab v0.12</title>
+  <title>ROBOTIA V3 · Robòtica 3r ESO</title>
   <style>
 :root{
   --bg:#f6f8fc;--panel:#fff;--ink:#111827;--muted:#667085;--line:#d9e0ea;
@@ -105,9 +105,20 @@
 
 </style>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23111827'/%3E%3Cpath d='M14 22h18l8 10-8 10H14l8-10z' fill='%236ee7b7'/%3E%3Ccircle cx='48' cy='32' r='7' fill='%2360a5fa'/%3E%3C/svg%3E" />
+<style id="v3-grade-style">
+.v3-grades-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0}
+.v3-grade-card{display:flex;flex-direction:column;gap:8px;padding:22px;min-height:196px}
+.v3-area-label{font-size:14px;color:#334155;font-weight:850}
+.v3-grade-card strong{font-size:32px;color:#1d4e73}
+.v3-grade-card small,.v3-grade-count{font-size:12px;color:#64748b}
+.v3-grade-card p{font-size:13px;margin:9px 0 0;line-height:1.6}
+.v3-grades-info{padding:24px}
+.v3-grades-info p{font-size:14px;line-height:1.7;color:#475467}
+@media(max-width:800px){.v3-grades-grid{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
-<div style="background:#7c2d12;color:white;padding:10px;text-align:center;font-weight:bold;position:relative;z-index:9999">⚠️ VERSIÓ DE PROVES · No utilitzar amb alumnat ni dades personals fins que s’autoritzi</div>
+<div style="background:#7c2d12;color:white;padding:10px;text-align:center;font-weight:bold;position:relative;z-index:9999">ROBOTIA V3 · Reptes lliures · Accés institucional obligatori</div>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <div id="storageNotice" class="storage-notice hidden" role="status"><b>Mode local:</b> el navegador no permet desar automàticament en aquest fitxer. Pots continuar treballant, però descarrega el projecte o el portafoli per conservar-lo.</div>
 
@@ -123,7 +134,7 @@
       <button class="btn ghost" id="btnHome">Inici</button>
       <button class="btn ghost" id="btnLearn">Aprendre</button>
       <button class="btn ghost" id="btnChallenges">Reptes</button>
-      <button class="btn ghost" id="btnPortfolio">Portafoli</button>
+      <button class="btn ghost" id="btnPortfolio">Portafoli</button><button class="btn ghost" id="btnV3Grades">Les meves notes</button>
       <button class="btn primary" id="btnDeliver">Entrega</button>
     </nav>
   </header>
@@ -133,8 +144,8 @@
       <div class="hero">
         <div class="hero-copy">
           <span class="eyebrow">PENSA · DIBUIXA · COMPROVA · PROGRAMA</span>
-          <h1>Entén els algoritmes <em>veient-los fluir.</em></h1>
-          <p>Construeix diagrames de flux, resol reptes de dificultat creixent, detecta errors i prepara el salt a MakeCode i micro:bit.</p>
+          <h1>Tria els teus reptes <em>i aprèn al teu ritme.</em></h1>
+          <p>Cap repte és obligatori: escull el que t'interessi, demana pistes i aprèn fent amb diagrames, micro:bit i robòtica.</p>
           <div class="hero-actions">
             <button class="btn primary big" id="btnStartChallenge">Començar un repte</button>
             <button class="btn secondary big" id="btnFreeLab">Laboratori lliure</button>
@@ -157,8 +168,8 @@
 
       <div class="identity-card card">
         <div>
-          <h2>Qui està treballant?</h2>
-          <p>Aquesta informació apareixerà a les captures i a l'informe de progrés.</p>
+          <h2>El meu perfil</h2>
+          <p>Cal iniciar sessió amb Google de l'institut. El nom es guarda la primera vegada i apareix automàticament quan tornes a entrar.</p>
         </div>
         <div class="identity-grid">
           <label>Nom i cognoms<input id="studentName" placeholder="Ex. Aina Delta" autocomplete="name" /></label>
@@ -199,7 +210,7 @@
 
     <section id="viewChallenges" class="view">
       <div class="section-head">
-        <div><span class="eyebrow">RUTA DE PROGRÉS</span><h1>Reptes</h1><p>De seqüències simples a sistemes de robòtica amb sensors, ràdio i actuadors.</p></div>
+        <div><span class="eyebrow">REPTES LLIURES</span><h1>Reptes</h1><p>No has de fer-los tots: tria els reptes que més t'interessin i prepara't per al robot final.</p></div>
         <div class="progress-ring" id="progressRing"><span id="progressPercent">0%</span></div>
       </div>
       <div class="challenge-tabs" id="challengeTabs" role="tablist" aria-label="Tipus de reptes">
@@ -208,9 +219,60 @@
         <button class="challenge-tab" data-category="sensors">⚙ Sensors i actuadors</button>
         <button class="challenge-tab" data-category="robot">🤖 Robot final</button>
       </div>
-      <div id="categoryIntro" class="category-intro"></div>
+      <div style="padding:16px;background:#eaf7f5;border:1px solid #abd6d0;border-radius:14px;margin-bottom:14px">
+<strong>Tu tries què vols aprendre. No hi ha activitats obligatòries.</strong>
+<p style="margin:9px 0">🌱 <b>Comença:</b> La motxilla · Semàfor · Hola, micro:bit!</p>
+<p style="margin:9px 0">⚙ <b>Experimenta:</b> Botons A/B · Llum de nit · LED extern</p>
+<p style="margin:9px 0">🚗 <b>Prepara el robot:</b> Ràdio · Servo · Cotxe teledirigit</p>
+<small>Les rutes són suggeriments: pots saltar de nivell.</small>
+</div>
+<details style="background:#fff;border:1px solid #dce5ec;border-radius:12px;padding:12px;margin-bottom:14px">
+<summary style="cursor:pointer;font-weight:800">📚 Consultar guies per a sensors, actuadors i muntatges</summary>
+<p><a href="https://makecode.microbit.org/" target="_blank" rel="noopener">Programar amb MakeCode</a></p>
+<p><a href="https://projectes.xtec.cat/digital/wp-content/uploads/usu2317/2024/10/Micro_shield.pdf" target="_blank" rel="noopener">Fitxa Micro:Shield</a></p>
+<p><a href="https://projectes.xtec.cat/digital/wp-content/uploads/usu2317/2024/10/Conjunt-de-sensors-i-actuadors-secundaria_Basic-1.pdf" target="_blank" rel="noopener">Guia de sensors i actuadors</a></p>
+</details>
+<div id="categoryIntro" class="category-intro"></div>
       <div id="scorePanel" class="score-panel card"></div>
       <div id="challengeGrid" class="challenge-grid"></div>
+    </section>
+
+    
+    <section id="viewV3Grades" class="view">
+      <div class="section-head">
+        <div><span class="eyebrow">NOTES REALS I PROGRÉS</span><h1>Les meves notes</h1>
+        <p>Cap repte és obligatori. Cada àrea es valora a partir de les evidències dels reptes que hagis triat.</p></div>
+      </div>
+      <div class="v3-grades-grid">
+        <article class="card v3-grade-card">
+          <span class="v3-area-label">1 · Diagrames de flux</span>
+          <strong id="v3fluxPotential">0/10</strong><small>Potencial dels reptes</small>
+          <p>Nota real del professor: <b>Pendent</b></p>
+          <span id="v3fluxCount" class="v3-grade-count">0 reptes entregats</span>
+        </article>
+        <article class="card v3-grade-card">
+          <span class="v3-area-label">2 · Programació micro:bit</span>
+          <strong id="v3microbitPotential">0/10</strong><small>Potencial dels reptes</small>
+          <p>Nota real del professor: <b>Pendent</b></p>
+          <span id="v3microbitCount" class="v3-grade-count">0 reptes entregats</span>
+        </article>
+        <article class="card v3-grade-card">
+          <span class="v3-area-label">3 · Sensors i actuadors</span>
+          <strong id="v3sensorsPotential">0/10</strong><small>Potencial dels reptes</small>
+          <p>Nota real del professor: <b>Pendent</b></p>
+          <span id="v3sensorsCount" class="v3-grade-count">0 reptes entregats</span>
+        </article>
+      </div>
+      <div class="card v3-grades-info">
+        <h2>Com es calcula l'avaluació?</h2>
+        <p><b>20%</b> Comportament, puntualitat, participació i material · <b>50%</b> Pràctiques de les tres àrees · <b>30%</b> Projecte final del robot.</p>
+        <p>Les tres notes de pràctiques es registraran per separat. La mitjana de les tres àrees formarà la nota de pràctiques quan el professor les hagi avaluat. Els reptes no són obligatoris i no haver fet una categoria no representa automàticament un zero.</p>
+        <hr>
+        <p><b>Projecte final:</b> nota docent pendent. És una avaluació independent de les tres àrees anteriors.</p>
+        <p><b>Observacions del professor:</b> pendents de sincronització. La nova vista no inventa qualificacions i, per ara, no publica comentaris del full de seguiment.</p>
+        <p><b>Atenció:</b> el potencial de ROBOTIA és una xifra del joc, no una nota validada.</p>
+        <button type="button" class="btn secondary" id="v3GoPortfolio">Obrir el portafoli</button>
+      </div>
     </section>
 
     <section id="viewLab" class="view lab-view">
@@ -324,7 +386,12 @@
       </div>
       <div class="card workflow-card"><h2>Flux de treball recomanat</h2><div class="workflow-grid"><div class="workflow-step"><b>1 · Comença la sessió</b><p>Identifica’t. Si canvies d’ordinador, carrega el teu <b>.robotiaportfolio</b>. Si és el mateix navegador, el progrés local ja hi serà.</p></div><div class="workflow-step"><b>2 · Treballa sol o en parella</b><p>En parella, posa els dos noms al repte. Una activitat <b>.robotia</b> la podrà obrir qualsevol dels autors i incorporar-la al seu portafoli.</p></div><div class="workflow-step"><b>3 · Final de sessió</b><p>Fes <b>Descarregar portafoli</b> i desa’l al Drive. És la còpia completa i la manera segura de continuar en un altre PC.</p></div></div><div class="compat-note">✓ Compatibilitat: els IDs dels reptes ja són estables. Les versions noves poden afegir reptes o funcions sense invalidar portafolis i activitats anteriors.</div></div>
       <div id="portfolioOwner" class="portfolio-owner card"></div>
-      <div class="portfolio-kpis" id="portfolioKpis">
+      <div class="card" style="padding:18px;margin:14px 0;background:#f0f7ff"><b>📝 Les meves notes</b>
+<p><b>Nota docent validada:</b> pendent de publicació (no és un zero).</p>
+<p><b>Potencial ROBOTIA:</b> les xifres següents són puntuacions del joc pendents de corregir, no notes definitives.</p>
+<p><b>Nota oficial:</b> actitud 20% · pràctiques 50% · projecte final 30%. Fins que el professor no revisi aquests blocs, no es pot calcular.</p>
+<p><b>Comentaris del professor:</b> pendents de sincronització. Mentrestant consulta les observacions del professor.</p></div>
+<div class="portfolio-kpis" id="portfolioKpis">
         <div class="kpi"><span>Reptes entregats</span><b>0</b></div>
         <div class="kpi"><span>Flux · màxim prov.</span><b>0/10</b></div>
         <div class="kpi"><span>micro:bit · màxim prov.</span><b>0/10</b></div>
@@ -337,7 +404,7 @@
       </div>
     </section>
   </main>
-  <footer class="app-footer">ROBOTIA FlowLab v0.13 · Creat per Jordi Lesan</footer>
+  <footer class="app-footer">ROBOTIA V3 · Creat per Jordi Lesan</footer>
   <div id="nodeContextMenu" class="node-context-menu hidden" role="menu" aria-label="Opcions del bloc"></div>
 
 
@@ -428,7 +495,7 @@
   const normalize = (s='') => s.normalize('NFD').replace(/\p{Diacritic}/gu,'').toLowerCase().trim();
   const yesWords = ['si','sí','yes','true','1'];
   const noWords = ['no','false','0'];
-  const APP_BUILD='student-v0.13';
+  const APP_BUILD='student-v3-pilot';
   const DATA_SCHEMA_VERSION=10;
   const PORTFOLIO_SCHEMA_VERSION=5;
   const CHALLENGE_CATALOG_VERSION=1; // IDs estables: a partir d'ara només s'afegeixen reptes, no es reciclen IDs.
@@ -648,9 +715,10 @@
     return [...new Map(names.map(n=>[normalize(n),n])).values()];
   }
   function requireIdentity(){
+    if(!window.ROBOTIA_AUTH?.ready){toast('Cal iniciar sessió amb Google de l’institut.');return false}
     const typed=$('#studentName')?.value?.trim();
     if(typed && typed!==state.identity.name){
-      activateIdentity({name:typed,team:$('#teamNames')?.value.trim()||'',className:$('#className')?.value.trim()||''});
+      activateIdentity({name:typed,team:$('#teamNames')?.value.trim()||'',className:$('#className')?.value.trim()||'',email:state.identity.email});
     }
     if(!state.identity.name){toast('Primer identifica’t amb el teu nom i cognoms.');showView('#viewHome');setTimeout(()=>$('#studentName')?.focus(),50);return false}
     return true;
@@ -705,7 +773,8 @@
   }
 
   function saveIdentity(){
-    const next={name:$('#studentName').value.trim(),team:$('#teamNames').value.trim(),className:$('#className').value.trim()};
+    if(!window.ROBOTIA_AUTH?.ready){toast('Inicia sessió amb Google abans de desar dades.');return}
+    const next={name:$('#studentName').value.trim(),team:$('#teamNames').value.trim(),className:$('#className').value.trim(),email:state.identity.email};
     if(!next.name){toast('Escriu el teu nom i cognoms.');return}
     activateIdentity(next); renderChallenges(); toast('Dades desades');
   }
@@ -763,6 +832,19 @@
     const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),2200);
   }
 
+  function renderV3Grades(){
+    ['flux','microbit','sensors'].forEach(function(cat){
+      const x=scoreForCategory(cat);
+      const note=document.getElementById('v3'+cat+'Potential');
+      const count=document.getElementById('v3'+cat+'Count');
+      if(note) note.textContent=x.completed?x.note+'/10':'—';
+      if(count) count.textContent=x.completed?x.completed+' reptes registrats · pendent de validar':'Sense reptes entregats en aquesta àrea';
+    });
+  }
+  function showV3Grades(){
+    renderV3Grades();
+    showView('#viewV3Grades');
+  }
   function scoreForCategory(category='flux', progress=state.progress){
     const pool=challenges.filter(c=>c.category===category);
     const done=pool.filter(c=>progress[c.id]?.completed);
@@ -776,7 +858,7 @@
     const box=$('#scorePanel'); if(!box) return;
     const cat=state.challengeCategory||'flux', sc=scoreForCategory(cat), meta=categoryMeta[cat]||categoryMeta.flux;
     const isFlux=cat==='flux';
-    box.innerHTML=`<div class="score-summary"><div class="score-copy"><span class="eyebrow">PROGRÉS PROVISIONAL · ${escapeHtml(meta.label.toUpperCase())}</span><h2>${isFlux?'Acumula punts i desbloqueja sostre':'Construeix evidències del teu progrés'}</h2><p>${isFlux?'ROBOTIA comprova sobretot l’<b>estructura</b> del diagrama.':'Els reptes pràctics es consideren <b>entregats</b> quan afegeixes evidències al portafoli. La correcció real la farà el professor.'}</p><div class="score-validation-note">◷ Pendent de validació docent: la nota final pot canviar després de revisar la lògica, el codi i les evidències.</div></div><div class="score-kpis"><div class="score-kpi"><span>Punts màxims actuals</span><b>${sc.points}</b><small>provisionals</small></div><div class="score-kpi"><span>Sostre desbloquejat</span><b>${sc.unlockedMax||0}</b><small>nota límit</small></div><div class="score-kpi note"><span>Nota màxima actual*</span><b>${sc.note}/10</b><small>si tot és correcte</small></div><div class="score-kpi"><span>Reptes entregats</span><b>${sc.completed}/${sc.total}</b><small>pendents de validar</small></div></div></div>`;
+    box.innerHTML=`<div class="score-summary"><div class="score-copy"><span class="eyebrow">POTENCIAL, NO NOTA DOCENT · ${escapeHtml(meta.label.toUpperCase())}</span><h2>${isFlux?'Acumula punts i desbloqueja sostre':'Construeix evidències del teu progrés'}</h2><p>${isFlux?'ROBOTIA comprova sobretot l’<b>estructura</b> del diagrama.':'Els reptes pràctics es consideren <b>entregats</b> quan afegeixes evidències al portafoli. La correcció real la farà el professor.'}</p><div class="score-validation-note">◷ Pendent de validació docent: la nota final pot canviar després de revisar la lògica, el codi i les evidències.</div></div><div class="score-kpis"><div class="score-kpi"><span>Punts màxims actuals</span><b>${sc.points}</b><small>provisionals</small></div><div class="score-kpi"><span>Sostre desbloquejat</span><b>${sc.unlockedMax||0}</b><small>nota límit</small></div><div class="score-kpi note"><span>Potencial actual*</span><b>${sc.note}/10</b><small>si tot és correcte</small></div><div class="score-kpi"><span>Reptes entregats</span><b>${sc.completed}/${sc.total}</b><small>pendents de validar</small></div></div></div>`;
   }
   function setChallengeCategory(cat){
     if(!categoryMeta[cat])return; state.challengeCategory=cat;
@@ -825,14 +907,22 @@
   function practicalEvidenceCount(id){
     const r=portfolioEntry(id); return (r.attachments?.length||0)+(r.makeCodeUrl?1:0)+(r.codeText?1:0)+(storedProject(id)?1:0);
   }
-  function practicalCanSubmit(id){const r=portfolioEntry(id);return !!((r.attachments?.length||0)||r.makeCodeUrl||r.codeText)}
+  function practicalCanSubmit(id){
+ const r=portfolioEntry(id);let shared=false;
+ try{const url=new URL((r.makeCodeUrl||'').trim());
+ const path=url.pathname;const fragment=url.hash;
+ shared=url.hostname==='makecode.microbit.org' &&
+ (path.startsWith('/_')&&path.length>=6 || path.startsWith('/S')&&path.length>=10 || fragment.startsWith('#pub:')&&fragment.length>=8);
+ }catch(error){}
+ return !!((r.attachments?.length||0)||shared||(r.codeText||'').trim().length>12);
+}
   function renderPracticalFiles(id){
     const r=portfolioEntry(id),box=$('#practicalFilesList'); if(!box)return;
     box.innerHTML=(r.attachments||[]).length?r.attachments.map((a,i)=>`<div class="attachment-chip"><a href="${a.data}" download="${escapeHtml(a.name)}">${escapeHtml(a.name)}</a><button data-prac-remove="${i}" title="Eliminar">×</button></div>`).join(''):'<span class="no-attachments">Encara no hi ha fitxers.</span>';
     $$('[data-prac-remove]').forEach(b=>b.onclick=()=>{r.attachments.splice(Number(b.dataset.pracRemove),1);savePortfolio();renderPracticalFiles(id);updatePracticalStatus(id)});
   }
   function updatePracticalStatus(id){
-    const p=challengeProgress(id),ok=practicalCanSubmit(id),el=$('#practicalStatus'); if(el){el.textContent=p.completed?'Entregat · pendent de validar':ok?'A punt per entregar':'En curs';el.className=`status-pill ${p.completed?'done':ok?'progress':''}`}
+    const p=challengeProgress(id),ok=practicalCanSubmit(id),el=$('#practicalStatus'); if(el){el.textContent=p.completed&&!ok?'Registrat anteriorment · falta evidència':p.completed?'Entregat · pendent de validar':ok?'A punt per entregar':'En curs';el.className=`status-pill ${p.completed?'done':ok?'progress':''}`}
   }
   function openPracticalChallenge(id){
     if(!requireIdentity())return; const c=challenges.find(x=>x.id===id); if(!c)return; state.practicalId=id;
@@ -846,7 +936,7 @@
     $('#practicalMakeCodeUrl').value=r.makeCodeUrl||'';$('#practicalCode').value=r.codeText||'';renderPracticalFiles(id);updatePracticalStatus(id);$('#modalPractical').showModal();
   }
   function savePractical(){
-    const id=state.practicalId;if(!id)return;const r=portfolioEntry(id);r.makeCodeUrl=$('#practicalMakeCodeUrl').value.trim();r.codeText=$('#practicalCode').value.trim();savePortfolio();const p=challengeProgress(id);p.started=true;p.lastAt=new Date().toISOString();if(practicalCanSubmit(id)){p.completed=true;p.completedAt=p.completedAt||new Date().toISOString()}saveProgress();updatePracticalStatus(id);renderChallenges();toast(p.completed?'Repte entregat al portafoli ✓':'Desat al portafoli');
+    const id=state.practicalId;if(!id)return;const r=portfolioEntry(id);r.makeCodeUrl=$('#practicalMakeCodeUrl').value.trim();r.codeText=$('#practicalCode').value.trim();savePortfolio();const p=challengeProgress(id);p.started=true;p.lastAt=new Date().toISOString();if(practicalCanSubmit(id)){p.completed=true;p.completedAt=p.completedAt||new Date().toISOString()}saveProgress();updatePracticalStatus(id);renderChallenges();toast(practicalCanSubmit(id)?'Repte amb evidències desat ✓':'Desat. Cal un enllaç MakeCode compartit o un adjunt verificable.');
   }
   function openPracticalDiagram(){
     const id=state.practicalId,c=challenges.find(x=>x.id===id);if(!c)return;$('#modalPractical').close();openChallenge(c.linkedFlow||id);
@@ -1842,7 +1932,12 @@
   function renderTutorial(){const [title,text,visual]=tutorialSteps[state.tutorialStep];$('#tutorialTitle').textContent=title;$('#tutorialText').textContent=text;$('#tutorialVisual').innerHTML=visual;$('#tutorialStep').textContent=`${state.tutorialStep+1} / ${tutorialSteps.length}`;$('#tutorialPrev').disabled=state.tutorialStep===0;$('#tutorialNext').textContent=state.tutorialStep===tutorialSteps.length-1?'Fer primer repte':'Següent'}
 
   window.ROBOTIA_CLOUD_APP={state,makePortfolioBundle,exportPortfolioBundle,importPortfolioBundle,activateIdentity,renderChallenges,renderPortfolio,scoreForCategory};
-  loadStored(); bindUI(); initDragDropPalette(); renderChallenges(); updateProgressUI(); setInterval(tickActiveTime,15000);
+  loadStored(); bindUI();
+  const gradesButton=document.getElementById('btnV3Grades');
+  if(gradesButton) gradesButton.onclick=showV3Grades;
+  const backPortfolio=document.getElementById('v3GoPortfolio');
+  if(backPortfolio) backPortfolio.onclick=()=>showView('#viewPortfolio');
+  initDragDropPalette(); renderChallenges(); updateProgressUI(); setInterval(tickActiveTime,15000);
 })();
 
 </script>
