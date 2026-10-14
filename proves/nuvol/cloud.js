@@ -101,7 +101,7 @@ async function enter(token){
     $('#gate-name-step').style.display='block';
     message('Compte verificat: '+cloud.email+'. Confirma el teu nom per primera vegada.');
   }
- }catch(err){cloud.blocked=true;buttons();gateShow();message('⚠️ '+err.message)}
+ }catch(err){cloud.blocked=true;cloud.email='';cloud.token='';buttons();gateShow();message('⚠️ '+err.message+' · Cal reintentar la connexió abans de continuar.');}
 }
 async function load(auto=false,knownInfo=null){
  if(!cloud.email)return;
