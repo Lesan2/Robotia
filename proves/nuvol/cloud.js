@@ -46,7 +46,7 @@ const gateHide=()=>{if(!cloud.ready||!cloud.email||cloud.blocked||!app.state.ide
 gateShow();
 const message=t=>{$('#cloud-message').textContent=t;$('#gate-message').textContent=t};
 const active=()=>!!cloud.email&&!cloud.blocked&&cloud.ready;
-window.ROBOTIA_AUTH={get ready(){return active()&&!!app.state.identity.name},get email(){return cloud.email||''}};
+window.ROBOTIA_AUTH={get ready(){return active()&&!!app.state.identity.name},get authenticated(){return !!cloud.ready&&!!cloud.email&&!!cloud.token},get email(){return cloud.email||''}};
 function buttons(){['load','out'].forEach(k=>{$('#cloud-'+k).disabled=!cloud.email});['save','invite','inbox'].forEach(k=>{$('#cloud-'+k).disabled=!active()})}
 function call(method,args){return new Promise((resolve,reject)=>{
  if(!cloud.ready)return reject(Error('El pont de Google encara no està preparat'));
