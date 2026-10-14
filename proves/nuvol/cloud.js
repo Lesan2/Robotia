@@ -19,34 +19,8 @@ const html=`<section id="robotia-cloud" class="card" style="padding:18px;margin:
  <p style="font-size:12px;color:#64748b">Les còpies .robotiaportfolio i el desament local continuen disponibles. Si el núvol falla, descarrega una còpia manual.</p>
  </section>`;
 $('#portfolioOwner')?.insertAdjacentHTML('beforebegin',html);
-const gate=document.createElement('div');
-gate.id='robotia-login-gate';
-gate.style.cssText='position:fixed;inset:0;z-index:2147483647;background:#f5f9fc;display:flex;align-items:center;justify-content:center;padding:16px;font-family:system-ui;overflow:auto';
-gate.innerHTML=`<section style="max-width:480px;width:100%;background:white;padding:28px;border-radius:18px;box-shadow:0 12px 42px #11223333">
-<h1 style="font-size:26px;margin:0 0 12px">🤖 ROBOTIA V3 · Inicia sessió</h1>
-<p>Abans de treballar, entra amb el compte institucional de Google. El teu nom es recuperarà automàticament.</p>
-<p id="gate-message" role="status" style="background:#edf5ff;padding:12px;border-radius:8px">Preparant Google…</p>
-<div id="gate-signin"></div>
-<div id="gate-name-step" style="display:none;margin:15px 0">
-<label for="gate-name" style="display:block;margin-bottom:5px">Nom i cognoms (només el primer accés)</label>
-<input id="gate-name" type="text" autocomplete="name" style="padding:10px;width:100%;font-size:16px">
-<button id="gate-confirm" type="button" style="margin-top:8px;padding:10px;background:#2563eb;color:#fff;border:0;border-radius:8px">Guardar nom i entrar</button>
-</div>
-<button id="gate-merge" type="button" style="display:none;padding:12px;background:#2563eb;color:white;border:0;border-radius:8px;margin:12px 0">Recuperar els meus treballs del núvol</button>
-<hr style="border:0;border-top:1px solid #eee;margin:20px 0">
-<button id="gate-retry" type="button" style="padding:9px">Reintentar connexió</button>
-<a id="gate-open" target="_blank" rel="noopener noreferrer" href="#" style="margin-left:12px">Comprovar Apps Script ↗</a>
-</section>`;
-document.body.appendChild(gate);
-$('#gate-signin').appendChild($('#cloud-login'));
-$('#gate-retry').onclick=()=>location.reload();
-$('#gate-open').href=config.bridgeUrl||'#';
-const gateShow=()=>{gate.style.display='flex';document.body.style.overflow='hidden'};
-const gateHide=()=>{if(!cloud.ready||!cloud.email||cloud.blocked||!app.state.identity.name)return;gate.style.display='none';document.body.style.overflow=''};
-gateShow();
-const message=t=>{$('#cloud-message').textContent=t;$('#gate-message').textContent=t};
-const active=()=>!!cloud.email&&!cloud.blocked&&cloud.ready;
-window.ROBOTIA_AUTH={get ready(){return active()&&!!app.state.identity.name},get authenticated(){return !!cloud.ready&&!!cloud.email&&!!cloud.token},get email(){return cloud.email||''}};
+const message=t=>{$('#cloud-message').textContent=t};
+const active=()=>!!cloud.email&&!cloud.blocked;
 function buttons(){['load','out'].forEach(k=>{$('#cloud-'+k).disabled=!cloud.email});['save','invite','inbox'].forEach(k=>{$('#cloud-'+k).disabled=!active()})}
 function call(method,args){return new Promise((resolve,reject)=>{
  if(!cloud.ready)return reject(Error('El pont de Google encara no està preparat'));
@@ -73,35 +47,24 @@ function syncSharedFromInfo(r){
 }
 async function cloudInfo(){const r=await call('cloudInfo',[cloud.token]);if(r.email!==cloud.email)throw Error('Identitat de sessió incorrecta');return r}
 async function enter(token){
- cloud.token=token;cloud.blocked=true;buttons();gateShow();message('Verificant Google institucional…');
+ cloud.token=token;cloud.blocked=true;buttons();message('Verificant el compte institucional…');
  try{
-  const registration=await call('cloudRegister',[token]);
-  cloud.email=registration.email;
-  const info=await cloudInfo();cloud.revision=info.revision;syncSharedFromInfo(info);
-  $('#cloud-invite-count').textContent=info.invites?.length||'';
-  const local=app.state.identity;
-  const remote=info.portfolio?.identity;
-  const same=local.email===cloud.email ||
-    (!local.email&&local.name&&registration.name&&local.name.localeCompare(registration.name,undefined,{sensitivity:'base'})===0);
-  if(info.portfolio){
-    if(same&&localHasWork()){
-      $('#gate-merge').style.display='inline-block';
-      message('Compte verificat. Recupera / fusiona els teus treballs del núvol per començar.');
-    }else{
-      // El perfil local anterior queda intacte. No s'exporten dades d'un altre alumne.
-      if(!same&&local.name)app.activateIdentity({name:remote.name||registration.name,team:'',className:remote.className||'',email:cloud.email});
-      await load(true,info);
-    }
-  }else if(same&&local.name){
-    app.activateIdentity({...local,email:cloud.email});
-    cloud.blocked=false;buttons();gateHide();markDirty();
-    message('✓ Sessió iniciada: '+cloud.email+' · '+app.state.identity.name);
-  }else{
-    $('#gate-name').value=registration.name||'';
-    $('#gate-name-step').style.display='block';
-    message('Compte verificat: '+cloud.email+'. Confirma el teu nom per primera vegada.');
-  }
- }catch(err){cloud.blocked=true;cloud.email='';cloud.token='';buttons();gateShow();message('⚠️ '+err.message+' · Cal reintentar la connexió abans de continuar.');}
+   const registration=await call('cloudRegister',[token]);cloud.email=registration.email;
+   const info=await cloudInfo();cloud.revision=info.revision;syncSharedFromInfo(info);
+   cloud.blocked=!!info.portfolio;buttons();$('#cloud-invite-count').textContent=info.invites?.length||'';
+   if(!app.state.identity.name){
+     app.activateIdentity({name:registration.name,team:'',className:''});
+     app.renderChallenges();app.renderPortfolio();
+   }
+   if(info.portfolio){
+     message('Sessió: '+cloud.email+' · Hi ha un portafoli al núvol. Prem «Carregar / fusionar» per recuperar-lo abans de continuar.');
+     // No substituïm una versió local sense consentiment explícit.
+     if(!localHasWork())await load(true,info);
+   }else{
+     message('Sessió: '+cloud.email+' · Encara no tens portafoli al núvol. Desarem el treball actual.');
+     markDirty();
+   }
+ }catch(err){cloud.blocked=true;buttons();message('⚠️ '+err.message)}
 }
 async function load(auto=false,knownInfo=null){
  if(!cloud.email)return;
@@ -112,9 +75,9 @@ async function load(auto=false,knownInfo=null){
   if(!incoming){cloud.blocked=false;buttons();message('No hi ha encara cap portafoli al núvol.');return}
   const localName=app.state.identity.name;
   if(localName&&localName.localeCompare(incoming.identity?.name||'',undefined,{sensitivity:'base'})!==0){
-    // Un altre perfil guardat en aquest navegador. Conservar, però no descarregar
-    // ni barrejar dades d'una altra persona.
-    app.activateIdentity({name:incoming.identity.name,team:incoming.identity.team||'',className:incoming.identity.className||'',email:cloud.email});
+    message('⚠️ Aquest ordinador té un perfil local diferent: exporta’l abans de canviar de compte.');
+    if(!confirm('Hi ha treballs d’un altre perfil en aquest ordinador. Vols descarregar-ne una còpia i canviar al teu compte institucional?')){message('Carrega el teu portafoli abans de desar al núvol.');return}
+    downloadLocal();app.activateIdentity({name:incoming.identity.name,team:incoming.identity.team||'',className:incoming.identity.className||'',email:cloud.email});
   }
   if(!auto&&localHasWork()){
     downloadLocal();
@@ -122,10 +85,8 @@ async function load(auto=false,knownInfo=null){
   }
   if(!app.state.identity.name){app.activateIdentity({name:incoming.identity.name,team:incoming.identity.team||'',className:incoming.identity.className||'',email:cloud.email})}
   await new Promise(resolve=>app.importPortfolioBundle(new File([JSON.stringify(incoming)],'ROBOTIA_NUVOL.robotiaportfolio',{type:'application/json'}),resolve));
-  app.activateIdentity({...app.state.identity,email:cloud.email});
   cloud.savedSig=stable(snapshot());cloud.blocked=false;
-  $('#gate-merge').style.display='none';gateHide();
-  message('✓ Portafoli del núvol carregat / fusionat: '+cloud.email);
+  message('✓ Portafoli del núvol carregat / fusionat. Revisa els reptes; conserva la còpia descarregada si n’hi havia.');
   $('#cloud-invite-count').textContent=info.invites?.length||'';buttons();
  }catch(err){message('⚠️ Error en carregar: '+err.message)}
 }
@@ -178,22 +139,10 @@ async function inbox(){
 }
 function logout(){
  clearTimeout(cloud.timer);if(window.google?.accounts?.id)google.accounts.id.disableAutoSelect();
- cloud.token='';cloud.email='';cloud.blocked=true;cloud.shared={};cloud.savedSig='';buttons();gateShow();
- $('#gate-name-step').style.display='none';$('#gate-merge').style.display='none';
- message('Sessió desconnectada. Inicia sessió per treballar.');
+ cloud.token='';cloud.email='';cloud.ready=!!cloud.remoteWindow;cloud.blocked=true;cloud.shared={};cloud.savedSig='';buttons();
+ message('Sessió desconnectada. Les dades locals continuen en aquest navegador.');
 }
 function init(){
- $('#gate-merge').onclick=()=>void load();
- $('#gate-confirm').onclick=()=>{
-   if(!cloud.ready||!cloud.email)return message('Inicia sessió amb Google primer.');
-   const name=$('#gate-name').value.trim();
-   if(name.length<3)return message('Escriu nom i cognoms.');
-   app.activateIdentity({name,team:'',className:'',email:cloud.email});
-   app.renderChallenges();app.renderPortfolio();
-   $('#gate-name-step').style.display='none';
-   cloud.blocked=false;buttons();gateHide();markDirty();
-   message('✓ Sessió iniciada: '+cloud.email+' · '+name);
- };
  $('#cloud-load').onclick=()=>void load();$('#cloud-save').onclick=()=>void save(false);
  $('#cloud-invite').onclick=()=>void invite();$('#cloud-inbox').onclick=()=>void inbox();$('#cloud-out').onclick=logout;
  if(disabled){message('Núvol en preparació. Configura l’ID de Google i el desplegament d’Apps Script; mentrestant, utilitza les còpies locals.');return}
@@ -203,30 +152,19 @@ function init(){
   if(event.data.ready){
     if(!/^https:\/\/[a-z0-9.-]*googleusercontent\.com$/i.test(event.origin))return;
     cloud.remoteWindow=event.source;cloud.remoteOrigin=event.origin;cloud.ready=true;
-    message('Connexió preparada. Entra amb el compte de l’institut.');initGoogle();return;
+    message('Connexió preparada. Entra amb el compte de l’institut.');return;
   }
   if(!cloud.ready||event.source!==cloud.remoteWindow||event.origin!==cloud.remoteOrigin)return;
   const r=cloud.pending.get(event.data.id);if(!r)return;cloud.pending.delete(event.data.id);clearTimeout(r.timeout);
   event.data.error?r.reject(Error(event.data.error)):r.resolve(event.data.result);
  });
  cloud.bridge=document.createElement('iframe');cloud.bridge.src=config.bridgeUrl;cloud.bridge.hidden=true;cloud.bridge.title='ROBOTIA núvol';document.body.appendChild(cloud.bridge);
- setTimeout(()=>{
-  if(cloud.ready)return;
-  const other=config.bridgeUrl.replace('/a/macros/instituticaria.cat/s/','/macros/s/');
-  if(other!==config.bridgeUrl){cloud.bridge.src=other;$('#gate-open').href=other}
-  message('El pont de Google triga a respondre. Provant una adreça alternativa…');
- },11000);
- setTimeout(()=>{
-  if(!cloud.ready)message('⚠️ Google no ha establert la connexió amb Apps Script. Obre «Comprovar Apps Script» amb el compte de l’institut, torna aquí i prem «Reintentar». Els treballs segueixen desats.');
- },27000);
- let googleInitialized=false;
- function initGoogle(){
-  if(!cloud.ready||googleInitialized)return;
+ setTimeout(()=>{if(!cloud.ready)message('⚠️ Sense connexió amb Apps Script. Revisa que el pont estigui desplegat i que el navegador permeti les galetes de Google en aquesta pàgina. El portafoli local continua disponible.');},16000);
+ const initGoogle=()=>{
   if(!window.google?.accounts?.id){setTimeout(initGoogle,350);return}
-  googleInitialized=true;
   google.accounts.id.initialize({client_id:config.clientId,callback:r=>void enter(r.credential),auto_select:false,hd:'instituticaria.cat'});
   google.accounts.id.renderButton($('#cloud-login'),{type:'standard',size:'large',theme:'outline',text:'signin_with',locale:'ca'});
- }
+ };initGoogle();
  document.addEventListener('input',markDirty);document.addEventListener('change',markDirty);
  setInterval(()=>{if(active())void save(true)},25000);
 }
