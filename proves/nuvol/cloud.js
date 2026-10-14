@@ -28,12 +28,29 @@ const html=`<section id="robotia-cloud" class="card" style="padding:18px;margin:
   <button type="button" class="btn primary" id="cloud-share-send">Enviar invitació</button>
   <button type="button" class="btn ghost" id="cloud-share-cancel">Cancel·lar</button>
  </div>
+ <p id="cloud-sync-hint" role="status" hidden style="padding:11px 13px;background:#fff7e7;color:#7b4a00;border:1px solid #eed097;border-radius:9px;font-size:13px;margin:11px 0">
+  Primer carrega el portafoli del núvol per activar els botons de compartir i desar. El treball local no se substituirà sense que acceptis la fusió.
+ </p>
  <p style="font-size:12px;color:#64748b">Les còpies .robotiaportfolio i el desament local continuen disponibles. Si el núvol falla, descarrega una còpia manual.</p>
  </section>`;
 $('#portfolioOwner')?.insertAdjacentHTML('beforebegin',html);
 const message=t=>{$('#cloud-message').textContent=t};
 const active=()=>!!cloud.email&&!cloud.blocked;
-function buttons(){['load','out'].forEach(k=>{$('#cloud-'+k).disabled=!cloud.email});['save','invite','inbox'].forEach(k=>{$('#cloud-'+k).disabled=!active()})}
+function buttons(){
+ const signedIn=!!cloud.email,needsLoad=signedIn&&cloud.blocked;
+ ['load','out'].forEach(k=>{$('#cloud-'+k).disabled=!signedIn});
+ $('#cloud-save').disabled=!active()||cloud.saving;
+ // L'usuari ha de poder clicar i saber per què no pot compartir.
+ ['invite','inbox'].forEach(k=>{$('#cloud-'+k).disabled=!signedIn||cloud.saving});
+ const hint=$('#cloud-sync-hint');
+ if(hint)hint.hidden=!needsLoad;
+ const loadButton=$('#cloud-load');
+ if(loadButton){
+   loadButton.textContent=needsLoad?'1. Carregar / fusionar (necessari)':'Carregar / fusionar';
+   loadButton.style.fontWeight=needsLoad?'800':'';
+   loadButton.classList.toggle('primary',needsLoad);
+ }
+}
 function call(method,args){return new Promise((resolve,reject)=>{
  if(!cloud.ready)return reject(Error('El pont de Google encara no està preparat'));
  const id=++cloud.seq;const timeout=setTimeout(()=>{cloud.pending.delete(id);reject(Error('La connexió ha superat el temps d’espera'))},45000);
@@ -149,6 +166,8 @@ async function save(automatic=false){
  finally{cloud.saving=false}
 }
 function invite(){
+ if(!cloud.email){message('Inicia sessió amb Google per compartir un repte.');return}
+ if(cloud.blocked){message('Primer prem «1. Carregar / fusionar (necessari)» per recuperar el teu portafoli. Després podràs compartir-lo.');$('#cloud-load').focus();return}
  if(!active()||cloud.saving)return;
  const p=snapshot();
  const options=Object.entries(p.activities||{}).filter(([,a])=>a.project?.nodes?.length);
@@ -183,6 +202,8 @@ async function sendInvite(){
  finally{button.disabled=false}
 }
 async function inbox(){
+ if(!cloud.email){message('Inicia sessió per veure les invitacions.');return}
+ if(cloud.blocked){message('Carrega o fusiona el teu portafoli abans de consultar les invitacions.');$('#cloud-load').focus();return}
  if(!active())return;
  try{
   const first=await cloudInfo();
