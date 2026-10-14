@@ -139,8 +139,25 @@
     </nav>
   </header>
 
+  
+<div id="v3-entry-overlay" role="dialog" aria-modal="true" aria-labelledby="v3-entry-title" style="position:fixed;inset:0;z-index:1000000;background:rgba(15,23,42,.54);display:flex;align-items:center;justify-content:center;padding:18px;overflow:auto">
+  <div style="background:#fff;border-radius:20px;padding:28px;width:min(96vw,535px);box-shadow:0 24px 70px #0004;color:#172433">
+   <div style="font-size:14px;color:#64748b;font-weight:800">ROBOTIA V3 · 3r ESO</div>
+   <h2 id="v3-entry-title" style="margin:9px 0;font-size:26px">Com vols començar?</h2>
+   <p style="line-height:1.6;color:#475467">Pots treballar sense identificar-te, però els reptes <strong>no se sincronitzaran amb Google</strong>. Si canvies de dispositiu, borres les dades del navegador o utilitzes la navegació privada, pots perdre la feina. Descarrega el portafoli abans d'acabar.</p>
+   <div style="display:grid;gap:10px;margin-top:18px">
+    <button id="v3-entry-google" type="button" style="padding:14px;border:0;border-radius:10px;background:#1d4ed8;color:white;font-weight:800;font-size:15px;cursor:pointer">Iniciar sessió amb Google de l'institut</button>
+    <button id="v3-entry-offline" type="button" style="padding:14px;border:1px solid #b8c8d8;border-radius:10px;background:#f8fafc;color:#19324b;font-weight:800;font-size:15px;cursor:pointer">Continuar sense login (sense núvol)</button>
+   </div>
+   <p style="font-size:12px;color:#64748b;margin-bottom:0">El teu nom es guardarà localment, però això no equival a iniciar sessió.</p>
+  </div>
+</div>
+
   <main>
     <section id="viewHome" class="view active home-view">
+<div id="v3-offline-warning" role="status" style="margin:0 0 16px;border:1px solid #f5c16c;background:#fff8e6;color:#7b4a0d;padding:12px 16px;border-radius:12px;font-size:14px;line-height:1.55">
+<b>⚠ Sense Google, els treballs només queden en aquest navegador.</b> Pots perdre'ls si esborres les dades, canvies d'ordinador o treballes en incògnit. <b>Descarrega el portafoli</b> per conservar-los. El nom no substitueix el login.
+</div>
       <div class="hero">
         <div class="hero-copy">
           <span class="eyebrow">PENSA · DIBUIXA · COMPROVA · PROGRAMA</span>
@@ -715,11 +732,9 @@
     return [...new Map(names.map(n=>[normalize(n),n])).values()];
   }
   function requireIdentity(){
-    if(!window.ROBOTIA_AUTH?.authenticated){toast('Cal iniciar sessió amb Google de l’institut.');return false}
     const typed=$('#studentName')?.value?.trim();
     if(typed && typed!==state.identity.name){
-      $('#studentName').value=state.identity.name||'';
-      toast('El nom està vinculat al teu compte institucional. No es pot canviar de perfil manualment.');
+      activateIdentity({name:typed,team:$('#teamNames')?.value.trim()||'',className:$('#className')?.value.trim()||''});
     }
     if(!state.identity.name){toast('Primer identifica’t amb el teu nom i cognoms.');showView('#viewHome');setTimeout(()=>$('#studentName')?.focus(),50);return false}
     return true;
@@ -774,8 +789,7 @@
   }
 
   function saveIdentity(){
-    if(!window.ROBOTIA_AUTH?.ready){toast('Inicia sessió amb Google abans de desar dades.');return}
-    const next={name:state.identity.name,team:$('#teamNames').value.trim(),className:$('#className').value.trim(),email:state.identity.email};
+    const next={name:$('#studentName').value.trim(),team:$('#teamNames').value.trim(),className:$('#className').value.trim()};
     if(!next.name){toast('Escriu el teu nom i cognoms.');return}
     activateIdentity(next); renderChallenges(); toast('Dades desades');
   }
@@ -1942,8 +1956,31 @@
 })();
 
 </script>
+<script id="v3-entry-script">
+(function(){
+ const overlay=document.getElementById('v3-entry-overlay');
+ const warning=document.getElementById('v3-offline-warning');
+ const hide=()=>{overlay.style.display='none'};
+ document.getElementById('v3-entry-offline').addEventListener('click',()=>{
+   hide();
+   warning.style.display='block';
+   document.getElementById('btnHome').click();
+   const field=document.getElementById('studentName');
+   if(field&&!field.value)field.focus();
+ });
+ document.getElementById('v3-entry-google').addEventListener('click',()=>{
+   hide();
+   warning.style.display='none';
+   document.getElementById('btnPortfolio').click();
+   setTimeout(()=>{
+     const area=document.getElementById('robotia-cloud');
+     if(area)area.scrollIntoView({behavior:'smooth',block:'center'});
+   },200);
+ });
+})();
+</script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="proves/nuvol/config.js?v=3-20261014-login2"></script>
-<script src="proves/nuvol/cloud.js?v=3-20261014-login3" defer></script>
+<script src="proves/nuvol/cloud.js?v=restore-v2-20261014" defer></script>
 </body>
 </html>
