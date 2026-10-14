@@ -2,14 +2,33 @@
  const $=s=>document.querySelector(s);
  const sheet="https://docs.google.com/spreadsheets/d/1DqBcfjOzdL8_vO0hXynbAVa42wBuaB3FhMIsOblR6l4/edit";
  const root=$("#viewPortfolio");
- if(!root)return;
+ const main=document.querySelector("main");
+ const nav=document.querySelector("#btnV3Grades");
+ if(!root||!main||!nav)return;
+ const teacherView=document.createElement("section");
+ teacherView.id="viewTeacher";teacherView.className="view v3-teacher-view";
+ teacherView.innerHTML='<div class="section-head"><div><span class="eyebrow">GESTIÓ DOCENT</span><h1>Professorat · Robòtica</h1><p>Revisa treballs, posa notes, escriu observacions i comunica’t amb l’alumnat.</p></div></div>';
+ main.append(teacherView);
+ const navButton=document.createElement("button");
+ navButton.type="button";navButton.id="btnTeacher";navButton.className="btn ghost";navButton.textContent="Professorat";
+ navButton.hidden=true;nav.after(navButton);
+ navButton.addEventListener("click",()=>{
+   document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+   teacherView.classList.add("active");
+   window.scrollTo({top:0,behavior:"smooth"});
+ });
  const box=document.createElement("section");
  box.className="card v3-teacher-panel";
  box.id="v3-teacher-panel";
  box.hidden=true;
  box.innerHTML=`
  <h2>👨‍🏫 Eines del professor</h2>
- <p>Registre docent privat. Les notes i comentaris per a l'alumnat no es publiquen automàticament fins que s'activi la connexió segura al servidor.</p>
+ <p>Obre el full institucional per consultar les entregues, revisar notes i editar comentaris. Només tu tens accés a les dades privades.</p>
+ <div class="v3-teacher-start">
+  <div><strong>1 · Revisar entregues</strong><p>Al full <b>Alumnes</b>, columna «Treball al núvol»: obre el portafoli i consulta el diagrama, els programes i les evidències.</p></div>
+  <div><strong>2 · Corregir activitats</strong><p>A <b>Correccions</b>, busca el correu i l'ID del repte. Escriu la nota docent de 0 a 10, el comentari que llegirà l'alumne i la teva anotació privada.</p></div>
+  <div><strong>3 · Fer el seguiment</strong><p>A <b>Observacions</b> escriu les notes generals; a <b>Alumnes</b> hi ha les notes de flux, micro:bit, sensors, actitud i projecte final.</p></div>
+ </div>
  <a class="btn primary" href="${sheet}" target="_blank" rel="noopener noreferrer">Obrir tauler de qualificacions ↗</a>
  <div class="v3-teacher-flow">
    <article><b>Alumnes</b><p>Consulta els portafolis i les notes de flux, micro:bit, sensors, actitud i robot final.</p></article>
@@ -34,9 +53,12 @@
  <p class="v3-teacher-note">Si comparteixes un document per enllaç, dona-hi accés només a l'alumne destinatari. Si vols enviar un arxiu del PC, adjunta'l des de Gmail quan obris el missatge. Les respostes arribaran al teu correu institucional.</p>
  <p id="v3-compose-status" role="status"></p>
  `;
- root.append(box);
+ teacherView.append(box);
  window.addEventListener("robotia:teacherSession",e=>{
-   box.hidden=String(e.detail?.email||"").toLowerCase()!=="jlesan@instituticaria.cat";
+   const teacher=String(e.detail?.email||"").toLowerCase()==="jlesan@instituticaria.cat";
+   box.hidden=!teacher;
+   navButton.hidden=!teacher;
+   if(!teacher&&teacherView.classList.contains("active"))document.querySelector("#btnPortfolio")?.click();
  });
  $("#v3-compose").addEventListener("click",()=>{
    const email=$("#v3-recipient").value.trim().toLowerCase();
@@ -55,6 +77,12 @@
  });
  const css=document.createElement("style");
  css.textContent=`
+ #btnTeacher[hidden]{display:none!important}
+ .v3-teacher-view{padding:0 20px 45px;max-width:1350px;margin:0 auto}
+ .v3-teacher-start{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:12px 0}
+ .v3-teacher-start>div{border:1px solid #d3dfeb;border-radius:12px;padding:15px;background:#f7fbff}
+ .v3-teacher-start strong{display:block;color:#163e69;font-size:14px}
+ .v3-teacher-start p{font-size:13px;color:#43566c;line-height:1.55}
  .v3-teacher-panel{padding:24px;margin:20px 0;border:1px solid #93b8dd}
  .v3-teacher-panel[hidden]{display:none!important}
  .v3-teacher-panel h2{font-size:21px;margin:0 0 10px}
@@ -73,7 +101,7 @@
  .v3-comm-actions{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0}
  .v3-comm-actions a{text-decoration:none}
  #v3-compose-status{font-weight:700;color:#075580}
- @media(max-width:700px){.v3-teacher-flow,.v3-comm-fields{grid-template-columns:1fr}}
+ @media(max-width:700px){.v3-teacher-flow,.v3-comm-fields,.v3-teacher-start{grid-template-columns:1fr}}
  `;
  document.head.append(css);
 })();
