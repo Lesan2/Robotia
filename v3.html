@@ -718,7 +718,8 @@
     if(!window.ROBOTIA_AUTH?.authenticated){toast('Cal iniciar sessió amb Google de l’institut.');return false}
     const typed=$('#studentName')?.value?.trim();
     if(typed && typed!==state.identity.name){
-      activateIdentity({name:typed,team:$('#teamNames')?.value.trim()||'',className:$('#className')?.value.trim()||'',email:state.identity.email});
+      $('#studentName').value=state.identity.name||'';
+      toast('El nom està vinculat al teu compte institucional. No es pot canviar de perfil manualment.');
     }
     if(!state.identity.name){toast('Primer identifica’t amb el teu nom i cognoms.');showView('#viewHome');setTimeout(()=>$('#studentName')?.focus(),50);return false}
     return true;
@@ -774,7 +775,7 @@
 
   function saveIdentity(){
     if(!window.ROBOTIA_AUTH?.ready){toast('Inicia sessió amb Google abans de desar dades.');return}
-    const next={name:$('#studentName').value.trim(),team:$('#teamNames').value.trim(),className:$('#className').value.trim(),email:state.identity.email};
+    const next={name:state.identity.name,team:$('#teamNames').value.trim(),className:$('#className').value.trim(),email:state.identity.email};
     if(!next.name){toast('Escriu el teu nom i cognoms.');return}
     activateIdentity(next); renderChallenges(); toast('Dades desades');
   }
