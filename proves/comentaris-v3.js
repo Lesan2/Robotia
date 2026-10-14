@@ -32,6 +32,7 @@ function refreshNotes(){
  const refresh=document.createElement("button");
  refresh.type="button";refresh.className="btn secondary v3-feedback-refresh";
  refresh.textContent="↻ Actualitzar notes i comentaris";
+ document.querySelectorAll("[data-teacher-grade]").forEach(el=>{el.textContent="Pendent"});
  refresh.addEventListener("click",()=>window.dispatchEvent(new Event("robotia:refreshFeedback")));
  card.append(refresh);
  if(published?.unavailable){
