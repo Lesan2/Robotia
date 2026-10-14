@@ -282,19 +282,8 @@ function logout(){
  window.dispatchEvent(new CustomEvent('robotia:teacherSession',{detail:{email:''}}));
  message('Sessió desconnectada. Les dades locals continuen en aquest navegador.');
 }
-async function refreshTeacherFeedback(){
- if(!cloud.email){message('Inicia sessió amb Google per veure les notes i els comentaris.');return}
- try{
-  const info=await cloudInfo();
-  if(!info.publishedFeedback){
-   window.dispatchEvent(new CustomEvent('robotia:publishedFeedback',{detail:{email:cloud.email,grades:{},general:[],exercises:[]}}));
-  }
-  message('✓ Notes i comentaris actualitzats · '+new Date().toLocaleTimeString('ca-ES'));
- }catch(err){message('⚠️ No s’han pogut actualitzar les notes: '+err.message)}
-}
 function init(){
  window.addEventListener('robotia:refreshFeedback',()=>void refreshPublishedFeedback());
- window.addEventListener('robotia:refreshFeedback',()=>void refreshTeacherFeedback());
  $('#cloud-load').onclick=()=>void load();$('#cloud-save').onclick=()=>void save(false);
  $('#cloud-invite').onclick=invite;$('#cloud-share-send').onclick=()=>void sendInvite();$('#cloud-share-cancel').onclick=()=>{$('#cloud-share-panel').hidden=true};$('#cloud-inbox').onclick=()=>void inbox();$('#cloud-out').onclick=logout;
  if(disabled){message('Núvol en preparació. Configura l’ID de Google i el desplegament d’Apps Script; mentrestant, utilitza les còpies locals.');return}
