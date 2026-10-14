@@ -835,8 +835,8 @@
       const x=scoreForCategory(cat);
       const note=document.getElementById('v3'+cat+'Potential');
       const count=document.getElementById('v3'+cat+'Count');
-      if(note) note.textContent=x.note+'/10';
-      if(count) count.textContent=x.completed+' reptes registrats · pendent de validar';
+      if(note) note.textContent=x.completed?x.note+'/10':'—';
+      if(count) count.textContent=x.completed?x.completed+' reptes registrats · pendent de validar':'Sense reptes entregats en aquesta àrea';
     });
   }
   function showV3Grades(){
