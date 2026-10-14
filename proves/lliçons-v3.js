@@ -13,7 +13,7 @@ head.querySelector("h1").textContent="Aprèn programació i robòtica";
 head.after(nav);nav.after(initial);
 const art=document.createElement("article");art.className="card diagram-example";
 art.innerHTML=`<h2>Exemple complet i correcte: «Plou o no plou?»</h2><p>Un algoritme amb dues alternatives. Les fletxes SÍ i NO surten de la decisió i acaben connectant amb el FI.</p>
-<svg viewBox="0 0 700 475" role="img" aria-label="INICI, decisió Plou?, si plou agafa paraigua, si no surt sense paraigua, ambdós camins condueixen al FI" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 700 565" role="img" aria-label="INICI, decisió Plou?, si plou agafa paraigua, si no surt sense paraigua, ambdós camins condueixen al FI" xmlns="http://www.w3.org/2000/svg">
 <defs><marker id="arrR" markerWidth="10" markerHeight="10" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#37637e"/></marker></defs>
 <rect x="295" y="14" width="110" height="44" rx="22" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/><text x="350" y="41" text-anchor="middle" font-size="18">INICI</text>
 <path d="M350 58V100" fill="none" stroke="#37637e" stroke-width="3" marker-end="url(#arrR)"/>
@@ -21,10 +21,12 @@ art.innerHTML=`<h2>Exemple complet i correcte: «Plou o no plou?»</h2><p>Un alg
 <path d="M254 170H136V266" fill="none" stroke="#37637e" stroke-width="3" marker-end="url(#arrR)"/><text x="204" y="157" font-weight="700" fill="#166534">SÍ</text>
 <path d="M446 170H567V266" fill="none" stroke="#37637e" stroke-width="3" marker-end="url(#arrR)"/><text x="493" y="157" font-weight="700" fill="#991b1b">NO</text>
 <rect x="22" y="274" width="228" height="58" rx="7" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/><text x="136" y="309" text-anchor="middle" font-size="17">Agafar paraigua</text>
-<rect x="453" y="274" width="228" height="58" rx="7" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/><text x="567" y="309" text-anchor="middle" font-size="16">Sortir sense paraigua</text>
+<rect x="453" y="274" width="228" height="58" rx="7" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/><text x="567" y="309" text-anchor="middle" font-size="16">No agafar paraigua</text>
 <path d="M136 332V380H350" stroke="#37637e" stroke-width="3" fill="none"/><path d="M567 332V380H350" stroke="#37637e" stroke-width="3" fill="none"/>
-<path d="M350 380V409" stroke="#37637e" stroke-width="3" fill="none" marker-end="url(#arrR)"/>
-<rect x="295" y="417" width="110" height="44" rx="22" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/><text x="350" y="444" text-anchor="middle" font-size="18">FI</text>
+<path d="M350 380V416" stroke="#37637e" stroke-width="3" fill="none" marker-end="url(#arrR)"/>
+<rect x="250" y="420" width="200" height="52" rx="7" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/><text x="350" y="452" text-anchor="middle" font-size="18">Sortir de casa</text>
+<path d="M350 472V507" fill="none" stroke="#37637e" stroke-width="3" marker-end="url(#arrR)"/>
+<rect x="295" y="513" width="110" height="44" rx="22" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/><text x="350" y="540" text-anchor="middle" font-size="18">FI</text>
 </svg>
 <p><b>Com llegir-lo:</b> Oval verd = inici/final; rombe groc = condició; rectangles blaus = accions. Cada branca executa només una acció i totes dues acaben correctament.</p><p><b>Prova'l tu:</b> Reptes → Diagrames de flux → «Plou o no plou?».</p>`;
 initial.prepend(art);
