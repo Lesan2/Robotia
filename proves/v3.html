@@ -1492,7 +1492,12 @@
     }
     nodes.forEach(n=>{
       const out=edgesFrom(n.id);
+      // Un bloc d'acció o entrada no pot dividir el flux en camins diferents.
+      if(n.type!=='decision'&&out.length>1){
+        issues.push({code:'invalid_branch',severity:'error',text:'El bloc “'+n.label+'” té '+out.length+' sortides. Per dividir el flux, utilitza una DECISIÓ amb camins SÍ/NO.'});
+      }
       if(n.type==='decision'){
+        if(out.length>2)issues.push({code:'extra_decision_outputs',severity:'warn',text:'La decisió “'+n.label+'” té més de dues sortides; comprova que els camins siguin necessaris.'});
         if(out.length<2)issues.push({code:'decision_outputs',severity:'error',text:`La decisió “${n.label}” necessita almenys dues sortides.`});
         else {
           const labels=out.map(e=>normalize(e.label)); const hasYes=labels.some(l=>yesWords.includes(l)); const hasNo=labels.some(l=>noWords.includes(l));
