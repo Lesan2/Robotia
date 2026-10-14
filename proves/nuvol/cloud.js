@@ -112,9 +112,9 @@ async function load(auto=false,knownInfo=null){
   if(!incoming){cloud.blocked=false;buttons();message('No hi ha encara cap portafoli al núvol.');return}
   const localName=app.state.identity.name;
   if(localName&&localName.localeCompare(incoming.identity?.name||'',undefined,{sensitivity:'base'})!==0){
-    message('⚠️ Aquest ordinador té un perfil local diferent: exporta’l abans de canviar de compte.');
-    if(!confirm('Hi ha treballs d’un altre perfil en aquest ordinador. Vols descarregar-ne una còpia i canviar al teu compte institucional?')){message('Carrega el teu portafoli abans de desar al núvol.');return}
-    downloadLocal();app.activateIdentity({name:incoming.identity.name,team:incoming.identity.team||'',className:incoming.identity.className||'',email:cloud.email});
+    // Un altre perfil guardat en aquest navegador. Conservar, però no descarregar
+    // ni barrejar dades d'una altra persona.
+    app.activateIdentity({name:incoming.identity.name,team:incoming.identity.team||'',className:incoming.identity.className||'',email:cloud.email});
   }
   if(!auto&&localHasWork()){
     downloadLocal();
@@ -210,7 +210,15 @@ function init(){
   event.data.error?r.reject(Error(event.data.error)):r.resolve(event.data.result);
  });
  cloud.bridge=document.createElement('iframe');cloud.bridge.src=config.bridgeUrl;cloud.bridge.hidden=true;cloud.bridge.title='ROBOTIA núvol';document.body.appendChild(cloud.bridge);
- setTimeout(()=>{if(!cloud.ready)message('⚠️ Sense connexió amb Apps Script. Revisa que el pont estigui desplegat i que el navegador permeti les galetes de Google en aquesta pàgina. El portafoli local continua disponible.');},16000);
+ setTimeout(()=>{
+  if(cloud.ready)return;
+  const other=config.bridgeUrl.replace('/a/macros/instituticaria.cat/s/','/macros/s/');
+  if(other!==config.bridgeUrl){cloud.bridge.src=other;$('#gate-open').href=other}
+  message('El pont de Google triga a respondre. Provant una adreça alternativa…');
+ },11000);
+ setTimeout(()=>{
+  if(!cloud.ready)message('⚠️ Google no ha establert la connexió amb Apps Script. Obre «Comprovar Apps Script» amb el compte de l’institut, torna aquí i prem «Reintentar». Els treballs segueixen desats.');
+ },27000);
  let googleInitialized=false;
  function initGoogle(){
   if(!cloud.ready||googleInitialized)return;
