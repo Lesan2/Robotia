@@ -103,10 +103,10 @@ async function load(auto=false,knownInfo=null){
 }
 function markDirty(){if(!active())return;clearTimeout(cloud.timer);cloud.timer=setTimeout(()=>{void save(true)},6500)}
 async function save(automatic=false){
- if(!active()||cloud.saving||!app.state.identity.name)return;
+ if(!active()||cloud.saving||!app.state.identity.name)return false;
  if(cloud.poll)clearTimeout(cloud.poll);
  const p=snapshot();const sig=stable(p);
- if(automatic&&sig===cloud.savedSig)return;
+ if(automatic&&sig===cloud.savedSig)return true;
  cloud.saving=true;message('☁️ Desant al núvol…');
  try{
   const revs=Object.fromEntries(Object.values(cloud.shared).map(x=>[x.id,x.revision]));
@@ -114,12 +114,13 @@ async function save(automatic=false){
   if(r.conflict||r.sharedConflict){
     cloud.blocked=true;buttons();downloadLocal();
     message('⚠️ Una altra sessió ha modificat el portafoli o l’activitat compartida. S’ha descarregat una còpia local: recarrega i fusiona abans de continuar.');
-    return;
+    return false;
   }
   cloud.revision=r.revision;
   for(const [id,revision] of Object.entries(r.sharedRevisions||{}))if(cloud.shared[id])cloud.shared[id].revision=revision;
   cloud.savedSig=sig;message((r.gradeWarning?'✓ Portafoli desat · ⚠️ Seguiment docent pendent':'✓ Desat al núvol')+' · '+new Date().toLocaleTimeString('ca-ES'));
- }catch(err){message('⚠️ No s’ha pogut desar: '+err.message+'. Conserva i descarrega el teu portafoli.');}
+  return true;
+ }catch(err){message('⚠️ No s’ha pogut desar: '+err.message+'. Conserva i descarrega el teu portafoli.');return false;}
  finally{cloud.saving=false}
 }
 async function invite(){
@@ -135,7 +136,7 @@ async function invite(){
  if(!/^[a-z0-9._%+-]+@instituticaria\.cat$/.test(to)){message('Escriu un correu vàlid de l’institut: nom@instituticaria.cat.');return}
  if(to===cloud.email.toLowerCase()){message('No pots convidar-te a tu mateix a aquest repte.');return}
  try{
-  await save(false);if(!active())return;
+  if(!await save(false)||!active())return;
   await call('cloudInvite',[cloud.token,to,id]);
   message('📩 Invitació registrada per a '+to+'. Haurà d’acceptar-la des del seu portafoli. Encara no s’ha substituït cap treball.');
  }catch(err){message('⚠️ No s’ha pogut enviar la invitació: '+err.message)}
@@ -153,13 +154,12 @@ async function inbox(){
     const title=item.title||item.challengeId||'repte sense títol';
     const existingId=item.challengeId;
     const localProject=existingId && app.makePortfolioBundle()?.activities?.[existingId];
-    const warning=localProject?'\n\nJa tens una versió d’aquest repte. Si acceptes, es desarà a l’historial i la rebuda serà la versió activa.':'';
+    const warning=localProject?'\n\nJa tens una versió d’aquest repte. Si acceptes, es desarà a l’historial i la rebuda serà la versió activa.':'\n\nSi ja tens aquest repte, se’n guardarà la versió anterior abans de substituir-la.';
     if(!confirm((item.from||'Un company')+' et convida a compartir «'+title+'».'
       +warning+'\n\nD’acord = acceptar; Cancel·lar = deixar pendent.'))continue;
     // Còpia de seguretat completa abans de modificar res.
     if(localHasWork())downloadLocal();
-    await save(false);
-    if(!active())return;
+    if(!await save(false)||!active())return;
     const before=new Set(Object.values(cloud.shared||{}).map(x=>x.id));
     const ack=await call('cloudAccept',[cloud.token,item.id,'accept']);
     cloud.revision=ack.revision;
@@ -184,8 +184,9 @@ async function inbox(){
       id:chosen.id,challengeId:chosen.challengeId,from:item.from||''
     });
     cloud.blocked=false;buttons();
-    await save(false);
-    if(!active())return;
+    if(!await save(false)||!active()){
+      message('⚠️ La invitació s’ha acceptat i el repte és al navegador, però encara no s’ha confirmat el desament al núvol. Conserva una còpia local i revisa la connexió.');return;
+    }
     message('✓ «'+title+'» compartit i carregat al teu portafoli.'
       +(result.hasPrevious?' La teva versió anterior s’ha guardat a l’historial.':'')
       +' La resta de reptes no s’han modificat.');
