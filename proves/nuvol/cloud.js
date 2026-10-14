@@ -262,7 +262,15 @@ function logout(){
  window.dispatchEvent(new CustomEvent('robotia:teacherSession',{detail:{email:''}}));
  message('Sessió desconnectada. Les dades locals continuen en aquest navegador.');
 }
+async function refreshPublishedFeedback(){
+ if(!cloud.email||!cloud.token){message('Inicia sessió amb Google per consultar les notes del professor.');return}
+ try{
+  await cloudInfo();
+  message('✓ Qualificacions publicades actualitzades. Consulta «Les meves notes».');
+ }catch(err){message('⚠️ No s’han pogut actualitzar les qualificacions: '+err.message);}
+}
 function init(){
+ window.addEventListener('robotia:refreshFeedback',()=>void refreshPublishedFeedback());
  $('#cloud-load').onclick=()=>void load();$('#cloud-save').onclick=()=>void save(false);
  $('#cloud-invite').onclick=invite;$('#cloud-share-send').onclick=()=>void sendInvite();$('#cloud-share-cancel').onclick=()=>{$('#cloud-share-panel').hidden=true};$('#cloud-inbox').onclick=()=>void inbox();$('#cloud-out').onclick=logout;
  if(disabled){message('Núvol en preparació. Configura l’ID de Google i el desplegament d’Apps Script; mentrestant, utilitza les còpies locals.');return}
