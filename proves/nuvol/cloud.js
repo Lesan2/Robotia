@@ -61,6 +61,7 @@ async function enter(token){
    const registration=await call('cloudRegister',[token]);cloud.email=registration.email;
    const info=await cloudInfo();cloud.revision=info.revision;syncSharedFromInfo(info);
    window.dispatchEvent(new CustomEvent('robotia:teacherSession',{detail:{email:cloud.email}}));
+   if(info.publishedFeedback?.email===cloud.email){window.dispatchEvent(new CustomEvent('robotia:publishedFeedback',{detail:info.publishedFeedback}));}
    cloud.blocked=!!info.portfolio;buttons();$('#cloud-invite-count').textContent=info.invites?.length||'';
    if(!app.state.identity.name){
      app.activateIdentity({name:registration.name,team:'',className:''});
