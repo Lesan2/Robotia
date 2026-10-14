@@ -16,6 +16,18 @@ const html=`<section id="robotia-cloud" class="card" style="padding:18px;margin:
  <button class="btn secondary" id="cloud-invite" disabled>Compartir activitat</button>
  <button class="btn secondary" id="cloud-inbox" disabled>📩 Invitacions <span id="cloud-invite-count"></span></button>
  <button class="btn secondary" id="cloud-out" disabled>Desconnectar</button></div>
+ <div id="cloud-share-panel" hidden style="background:#f1f7ff;padding:14px;margin-top:12px;border-radius:12px;border:1px solid #bed7ef">
+  <b style="display:block;margin-bottom:10px">Convida un company a treballar en un repte</b>
+  <label style="display:block;font-size:13px;margin-bottom:8px">Repte amb diagrama guardat
+   <select id="cloud-share-challenge" style="display:block;width:100%;padding:9px;margin-top:5px;border:1px solid #bdd1e2;border-radius:9px"></select>
+  </label>
+  <label style="display:block;font-size:13px;margin-bottom:8px">Correu institucional del company
+   <input type="email" id="cloud-share-email" placeholder="company@instituticaria.cat" autocomplete="off" style="display:block;width:100%;padding:9px;margin-top:5px;border:1px solid #bdd1e2;border-radius:9px">
+  </label>
+  <p style="font-size:12px;color:#52667e">El company haurà d'acceptar la invitació. Si ja té aquest repte, podrà substituir-lo i guardar l'anterior a l'historial. Els altres reptes es conserven.</p>
+  <button type="button" class="btn primary" id="cloud-share-send">Enviar invitació</button>
+  <button type="button" class="btn ghost" id="cloud-share-cancel">Cancel·lar</button>
+ </div>
  <p style="font-size:12px;color:#64748b">Les còpies .robotiaportfolio i el desament local continuen disponibles. Si el núvol falla, descarrega una còpia manual.</p>
  </section>`;
 $('#portfolioOwner')?.insertAdjacentHTML('beforebegin',html);
@@ -123,23 +135,39 @@ async function save(automatic=false){
  }catch(err){message('⚠️ No s’ha pogut desar: '+err.message+'. Conserva i descarrega el teu portafoli.');return false;}
  finally{cloud.saving=false}
 }
-async function invite(){
+function invite(){
  if(!active()||cloud.saving)return;
  const p=snapshot();
  const options=Object.entries(p.activities||{}).filter(([,a])=>a.project?.nodes?.length);
  if(!options.length){message('Primer crea i desa un diagrama en un repte.');return}
- const id=prompt('Quin repte vols compartir? Escriu-ne l’ID:\n'+options.map(([id,a])=>id+' · '+(a.challengeMeta?.title||id)).join('\n'));
- if(!id)return;
- if(!options.some(([key])=>key===id)){message('No es pot compartir aquest repte: falta el diagrama o l’ID és incorrecte.');return}
- const to=(prompt('Correu institucional del company o companya:')||'').trim().toLowerCase();
- if(!to)return;
- if(!/^[a-z0-9._%+-]+@instituticaria\.cat$/.test(to)){message('Escriu un correu vàlid de l’institut: nom@instituticaria.cat.');return}
- if(to===cloud.email.toLowerCase()){message('No pots convidar-te a tu mateix a aquest repte.');return}
+ const select=$('#cloud-share-challenge');
+ select.replaceChildren();
+ for(const [id,a] of options){
+   const option=document.createElement('option');
+   option.value=id;option.textContent=(a.challengeMeta?.title||id)+' · '+id;
+   select.appendChild(option);
+ }
+ $('#cloud-share-email').value='';
+ $('#cloud-share-panel').hidden=false;
+ $('#cloud-share-email').focus();
+ message('Escull el repte i escriu el correu institucional del company.');
+}
+async function sendInvite(){
+ if(!active()||cloud.saving)return;
+ const id=$('#cloud-share-challenge').value;
+ const to=$('#cloud-share-email').value.trim().toLowerCase();
+ const p=snapshot();
+ if(!p.activities?.[id]?.project?.nodes?.length){message('El repte seleccionat no té un diagrama per compartir.');return}
+ if(!/^[a-z0-9._%+-]+@instituticaria\.cat$/.test(to)){message('Introdueix un correu vàlid de l’institut.');return}
+ if(to===cloud.email.toLowerCase()){message('No pots enviar-te una invitació a tu mateix.');return}
+ const button=$('#cloud-share-send');button.disabled=true;
  try{
   if(!await save(false)||!active())return;
   await call('cloudInvite',[cloud.token,to,id]);
-  message('📩 Invitació registrada per a '+to+'. Haurà d’acceptar-la des del seu portafoli. Encara no s’ha substituït cap treball.');
+  $('#cloud-share-panel').hidden=true;
+  message('📩 Invitació enviada a '+to+' per compartir «'+(p.activities[id]?.challengeMeta?.title||id)+'». El company l’ha d’acceptar perquè afecti el seu portafoli.');
  }catch(err){message('⚠️ No s’ha pogut enviar la invitació: '+err.message)}
+ finally{button.disabled=false}
 }
 async function inbox(){
  if(!active())return;
@@ -196,13 +224,13 @@ async function inbox(){
 }
 function logout(){
  clearTimeout(cloud.timer);if(window.google?.accounts?.id)google.accounts.id.disableAutoSelect();
- cloud.token='';cloud.email='';cloud.ready=!!cloud.remoteWindow;cloud.blocked=true;cloud.shared={};cloud.savedSig='';buttons();
+ cloud.token='';cloud.email='';cloud.ready=!!cloud.remoteWindow;cloud.blocked=true;cloud.shared={};cloud.savedSig='';$('#cloud-share-panel').hidden=true;buttons();
  window.dispatchEvent(new CustomEvent('robotia:teacherSession',{detail:{email:''}}));
  message('Sessió desconnectada. Les dades locals continuen en aquest navegador.');
 }
 function init(){
  $('#cloud-load').onclick=()=>void load();$('#cloud-save').onclick=()=>void save(false);
- $('#cloud-invite').onclick=()=>void invite();$('#cloud-inbox').onclick=()=>void inbox();$('#cloud-out').onclick=logout;
+ $('#cloud-invite').onclick=invite;$('#cloud-share-send').onclick=()=>void sendInvite();$('#cloud-share-cancel').onclick=()=>{$('#cloud-share-panel').hidden=true};$('#cloud-inbox').onclick=()=>void inbox();$('#cloud-out').onclick=logout;
  if(disabled){message('Núvol en preparació. Configura l’ID de Google i el desplegament d’Apps Script; mentrestant, utilitza les còpies locals.');return}
  window.addEventListener('message',event=>{
   if(event.data?.robotiaBridge!==1)return;
