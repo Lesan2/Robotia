@@ -1812,6 +1812,64 @@
     });
     return {app:'ROBOTIA FlowLab Portfolio',version:4,appBuild:APP_BUILD,exportedAt:new Date().toISOString(),identity:state.identity,progress:state.progress,reflections:state.portfolio,projects,activities,summary:buildSummary(state.progress)};
   }
+  // Només es crida en acceptar explícitament una invitació verificada al núvol.
+  // No importa un portafoli complet: modifica únicament el repte compartit.
+  function applyAcceptedSharedActivity(rawActivity, sharedInfo={}){
+    if(!state.identity.name)throw Error('Cal identificar-se abans de carregar el repte compartit.');
+    if(!rawActivity || typeof rawActivity!=='object')throw Error('Falten les dades del repte compartit.');
+    const activity=JSON.parse(JSON.stringify(rawActivity));
+    const id=sharedInfo.challengeId||activity.challengeMeta?.id||activity.project?.challengeId;
+    const c=challenges.find(x=>x.id===id);
+    if(!c)throw Error('El repte compartit no existeix al catàleg.');
+    const p=activity.project;
+    if(!p||!Array.isArray(p.nodes)||!Array.isArray(p.edges)||!p.nodes.length)throw Error('La invitació no inclou un diagrama vàlid.');
+    if(p.challengeId && p.challengeId!==id)throw Error('Identificadors de repte contradictoris.');
+    if(sharedInfo.challengeId && sharedInfo.challengeId!==id)throw Error('El repte de la invitació no coincideix.');
+    const sharedWorkId=sharedInfo.id||activity.workId||p.workId;
+    if(!sharedWorkId || typeof sharedWorkId!=='string')throw Error('Falta l’identificador de la versió compartida.');
+    const current=storedProject(id),oldRef=state.portfolio[id]||null,oldProgress=state.progress[id]||null;
+    const oldSig=projectSignature(current),newSig=projectSignature(p);
+    if(oldSig===newSig && current?.workId===sharedWorkId)return {id,updated:false,hasPrevious:false};
+    // Es preserva la versió anterior amb l'historial i les evidències.
+    const previousHistory=Array.isArray(oldRef?.versionHistory)?JSON.parse(JSON.stringify(oldRef.versionHistory)):[];
+    const hasPrevious=!!(current||meaningfulReflection(oldRef)||oldProgress?.started);
+    if(hasPrevious){
+      previousHistory.push({
+        savedAt:new Date().toISOString(),
+        label:'versió pròpia anterior a acceptar un repte compartit',
+        project:current?JSON.parse(JSON.stringify(current)):null,
+        reflection:oldRef?reflectionSnapshot(oldRef):null,
+        progressRecord:oldProgress?JSON.parse(JSON.stringify(oldProgress)):null
+      });
+    }
+    const recipient=state.identity.name;
+    const seen=new Set(),owners=[];
+    for(const name of [...(Array.isArray(p.owners)?p.owners:[]),...(Array.isArray(activity.owners)?activity.owners:[]),recipient]){
+      if(typeof name!=='string'||!name.trim())continue;
+      const normalized=normalize(name);
+      if(seen.has(normalized))continue;
+      seen.add(normalized);owners.push(name.trim());
+    }
+    const incomingProject=migrateProject({...p,challengeId:id,workId:sharedWorkId,owners,className:state.identity.className||p.className||''});
+    const incomingRef=activity.reflection||p.reflection||{};
+    state.portfolio[id]={
+      ...incomingRef,workId:sharedWorkId,owners,className:state.identity.className||incomingRef.className||'',
+      attachments:Array.isArray(incomingRef.attachments)?incomingRef.attachments:[],
+      versionHistory:previousHistory.slice(-8),
+      sharedFrom:sharedInfo.from||'',updatedAt:new Date().toISOString()
+    };
+    state.progress[id]={...(activity.progressRecord||p.progressRecord||{}),started:true};
+    const success=safeLocalSet(challengeStorageKey(id),JSON.stringify(incomingProject),{quiet:true});
+    if(!success)throw Error('No s’ha pogut guardar el diagrama; descarrega el portafoli com a còpia de seguretat.');
+    if(state.currentChallenge?.id===id){
+      state.project=incomingProject;
+      state.history=[];state.future=[];state.selected=null;state.selectedNodes.clear();
+      renderChallengePanel();renderLab();
+    }
+    savePortfolio();saveProgress();renderPortfolio();renderChallenges();
+    return {id,updated:true,hasPrevious};
+  }
+
   function exportPortfolioBundle(){
     if(!requireIdentity())return; const bundle=makePortfolioBundle();downloadBlob(JSON.stringify(bundle,null,2),portfolioFileBase()+'.robotiaportfolio','application/json');toast('Portafoli descarregat');
   }
@@ -1991,7 +2049,7 @@
 
   function renderTutorial(){const [title,text,visual]=tutorialSteps[state.tutorialStep];$('#tutorialTitle').textContent=title;$('#tutorialText').textContent=text;$('#tutorialVisual').innerHTML=visual;$('#tutorialStep').textContent=`${state.tutorialStep+1} / ${tutorialSteps.length}`;$('#tutorialPrev').disabled=state.tutorialStep===0;$('#tutorialNext').textContent=state.tutorialStep===tutorialSteps.length-1?'Fer primer repte':'Següent'}
 
-  window.ROBOTIA_CLOUD_APP={state,makePortfolioBundle,exportPortfolioBundle,importPortfolioBundle,activateIdentity,renderChallenges,renderPortfolio,scoreForCategory};
+  window.ROBOTIA_CLOUD_APP={state,makePortfolioBundle,exportPortfolioBundle,importPortfolioBundle,applyAcceptedSharedActivity,activateIdentity,renderChallenges,renderPortfolio,scoreForCategory};
   loadStored(); bindUI(); initDragDropPalette(); renderChallenges(); updateProgressUI(); setInterval(tickActiveTime,15000);
 })();
 
