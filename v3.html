@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="theme-color" content="#111827" />
-  <title>ROBOTIA · FlowLab v0.12</title>
+  <title>ROBOTIA V3 · Robòtica 3r ESO</title>
   <style>
 :root{
   --bg:#f6f8fc;--panel:#fff;--ink:#111827;--muted:#667085;--line:#d9e0ea;
@@ -118,7 +118,7 @@
 </style>
 </head>
 <body>
-<div style="background:#7c2d12;color:white;padding:10px;text-align:center;font-weight:bold;position:relative;z-index:9999">ROBOTIA V3 PILOT · Tria lliurement els reptes · Versió per provar abans de fer-la servir amb tota la classe</div>
+<div style="background:#7c2d12;color:white;padding:10px;text-align:center;font-weight:bold;position:relative;z-index:9999">ROBOTIA V3 · Reptes lliures · Accés institucional obligatori</div>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <div id="storageNotice" class="storage-notice hidden" role="status"><b>Mode local:</b> el navegador no permet desar automàticament en aquest fitxer. Pots continuar treballant, però descarrega el projecte o el portafoli per conservar-lo.</div>
 
@@ -168,8 +168,8 @@
 
       <div class="identity-card card">
         <div>
-          <h2>Qui està treballant?</h2>
-          <p>Aquesta informació apareixerà a les captures i a l'informe de progrés.</p>
+          <h2>El meu perfil</h2>
+          <p>Cal iniciar sessió amb Google de l'institut. El nom es guarda la primera vegada i apareix automàticament quan tornes a entrar.</p>
         </div>
         <div class="identity-grid">
           <label>Nom i cognoms<input id="studentName" placeholder="Ex. Aina Delta" autocomplete="name" /></label>
@@ -404,7 +404,7 @@
       </div>
     </section>
   </main>
-  <footer class="app-footer">ROBOTIA V3 Pilot · Creat per Jordi Lesan</footer>
+  <footer class="app-footer">ROBOTIA V3 · Creat per Jordi Lesan</footer>
   <div id="nodeContextMenu" class="node-context-menu hidden" role="menu" aria-label="Opcions del bloc"></div>
 
 
@@ -715,9 +715,10 @@
     return [...new Map(names.map(n=>[normalize(n),n])).values()];
   }
   function requireIdentity(){
+    if(!window.ROBOTIA_AUTH?.ready){toast('Cal iniciar sessió amb Google de l’institut.');return false}
     const typed=$('#studentName')?.value?.trim();
     if(typed && typed!==state.identity.name){
-      activateIdentity({name:typed,team:$('#teamNames')?.value.trim()||'',className:$('#className')?.value.trim()||''});
+      activateIdentity({name:typed,team:$('#teamNames')?.value.trim()||'',className:$('#className')?.value.trim()||'',email:state.identity.email});
     }
     if(!state.identity.name){toast('Primer identifica’t amb el teu nom i cognoms.');showView('#viewHome');setTimeout(()=>$('#studentName')?.focus(),50);return false}
     return true;
@@ -772,7 +773,8 @@
   }
 
   function saveIdentity(){
-    const next={name:$('#studentName').value.trim(),team:$('#teamNames').value.trim(),className:$('#className').value.trim()};
+    if(!window.ROBOTIA_AUTH?.ready){toast('Inicia sessió amb Google abans de desar dades.');return}
+    const next={name:$('#studentName').value.trim(),team:$('#teamNames').value.trim(),className:$('#className').value.trim(),email:state.identity.email};
     if(!next.name){toast('Escriu el teu nom i cognoms.');return}
     activateIdentity(next); renderChallenges(); toast('Dades desades');
   }
