@@ -1961,14 +1961,24 @@
  const overlay=document.getElementById('v3-entry-overlay');
  const warning=document.getElementById('v3-offline-warning');
  const hide=()=>{overlay.style.display='none'};
+ // No esborra cap portafoli: separa el perfil local de l'usuari anterior.
+ const resetSessionProfile=()=>{
+   const app=window.ROBOTIA_CLOUD_APP;
+   if(app&&typeof app.activateIdentity==='function'){
+     app.activateIdentity({name:'',team:'',className:''});
+     app.renderChallenges();
+   }
+ };
  document.getElementById('v3-entry-offline').addEventListener('click',()=>{
+   resetSessionProfile();
    hide();
    warning.style.display='block';
    document.getElementById('btnHome').click();
    const field=document.getElementById('studentName');
-   if(field&&!field.value)field.focus();
+   if(field)field.focus();
  });
  document.getElementById('v3-entry-google').addEventListener('click',()=>{
+   resetSessionProfile();
    hide();
    warning.style.display='none';
    document.getElementById('btnPortfolio').click();
