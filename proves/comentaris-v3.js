@@ -42,6 +42,7 @@ function refreshNotes(){
  const p=document.createElement("p");p.textContent="Encara no tens valoracions publicades. Les entregues estan pendents de revisió docent.";card.append(p);
  }else{
  const grades=published.grades||{};
+ document.querySelectorAll("[data-teacher-grade]").forEach(el=>{el.textContent="Pendent"});
  const wrap=document.createElement("div");wrap.className="v3-feedback-grades";
  for(const [key,display] of Object.entries(scoreMap)){
  const n=grades[key];if(typeof n!=="number"||n<0||n>10)continue;
