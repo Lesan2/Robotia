@@ -124,29 +124,74 @@ async function save(automatic=false){
 }
 async function invite(){
  if(!active()||cloud.saving)return;
- const p=snapshot(),options=Object.entries(p.activities||{}).filter(([,a])=>a.project?.nodes?.length);
- if(!options.length){message('Primer crea un diagrama en un repte i desa’l al núvol.');return}
- const id=prompt('Repte per compartir (escriu l’ID):\n'+options.map(([id,a])=>id+' · '+(a.challengeMeta?.title||id)).join('\n'));
- if(!id)return;if(!p.activities[id]?.project?.nodes?.length){message('Repte no trobat o sense diagrama.');return}
- const to=prompt('Correu institucional del company o companya:');if(!to)return;
- try{await save(false);if(!active())return;
-  const r=await call('cloudInvite',[cloud.token,to,id]);
-  message('📩 Invitació enviada a '+to+'. La podrà acceptar des de casa un altre dia.');
- }catch(err){message('⚠️ No s’ha pogut convidar: '+err.message)}
+ const p=snapshot();
+ const options=Object.entries(p.activities||{}).filter(([,a])=>a.project?.nodes?.length);
+ if(!options.length){message('Primer crea i desa un diagrama en un repte.');return}
+ const id=prompt('Quin repte vols compartir? Escriu-ne l’ID:\n'+options.map(([id,a])=>id+' · '+(a.challengeMeta?.title||id)).join('\n'));
+ if(!id)return;
+ if(!options.some(([key])=>key===id)){message('No es pot compartir aquest repte: falta el diagrama o l’ID és incorrecte.');return}
+ const to=(prompt('Correu institucional del company o companya:')||'').trim().toLowerCase();
+ if(!to)return;
+ if(!/^[a-z0-9._%+-]+@instituticaria\.cat$/.test(to)){message('Escriu un correu vàlid de l’institut: nom@instituticaria.cat.');return}
+ if(to===cloud.email.toLowerCase()){message('No pots convidar-te a tu mateix a aquest repte.');return}
+ try{
+  await save(false);if(!active())return;
+  await call('cloudInvite',[cloud.token,to,id]);
+  message('📩 Invitació registrada per a '+to+'. Haurà d’acceptar-la des del seu portafoli. Encara no s’ha substituït cap treball.');
+ }catch(err){message('⚠️ No s’ha pogut enviar la invitació: '+err.message)}
 }
 async function inbox(){
  if(!active())return;
- try{const r=await cloudInfo();$('#cloud-invite-count').textContent=r.invites?.length||'';
-  if(!r.invites?.length){message('No tens invitacions pendents.');return}
-  for(const item of r.invites){
-    if(!confirm(item.from+' t’ha convidat a treballar en «'+item.title+'».\n\nAcceptes l’activitat? Cancel·lar la deixa pendent.'))continue;
+ try{
+  const first=await cloudInfo();
+  cloud.revision=first.revision;
+  cloud.shared=first.shared||{};
+  const items=first.invites||[];
+  $('#cloud-invite-count').textContent=items.length||'';
+  if(!items.length){message('No tens invitacions pendents.');return}
+  for(const item of items){
+    const title=item.title||item.challengeId||'repte sense títol';
+    const existingId=item.challengeId;
+    const localProject=existingId && app.makePortfolioBundle()?.activities?.[existingId];
+    const warning=localProject?'\n\nJa tens una versió d’aquest repte. Si acceptes, es desarà a l’historial i la rebuda serà la versió activa.':'';
+    if(!confirm((item.from||'Un company')+' et convida a compartir «'+title+'».'
+      +warning+'\n\nD’acord = acceptar; Cancel·lar = deixar pendent.'))continue;
+    // Còpia de seguretat completa abans de modificar res.
     if(localHasWork())downloadLocal();
-    await save(false);if(!active())return;
+    await save(false);
+    if(!active())return;
+    const before=new Set(Object.values(cloud.shared||{}).map(x=>x.id));
     const ack=await call('cloudAccept',[cloud.token,item.id,'accept']);
-    cloud.revision=ack.revision;cloud.blocked=true;buttons();
-    message('✓ Invitació acceptada. Ara carrega / fusiona el portafoli del núvol per veure l’activitat.');
+    cloud.revision=ack.revision;
+    cloud.blocked=true;buttons();
+    const refreshed=await cloudInfo();
+    cloud.revision=refreshed.revision??cloud.revision;
+    cloud.shared=refreshed.shared||{};
+    const sources=Object.entries(cloud.shared).map(([key,v])=>({...v,id:v.id||key}));
+    const after=sources.filter(v=>!before.has(v.id));
+    const specificId=item.challengeId||ack.challengeId||null;
+    const announcedId=ack.sharedId||ack.workId||null;
+    const chosen=(announcedId&&sources.find(v=>v.id===announcedId))
+      ||(specificId&&sources.find(v=>v.challengeId===specificId))
+      ||(after.length===1?after[0]:null);
+    const remote=chosen?.activity || (chosen?.challengeId?refreshed.portfolio?.activities?.[chosen.challengeId]:null);
+    if(!chosen||!remote?.project?.nodes?.length){
+      message('✓ Invitació acceptada al núvol, però no s’ha pogut verificar el diagrama rebut. Prem «Carregar / fusionar» i revisa el treball abans de continuar.');
+      return;
+    }
+    // Només s'adopta el repte que retorna el servidor per a aquest destinatari.
+    const result=app.applyAcceptedSharedActivity(remote,{
+      id:chosen.id,challengeId:chosen.challengeId,from:item.from||''
+    });
+    cloud.blocked=false;buttons();
+    await save(false);
+    if(!active())return;
+    message('✓ «'+title+'» compartit i carregat al teu portafoli.'
+      +(result.hasPrevious?' La teva versió anterior s’ha guardat a l’historial.':'')
+      +' La resta de reptes no s’han modificat.');
+    $('#cloud-invite-count').textContent=refreshed.invites?.length||'';
   }
- }catch(err){message('⚠️ Invitacions: '+err.message)}
+ }catch(err){cloud.blocked=true;buttons();message('⚠️ Invitacions: '+err.message+'. Revisa i carrega el portafoli abans de continuar.')}
 }
 function logout(){
  clearTimeout(cloud.timer);if(window.google?.accounts?.id)google.accounts.id.disableAutoSelect();
