@@ -148,7 +148,7 @@
       <div class="brand-mark">R</div>
       <div>
         <div class="brand-title">ROBOTIA <span>Robòtica</span></div>
-        <div class="brand-sub">Diagrames de flux · Robòtica 3r ESO · Creat per Jordi Lesan</div>
+        <div class="brand-sub">Programació i robòtica · 3r ESO · Creat per Jordi Lesan</div>
       </div>
     </div>
     <nav class="top-actions" aria-label="Accions principals">
@@ -271,13 +271,13 @@
       <div class="section-head"><div><span class="eyebrow">AVALUACIÓ DE ROBÒTICA</span><h1>Les meves notes</h1>
       <p>Cap repte individual és obligatori. Els punts del joc no són una nota real del professor.</p></div></div>
       <div class="v3-grade-cards">
-        <article class="card"><b>1 · Diagrames de flux</b><strong id="v3-flux">—</strong><small>Potencial segons reptes</small><p>Nota docent: <b>pendent de publicar</b></p><small id="v3-flux-count"></small></article>
-        <article class="card"><b>2 · Programació micro:bit</b><strong id="v3-microbit">—</strong><small>Potencial segons reptes</small><p>Nota docent: <b>pendent de publicar</b></p><small id="v3-microbit-count"></small></article>
-        <article class="card"><b>3 · Sensors i actuadors</b><strong id="v3-sensors">—</strong><small>Potencial segons reptes</small><p>Nota docent: <b>pendent de publicar</b></p><small id="v3-sensors-count"></small></article>
+        <article class="card"><b>1 · Diagrames de flux</b><strong id="v3-flux">—</strong><small>Potencial segons reptes</small><p>Nota docent: <b data-teacher-grade="flux">Pendent</b></p><small id="v3-flux-count"></small></article>
+        <article class="card"><b>2 · Programació micro:bit</b><strong id="v3-microbit">—</strong><small>Potencial segons reptes</small><p>Nota docent: <b data-teacher-grade="microbit">Pendent</b></p><small id="v3-microbit-count"></small></article>
+        <article class="card"><b>3 · Sensors i actuadors</b><strong id="v3-sensors">—</strong><small>Potencial segons reptes</small><p>Nota docent: <b data-teacher-grade="sensors">Pendent</b></p><small id="v3-sensors-count"></small></article>
       </div>
       <div class="card v3-note">
         <h2>Projecte final del robot (independent)</h2>
-        <p>Nota docent: <b>pendent</b>. El projecte final representa el 30% de la qualificació, separat de les tres àrees de reptes.</p>
+        <p>Nota docent: <b data-teacher-grade="robot">Pendent</b>. El projecte final representa el 30% de la qualificació, separat de les tres àrees de reptes.</p>
         <h2>Com es calcula l'assignatura?</h2>
         <p><b>20%</b> actitud, participació i normes amb el material · <b>50%</b> treball a classe i pràctiques · <b>30%</b> projecte final.</p>
         <p>El professor revisa la lògica, els programes i les evidències. Una categoria sense exercicis no equival automàticament a un zero. Els comentaris i les qualificacions validades es mostraran quan estiguin publicats.</p><h2>Observacions generals</h2><p>Encara no hi ha observacions docents publicades.</p>
@@ -490,7 +490,8 @@
   </dialog>
 
   <input id="projectImport" type="file" accept=".robotia,.json" hidden />
-  <script src="recursos.js"></script>
+  <script src="recursos.js?actualitzacio=20261014-curs"></script>
+<script src="reptes-ajuda-v3.js?actualitzacio=20261014-curs"></script>
 <script>
 (() => {
   'use strict';
@@ -506,7 +507,7 @@
   const APP_BUILD='student-v3-from-stable-v2';
   const DATA_SCHEMA_VERSION=10;
   const PORTFOLIO_SCHEMA_VERSION=5;
-  const CHALLENGE_CATALOG_VERSION=1; // IDs estables: a partir d'ara només s'afegeixen reptes, no es reciclen IDs.
+  const CHALLENGE_CATALOG_VERSION=2; // IDs estables: a partir d'ara només s'afegeixen reptes, no es reciclen IDs.
 
   function generateWorkId(){
     const bytes=new Uint8Array(15);
@@ -654,7 +655,25 @@
     {id:'s6',category:'sensors',kind:'practical',level:5,title:'Transvasament d’aigua',difficulty:5,accent:'#0284c7',points:4,maxNote:10,brief:'Controla una bomba d’aigua mitjançant relé i una entrada de la micro:bit.',tags:['Relé','Bomba','Micro:Shield'],linkedFlow:'f23',deliverables:['Projecte .hex','Evidència del control segur del relé']},
     {id:'s7',category:'sensors',kind:'practical',level:5,title:'Monitoratge ambiental',difficulty:5,accent:'#15803d',points:4,maxNote:10,brief:'Recull temperatura, humitat i qualitat de l’aire i mostra o envia les dades.',tags:['DHT','CO₂','Dades'],linkedFlow:'f24',deliverables:['Projecte .hex','Evidència de les mesures obtingudes']},
     {id:'rb0',category:'robot',kind:'practical',level:1,title:'Cotxe teledirigit',difficulty:4,accent:'#334155',points:5,maxNote:8,brief:'Controla un cotxe amb dues micro:bit, ràdio, Micro:Shield i motors DC. Inclou avançar, aturar i girar.',tags:['Ràdio','Motors DC','Integració'],linkedFlow:'f25',deliverables:['Diagrama recomanat','Projecte(s) .hex','Evidència del robot funcionant']},
-    {id:'rb1',category:'robot',kind:'practical',level:2,title:'Projecte final · Robot',difficulty:5,accent:'#111827',points:10,maxNote:10,brief:'Dissenya, programa, construeix i documenta un robot propi que resolgui un repte clar.',tags:['Projecte final','Robot','Documentació'],linkedFlow:'f26',deliverables:['Diagrama de flux','Projecte MakeCode','Fotos/vídeo o documentació','Reflexió final i dificultats']}
+    {id:'rb1',category:'robot',kind:'practical',level:2,title:'Projecte final · Robot',difficulty:5,accent:'#111827',points:10,maxNote:10,brief:'Dissenya, programa, construeix i documenta un robot propi que resolgui un repte clar.',tags:['Projecte final','Robot','Documentació'],linkedFlow:'f26',deliverables:['Diagrama de flux','Projecte MakeCode','Fotos/vídeo o documentació','Reflexió final i dificultats']},
+    {"id":"f27","category":"flux","level":3,"title":"Conversor Celsius → Fahrenheit","difficulty":2,"accent":"#6d28d9","points":2,"maxNote":7,"brief":"Llegeix una temperatura en graus Celsius, calcula F = C × 9/5 + 32 i mostra el resultat. Representa entrada, càlcul i sortida.","tags":["Variables","Càlcul"],"minCounts":{"start":2,"io":2,"process":1},"minEdges":4,"hints":["Llegeix primer C.","Fes el càlcul en un bloc de procés.","Mostra F abans de FI."]},
+    {"id":"f28","category":"flux","level":3,"title":"Arrel quadrada amb comprovació","difficulty":3,"accent":"#7c3aed","points":2,"maxNote":7,"brief":"Llegeix un nombre. Comprova si és negatiu; en aquest cas mostra un avís, i si és positiu o zero calcula i mostra l'arrel quadrada.","tags":["Decisió","Càlcul"],"minCounts":{"start":2,"io":1,"decision":1,"process":2},"minEdges":5,"decisionLabels":true,"hints":["Comprova abans si el nombre és negatiu.","Les dues branques han de tenir sortida."]},
+    {"id":"f29","category":"flux","level":4,"title":"Clau d'accés amb tres intents","difficulty":4,"accent":"#5b21b6","points":3,"maxNote":8,"brief":"Dissenya una clau d'accés amb una variable d'intents: si la contrasenya falla tres vegades, bloqueja l'accés.","tags":["Variable","Repetició"],"minCounts":{"start":2,"io":1,"decision":2,"process":2,"variable":1},"minEdges":7,"decisionLabels":true,"hints":["Inicialitza intents a 0.","Incrementa intents a cada error.","Decideix què passa en arribar a 3."]},
+    {"id":"f30","category":"flux","level":4,"title":"Els primers 20 nombres parells","difficulty":4,"accent":"#7c3aed","points":3,"maxNote":8,"brief":"Representa un bucle que genera i mostra els vint primers nombres parells, utilitzant una variable comptador.","tags":["Bucle","Comptador"],"minCounts":{"start":2,"variable":1,"decision":1,"process":2,"io":1},"minEdges":6,"cycleExpected":true,"hints":["Decideix què representa la variable.","Fes avançar el comptador i torna a comprovar-lo."]},
+    {"id":"m9","category":"microbit","kind":"practical","level":1,"title":"El meu nom a la pantalla","difficulty":1,"accent":"#2563eb","points":1,"maxNote":5,"brief":"Crea un missatge amb el teu nom a la matriu LED i compara què passa si el poses a «en iniciar» o a «per sempre».","tags":["LED","Primers passos"],"deliverables":["Programa MakeCode compartit o .hex","Explicació de la diferència entre iniciar i per sempre"]},
+    {"id":"m10","category":"microbit","kind":"practical","level":2,"title":"Ànims, botons i melodies","difficulty":2,"accent":"#2563eb","points":2,"maxNote":6,"brief":"El botó A mostra una cara contenta; B una trista. Fes sonar una melodia diferent segons el botó i experimenta amb el BPM.","tags":["Botons","Sons","BPM"],"deliverables":["Programa MakeCode compartit o .hex","Prova dels dos botons i de les melodies"]},
+    {"id":"m11","category":"microbit","kind":"practical","level":3,"title":"Comptador A +1, B −1","difficulty":3,"accent":"#2563eb","points":2,"maxNote":7,"brief":"Crea una variable numèrica que comença a zero. A suma un punt, B en resta un i la matriu LED mostra el valor.","tags":["Variables","Botons"],"deliverables":["Programa amb variable","Demostració que A suma i B resta"]},
+    {"id":"m12","category":"microbit","kind":"practical","level":3,"title":"Ràdio: comptador emissor i receptor","difficulty":3,"accent":"#2563eb","points":3,"maxNote":8,"brief":"En parelles, envia per ràdio el comptador de la placa 1 a la placa 2 en prémer A+B. Totes dues han de compartir el mateix grup.","tags":["Ràdio","Dos programes"],"deliverables":["Enllaç del programa emissor","Enllaç del receptor o segon fitxer .hex","Prova de recepció del número"]},
+    {"id":"m13","category":"microbit","kind":"practical","level":4,"title":"Cursor per ràdio a la matriu LED","difficulty":4,"accent":"#2563eb","points":3,"maxNote":9,"brief":"Amplia un programa de ràdio perquè un comandament enviï ordres per moure un cursor a la pantalla LED d'una altra micro:bit.","tags":["Ràdio","Coordenades","Millora"],"deliverables":["Programes de les dues plaques","Demostració de les ordres de cursor"]},
+    {"id":"m14","category":"microbit","kind":"practical","level":4,"title":"Reinicia i controla el cursor","difficulty":4,"accent":"#2563eb","points":3,"maxNote":9,"brief":"Afegeix a un cursor per ràdio la funció de reinici i una indicació visual. Prova també que no surti de la matriu de 5 × 5.","tags":["Ràdio","Límits","Iteració"],"deliverables":["Programes de les dues plaques","Proves de reinici i de límits"]},
+    {"id":"s8","category":"sensors","kind":"practical","level":1,"title":"LED intermitent automàtic","difficulty":1,"accent":"#0f766e","points":1,"maxNote":5,"brief":"Connecta un LED extern correctament i programa que s'encengui i s'apagui de manera automàtica amb un temps d'espera.","tags":["LED","Pin digital"],"deliverables":["Programa MakeCode","Foto o demostració del LED connectat"]},
+    {"id":"s9","category":"sensors","kind":"practical","level":2,"title":"LED controlat amb un botó","difficulty":2,"accent":"#0f766e","points":1,"maxNote":6,"brief":"Fes que un botó de la placa activi o desactivi un LED extern, comprovant el pin digital correcte.","tags":["LED","Botó"],"deliverables":["Programa MakeCode","Foto del muntatge i prova del botó"]},
+    {"id":"s10","category":"sensors","kind":"practical","level":2,"title":"Llum amb un aplaudiment","difficulty":3,"accent":"#0f766e","points":2,"maxNote":7,"brief":"Fes servir el sensor de so per encendre o fer parpellejar un LED quan detecti un so fort o un aplaudiment.","tags":["Sensor de so","LED"],"deliverables":["Programa MakeCode","Prova amb diferents llindars de so"]},
+    {"id":"s11","category":"sensors","kind":"practical","level":2,"title":"Brunzidor d'alarma","difficulty":2,"accent":"#0f766e","points":2,"maxNote":6,"brief":"Utilitza el brunzidor de la Micro:Shield per fer un senyal d'alarma, activat per un botó o una condició.","tags":["Micro:Shield","Brunzidor"],"deliverables":["Programa MakeCode","Explicació de la connexió i demostració del so"]},
+    {"id":"s12","category":"sensors","kind":"practical","level":3,"title":"Servo amb botons","difficulty":3,"accent":"#0f766e","points":2,"maxNote":7,"brief":"Connecta un servomotor a la Micro:Shield i fes que el botó A el porti a una posició i el botó B a una altra.","tags":["Servomotor","Botons"],"deliverables":["Programa MakeCode","Foto del connector del servo","Demostració de dues posicions"]},
+    {"id":"s13","category":"sensors","kind":"practical","level":3,"title":"Alarma de proximitat amb ultrasons","difficulty":3,"accent":"#0f766e","points":3,"maxNote":8,"brief":"Utilitza un sensor d'ultrasons per detectar un objecte a menys de 10 cm i activa un avís visual o sonor.","tags":["Ultrasons","Condició"],"deliverables":["Programa MakeCode","Foto del sensor","Prova a dues distàncies"]},
+    {"id":"s14","category":"sensors","kind":"practical","level":4,"title":"Prova d'un motor DC","difficulty":4,"accent":"#0f766e","points":3,"maxNote":8,"brief":"Amb la Micro:Shield i alimentació adequada, fes girar un motor DC i comprova l'aturada i el canvi de sentit.","tags":["Motor DC","Micro:Shield"],"deliverables":["Programa MakeCode","Foto del muntatge amb controlador","Vídeo de gir, aturada i sentit"]},
+    {"id":"rb2","category":"robot","kind":"practical","level":5,"title":"Projecte de màgia amb micro:bit","difficulty":4,"accent":"#111827","points":7,"maxNote":10,"brief":"En grup, construïu un truc de màgia amb dues micro:bit per ràdio, com a mínim un actuador i una estructura original; presenteu-lo en 5 minuts.","tags":["Projecte","Ràdio","Creativitat"],"deliverables":["Programes emissor i receptor","Fotos o vídeo del truc","Breu diari de sessions i tasques","Presentació de 5 minuts"]}
   ];
 
 
@@ -860,7 +879,7 @@
     const box=$('#scorePanel'); if(!box) return;
     const cat=state.challengeCategory||'flux', sc=scoreForCategory(cat), meta=categoryMeta[cat]||categoryMeta.flux;
     const isFlux=cat==='flux';
-    box.innerHTML=`<div class="score-summary"><div class="score-copy"><span class="eyebrow">POTENCIAL, NO NOTA DOCENT · ${escapeHtml(meta.label.toUpperCase())}</span><h2>${isFlux?'Acumula punts i desbloqueja sostre':'Construeix evidències del teu progrés'}</h2><p>${isFlux?'ROBOTIA comprova sobretot l’<b>estructura</b> del diagrama.':'Els reptes pràctics es consideren <b>entregats</b> quan afegeixes evidències al portafoli. La correcció real la farà el professor.'}</p><div class="score-validation-note">◷ Pendent de validació docent: la nota final pot canviar després de revisar la lògica, el codi i les evidències.</div></div><div class="score-kpis"><div class="score-kpi"><span>Punts màxims actuals</span><b>${sc.points}</b><small>provisionals</small></div><div class="score-kpi"><span>Sostre desbloquejat</span><b>${sc.unlockedMax||0}</b><small>nota límit</small></div><div class="score-kpi note"><span>Potencial actual*</span><b>${sc.note}/10</b><small>pendent de revisar</small></div><div class="score-kpi"><span>Reptes entregats</span><b>${sc.completed}/${sc.total}</b><small>pendents de validar</small></div></div></div>`;
+    box.innerHTML=`<div class="score-summary"><div class="score-copy"><span class="eyebrow">POTENCIAL, NO NOTA DOCENT · ${escapeHtml(meta.label.toUpperCase())}</span><h2>${isFlux?'Acumula punts i desbloqueja sostre':'Construeix evidències del teu progrés'}</h2><p>${isFlux?'ROBOTIA comprova sobretot l’<b>estructura</b> del diagrama.':'Els reptes pràctics es consideren <b>entregats</b> quan afegeixes evidències al portafoli. La correcció real la farà el professor.'}</p><div class="score-validation-note">◷ Pendent de validació docent: la nota final pot canviar després de revisar la lògica, el codi i les evidències.</div></div><div class="score-kpis"><div class="score-kpi"><span>Punts màxims actuals</span><b>${sc.points}</b><small>provisionals</small></div><div class="score-kpi"><span>Sostre desbloquejat</span><b>${sc.unlockedMax||0}</b><small>nota límit</small></div><div class="score-kpi note"><span>Potencial actual*</span><b>${sc.note}/10</b><small>pendent de revisar</small></div><div class="score-kpi"><span>Reptes entregats</span><b>${sc.completed}</b><small>de ${sc.total} disponibles · no obligatoris</small></div></div></div>`;
   }
   function setChallengeCategory(cat){
     if(!categoryMeta[cat])return; state.challengeCategory=cat;
@@ -897,7 +916,7 @@
 
   function updateProgressUI(){
     const cat=state.challengeCategory||'flux',pool=challenges.filter(c=>c.category===cat),done=pool.filter(c=>state.progress[c.id]?.completed).length,pct=pool.length?Math.round(done/pool.length*100):0;
-    $('#progressPercent').textContent=`${pct}%`; $('#progressRing').style.background=`conic-gradient(var(--primary) ${pct*3.6}deg,#e8edf6 0deg)`;
+    $('#progressPercent').textContent=`${done} fets`; $('#progressRing').style.background=`conic-gradient(var(--primary) ${pct*3.6}deg,#e8edf6 0deg)`; $('#progressRing').title=`${done} reptes lliurats en aquesta àrea. No cal fer-los tots.`;
   }
 
   function projectStorageKey(){return state.currentChallenge?challengeStorageKey(state.currentChallenge.id):freeStorageKey()}
@@ -914,11 +933,15 @@
     const root=window.ROBOTIA_RECURSOS||{},category=root.categories?.[challenge?.category]||root.categories?.flux;
     if(!category)return '';
     const data=root.challenges?.[challenge?.id]||{};
-    const steps=(category.steps||[]).map((step,i)=>'<li>'+escapeHtml(step)+'</li>').join('');
-    const links=(category.links||[]).filter(x=>x&&/^https:\/\//.test(x.url)).map(x=>
-      '<a href="'+escapeHtml(x.url)+'" target="_blank" rel="noopener noreferrer">'+escapeHtml(x.label)+' ↗</a>'
-    ).join(' ');
-    return '<details class="v3-help"><summary>📚 Com fer aquest repte i on trobar ajuda</summary>'+
+    const specific=window.ROBOTIA_REPTE_GUIDES?.[challenge?.id]||{};
+    const steps=(specific.steps||category.steps||[]).map(step=>'<li>'+escapeHtml(step)+'</li>').join('');
+    const refs=[...(category.links||[]),...(specific.links||[])];
+    if(['sensors','robot'].includes(challenge.category)){
+      refs.push({label:'Fitxa tècnica Micro:Shield (XTEC)',url:'https://projectes.xtec.cat/digital/wp-content/uploads/usu2317/2024/10/Micro_shield.pdf'});
+    }
+    const links=refs.filter(x=>x&&/^https:\/\/[^<>" ]+$/.test(x.url)).map(x=>'<a href="'+escapeHtml(x.url)+'" target="_blank" rel="noopener noreferrer">'+escapeHtml(x.label)+' ↗</a>').join(' ');
+    return '<details class="v3-help" open><summary>📚 Guia d’aquest repte i material necessari</summary>'+
+      (specific.materials?'<p><b>Materials:</b> '+escapeHtml(specific.materials)+'</p>':'')+
       '<ol>'+steps+'</ol>'+(data.tip?'<p><b>Consell:</b> '+escapeHtml(data.tip)+'</p>':'')+
       '<div class="v3-help-links">'+links+'</div>'+
       (challenge.category==='sensors'||challenge.category==='robot'?'<p class="v3-hardware-tip">'+escapeHtml(root.security||'')+'</p>':'')+
@@ -1773,7 +1796,7 @@
         activities[c.id]={challengeMeta:challengeMetaFor(c.id),progressRecord:p||{},reflection:r||{},project:project||null,workId:project?.workId||r?.workId||generateWorkId(),owners,className:project?.className||r?.className||state.identity.className||'',createdAt:project?.createdAt||r?.createdAt||'',updatedAt:project?.updatedAt||r?.updatedAt||'',exportedAt:new Date().toISOString()};
       }
     });
-    return {app:'ROBOTIA FlowLab Portfolio',version:4,appBuild:'student-v0.13',exportedAt:new Date().toISOString(),identity:state.identity,progress:state.progress,reflections:state.portfolio,projects,activities,summary:buildSummary(state.progress)};
+    return {app:'ROBOTIA FlowLab Portfolio',version:4,appBuild:APP_BUILD,exportedAt:new Date().toISOString(),identity:state.identity,progress:state.progress,reflections:state.portfolio,projects,activities,summary:buildSummary(state.progress)};
   }
   function exportPortfolioBundle(){
     if(!requireIdentity())return; const bundle=makePortfolioBundle();downloadBlob(JSON.stringify(bundle,null,2),portfolioFileBase()+'.robotiaportfolio','application/json');toast('Portafoli descarregat');
@@ -1959,8 +1982,10 @@
 })();
 
 </script>
+<script src="lliçons-v3.js?actualitzacio=20261014-curs"></script>
+<script src="comentaris-v3.js?actualitzacio=20261014-curs"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="nuvol/config.js"></script>
-<script src="nuvol/cloud.js" defer></script>
+<script src="nuvol/cloud.js?actualitzacio=20261014-curs" defer></script>
 </body>
 </html>
