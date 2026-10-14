@@ -256,6 +256,27 @@ async function inbox(){
   }
  }catch(err){cloud.blocked=true;buttons();message('⚠️ Invitacions: '+err.message+'. Revisa i carrega el portafoli abans de continuar.')}
 }
+async function refreshPublishedFeedback(){
+ if(!cloud.email){
+   message('Inicia sessió amb Google per consultar les qualificacions docents.');
+   return;
+ }
+ try{
+   const info=await cloudInfo();
+   if(!Object.prototype.hasOwnProperty.call(info,'publishedFeedback')){
+     message('Les qualificacions docents encara no estan connectades al servidor. Cal actualitzar el desplegament de ROBOTIA - Núvol.');
+     return;
+   }
+   if(info.publishedFeedback?.unavailable){
+     message('No s’han pogut consultar les qualificacions. Torna-ho a provar o pregunta al professor.');
+     return;
+   }
+   message('✓ Qualificacions i comentaris actualitzats. Només apareixen les valoracions publicades pel professor.');
+ }catch(err){
+   message('⚠️ Error en consultar les notes: '+err.message);
+ }
+}
+window.addEventListener('robotia:refreshFeedback',()=>void refreshPublishedFeedback());
 function logout(){
  clearTimeout(cloud.timer);if(window.google?.accounts?.id)google.accounts.id.disableAutoSelect();
  cloud.token='';cloud.email='';cloud.ready=!!cloud.remoteWindow;cloud.blocked=true;cloud.shared={};cloud.savedSig='';$('#cloud-share-panel').hidden=true;buttons();
