@@ -23,7 +23,7 @@ const gate=document.createElement('div');
 gate.id='robotia-login-gate';
 gate.style.cssText='position:fixed;inset:0;z-index:2147483647;background:#f5f9fc;display:flex;align-items:center;justify-content:center;padding:16px;font-family:system-ui;overflow:auto';
 gate.innerHTML=`<section style="max-width:480px;width:100%;background:white;padding:28px;border-radius:18px;box-shadow:0 12px 42px #11223333">
-<h1 style="font-size:26px;margin:0 0 12px">🤖 ROBOTIA · Inicia sessió</h1>
+<h1 style="font-size:26px;margin:0 0 12px">🤖 ROBOTIA V3 · Inicia sessió</h1>
 <p>Abans de treballar, entra amb el compte institucional de Google. El teu nom es recuperarà automàticament.</p>
 <p id="gate-message" role="status" style="background:#edf5ff;padding:12px;border-radius:8px">Preparant Google…</p>
 <div id="gate-signin"></div>
