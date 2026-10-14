@@ -148,7 +148,7 @@
       <div class="brand-mark">R</div>
       <div>
         <div class="brand-title">ROBOTIA <span>Robòtica</span></div>
-        <div class="brand-sub">Diagrames de flux · Robòtica 3r ESO · Creat per Jordi Lesan</div>
+        <div class="brand-sub">Programació i robòtica · 3r ESO · Creat per Jordi Lesan</div>
       </div>
     </div>
     <nav class="top-actions" aria-label="Accions principals">
@@ -271,13 +271,13 @@
       <div class="section-head"><div><span class="eyebrow">AVALUACIÓ DE ROBÒTICA</span><h1>Les meves notes</h1>
       <p>Cap repte individual és obligatori. Els punts del joc no són una nota real del professor.</p></div></div>
       <div class="v3-grade-cards">
-        <article class="card"><b>1 · Diagrames de flux</b><strong id="v3-flux">—</strong><small>Potencial segons reptes</small><p>Nota docent: <b>pendent de publicar</b></p><small id="v3-flux-count"></small></article>
-        <article class="card"><b>2 · Programació micro:bit</b><strong id="v3-microbit">—</strong><small>Potencial segons reptes</small><p>Nota docent: <b>pendent de publicar</b></p><small id="v3-microbit-count"></small></article>
-        <article class="card"><b>3 · Sensors i actuadors</b><strong id="v3-sensors">—</strong><small>Potencial segons reptes</small><p>Nota docent: <b>pendent de publicar</b></p><small id="v3-sensors-count"></small></article>
+        <article class="card"><b>1 · Diagrames de flux</b><strong id="v3-flux">—</strong><small>Potencial segons reptes</small><p>Nota docent: <b data-teacher-grade="flux">Pendent</b></p><small id="v3-flux-count"></small></article>
+        <article class="card"><b>2 · Programació micro:bit</b><strong id="v3-microbit">—</strong><small>Potencial segons reptes</small><p>Nota docent: <b data-teacher-grade="microbit">Pendent</b></p><small id="v3-microbit-count"></small></article>
+        <article class="card"><b>3 · Sensors i actuadors</b><strong id="v3-sensors">—</strong><small>Potencial segons reptes</small><p>Nota docent: <b data-teacher-grade="sensors">Pendent</b></p><small id="v3-sensors-count"></small></article>
       </div>
       <div class="card v3-note">
         <h2>Projecte final del robot (independent)</h2>
-        <p>Nota docent: <b>pendent</b>. El projecte final representa el 30% de la qualificació, separat de les tres àrees de reptes.</p>
+        <p>Nota docent: <b data-teacher-grade="robot">Pendent</b>. El projecte final representa el 30% de la qualificació, separat de les tres àrees de reptes.</p>
         <h2>Com es calcula l'assignatura?</h2>
         <p><b>20%</b> actitud, participació i normes amb el material · <b>50%</b> treball a classe i pràctiques · <b>30%</b> projecte final.</p>
         <p>El professor revisa la lògica, els programes i les evidències. Una categoria sense exercicis no equival automàticament a un zero. Els comentaris i les qualificacions validades es mostraran quan estiguin publicats.</p><h2>Observacions generals</h2><p>Encara no hi ha observacions docents publicades.</p>
@@ -491,6 +491,7 @@
 
   <input id="projectImport" type="file" accept=".robotia,.json" hidden />
   <script src="recursos.js"></script>
+<script src="reptes-ajuda-v3.js"></script>
 <script>
 (() => {
   'use strict';
@@ -932,11 +933,15 @@
     const root=window.ROBOTIA_RECURSOS||{},category=root.categories?.[challenge?.category]||root.categories?.flux;
     if(!category)return '';
     const data=root.challenges?.[challenge?.id]||{};
-    const steps=(category.steps||[]).map((step,i)=>'<li>'+escapeHtml(step)+'</li>').join('');
-    const links=(category.links||[]).filter(x=>x&&/^https:\/\//.test(x.url)).map(x=>
-      '<a href="'+escapeHtml(x.url)+'" target="_blank" rel="noopener noreferrer">'+escapeHtml(x.label)+' ↗</a>'
-    ).join(' ');
-    return '<details class="v3-help"><summary>📚 Com fer aquest repte i on trobar ajuda</summary>'+
+    const specific=window.ROBOTIA_REPTE_GUIDES?.[challenge?.id]||{};
+    const steps=(specific.steps||category.steps||[]).map(step=>'<li>'+escapeHtml(step)+'</li>').join('');
+    const refs=[...(category.links||[]),...(specific.links||[])];
+    if(['sensors','robot'].includes(challenge.category)){
+      refs.push({label:'Fitxa tècnica Micro:Shield (XTEC)',url:'https://projectes.xtec.cat/digital/wp-content/uploads/usu2317/2024/10/Micro_shield.pdf'});
+    }
+    const links=refs.filter(x=>x&&/^https:\/\/[^<>" ]+$/.test(x.url)).map(x=>'<a href="'+escapeHtml(x.url)+'" target="_blank" rel="noopener noreferrer">'+escapeHtml(x.label)+' ↗</a>').join(' ');
+    return '<details class="v3-help" open><summary>📚 Guia d’aquest repte i material necessari</summary>'+
+      (specific.materials?'<p><b>Materials:</b> '+escapeHtml(specific.materials)+'</p>':'')+
       '<ol>'+steps+'</ol>'+(data.tip?'<p><b>Consell:</b> '+escapeHtml(data.tip)+'</p>':'')+
       '<div class="v3-help-links">'+links+'</div>'+
       (challenge.category==='sensors'||challenge.category==='robot'?'<p class="v3-hardware-tip">'+escapeHtml(root.security||'')+'</p>':'')+
@@ -1977,6 +1982,8 @@
 })();
 
 </script>
+<script src="lliçons-v3.js"></script>
+<script src="comentaris-v3.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="nuvol/config.js"></script>
 <script src="nuvol/cloud.js" defer></script>
