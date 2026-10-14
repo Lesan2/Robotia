@@ -208,5 +208,100 @@ window.ROBOTIA_REPTE_GUIDES = {
       "Fes activar un actuador i integra'l en una estructura original.",
       "Documenta la construcció i prepara una presentació grupal d'uns 5 minuts."
     ]
+  },
+  "m15": {
+    "materials": "Dues micro:bit, dos programes MakeCode (simulador de ràdio o plaques)",
+    "steps": [
+      "Crea dos projectes diferents: EMISSOR i RECEPTOR.",
+      "A «en iniciar», estableix a tots dos el mateix grup de ràdio (exemple 7).",
+      "EMISSOR: quan prems A, envia la cadena «HOLA»; quan prems B, envia «ADEU».",
+      "RECEPTOR: al bloc «en rebre cadena», mostra el text rebut.",
+      "Prova les dues ordres i desa l'enllaç o el fitxer .hex de cadascun."
+    ]
+  },
+  "m16": {
+    "materials": "Dues micro:bit i dos projectes MakeCode",
+    "steps": [
+      "Al començament dels dos programes, configura el mateix grup de ràdio.",
+      "COMANDAMENT: A envia el número 1; B envia 2; A+B envia 3.",
+      "RECEPTOR: en rebre número, si és 1 mostra cara contenta; si és 2, trista; si és 3, cor.",
+      "Comprova les tres respostes, amb les plaques separades i sense cables.",
+      "Entrega els dos programes i una prova visual."
+    ]
+  },
+  "m17": {
+    "materials": "Dues micro:bit, MakeCode, acceleròmetre integrat",
+    "steps": [
+      "Fixa el mateix grup de ràdio en totes dues plaques.",
+      "Al comandament, llegeix l'eix X de l'acceleròmetre cada 150–250 ms.",
+      "Si X < −300 envia «ESQUERRA»; si X > 300 envia «DRETA»; si no envia «CENTRE». Els llindars són orientatius.",
+      "Al receptor, mostra una fletxa esquerra, dreta o un punt segons l'ordre.",
+      "Prova moviments suaus i explica com evites enviar senyals confusos quan X està prop del llindar."
+    ]
+  },
+  "m18": {
+    "materials": "Dues micro:bit V2 amb altaveu (o receptor amb altaveu compatible), MakeCode",
+    "steps": [
+      "Configura el mateix grup de ràdio a les dues plaques.",
+      "A l'emissor, A envia el número 262 (Do4) i B envia 294 (Re4).",
+      "Al receptor, quan rebi el número, reprodueix aquesta freqüència durant 1/4 de segon amb els blocs de música.",
+      "Afegeix A+B per enviar 330 (Mi4) i prova una seqüència musical.",
+      "Entrega els dos programes i una demostració; no confonguis enviar números amb enviar so per ràdio."
+    ]
+  },
+  "s15": {
+    "materials": "Dues micro:bit, Micro:Shield, LED extern o tira NeoPixel, cables i alimentació adequada",
+    "steps": [
+      "Connecta el LED extern al port GVS adequat; si és NeoPixel, consulta la fitxa (exemple P8 i 10 LED).",
+      "A les dues micro:bit configura el mateix grup de ràdio.",
+      "EMISSOR: A envia ON i B envia OFF.",
+      "RECEPTOR: en rebre ON, encén l'actuador; en rebre OFF, apaga'l.",
+      "Prova el comandament a distància i grava el circuit i el resultat."
+    ]
+  },
+  "s16": {
+    "materials": "Dues micro:bit, Micro:Shield, servo, bateria i cables",
+    "steps": [
+      "Connecta el servo al port específic per a servos de la Micro:Shield, orientant correctament GND, alimentació i senyal.",
+      "Fixa el mateix grup de ràdio als dos programes.",
+      "EMISSOR: A envia «OBRE» i B envia «TANCA».",
+      "RECEPTOR: segons l'ordre, mou el servo a 30° o 90° (ajusta els angles segons la mecànica).",
+      "Prova les dues posicions amb el servo descarregat, després fixa l'actuador al projecte.",
+      "Entrega els dos programes, foto del connector i vídeo."
+    ]
+  },
+  "s17": {
+    "materials": "Dues micro:bit, PIR, Micro:Shield, LED o receptor V2 amb so",
+    "steps": [
+      "Connecta el sensor PIR a un GVS compatible (a la guia bàsica, P1). Comprova la tensió i orientació.",
+      "EMISSOR (amb PIR): fixa grup de ràdio i llegeix si hi ha moviment. Envia MOVIMENT o REPOS.",
+      "RECEPTOR: quan rep MOVIMENT mostra un símbol d'alerta i activa so o LED; amb REPOS ho apaga.",
+      "Afegeix un petit retard i comprova què passa sense moviment.",
+      "Prova el muntatge mentre la segona micro:bit és lluny del sensor."
+    ]
+  },
+  "s18": {
+    "materials": "Dues micro:bit, Micro:Shield amb controlador, xassís, dos motors DC, bateria i cables",
+    "steps": [
+      "Primer connecta els motors DC als ports de motor del controlador; mai directament als pins GVS.",
+      "Configura ràdio amb el mateix grup en comandament i robot.",
+      "EMISSOR: detecta inclinació endavant, enrere i dreta/esquerra; envia ordres de text o nombre.",
+      "RECEPTOR: associa cada ordre al control dels dos motors; inclou sempre STOP.",
+      "Afegeix un sistema d'aturada si durant uns segons no arriba cap missatge nou.",
+      "Prova amb les rodes aixecades, després a velocitat baixa sobre el terra.",
+      "Entrega els dos programes i el vídeo de control remot."
+    ]
+  },
+  "s19": {
+    "materials": "Dues micro:bit, Micro:Shield, sensor d'ultrasons compatible, servo, alimentació i barrera lleugera",
+    "steps": [
+      "Connecta ultrasons segons el model (TRIG i ECHO separats si correspon) i el servo al port adequat.",
+      "Configura el mateix grup ràdio en comandament i receptor.",
+      "COMANDAMENT: A activa AUTO, B envia STOP.",
+      "RECEPTOR: amb AUTO activat, llegeix la distància i obre si és inferior a 10 cm; en cas contrari tanca.",
+      "Quan arriba STOP, desactiva AUTO i posa el servo en una posició segura.",
+      "Demostra AUTO amb dos objectes a distàncies diferents i l'aturada remota.",
+      "Entrega els dos programes, l'esquema del sensor i un vídeo del sistema."
+    ]
   }
 };
