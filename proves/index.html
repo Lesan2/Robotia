@@ -1821,7 +1821,7 @@
       if(project&&currentUserOwns(project))projects[c.id]=project;
       if(project||r||p?.started){
         const owners=projectOwners(project).length?projectOwners(project):(r?.owners?.length?r.owners:currentOwnerNames());
-        activities[c.id]={challengeMeta:challengeMetaFor(c.id),progressRecord:p||{},reflection:r||{},project:project||null,workId:project?.workId||r?.workId||generateWorkId(),owners,className:project?.className||r?.className||state.identity.className||'',createdAt:project?.createdAt||r?.createdAt||'',updatedAt:project?.updatedAt||r?.updatedAt||'',exportedAt:new Date().toISOString()};
+        activities[c.id]={challengeMeta:challengeMetaFor(c.id),progressRecord:p||{},reflection:r||{},project:project||null,workId:project?.workId||r?.workId||('progress-'+profileSlug()+'-'+c.id),owners,className:project?.className||r?.className||state.identity.className||'',createdAt:project?.createdAt||r?.createdAt||'',updatedAt:project?.updatedAt||r?.updatedAt||'',exportedAt:new Date().toISOString()};
       }
     });
     return {app:'ROBOTIA FlowLab Portfolio',version:4,appBuild:APP_BUILD,exportedAt:new Date().toISOString(),identity:state.identity,progress:state.progress,reflections:state.portfolio,projects,activities,summary:buildSummary(state.progress)};
