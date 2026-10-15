@@ -104,3 +104,86 @@ function robotiaSafeGradeDate_(value) {
   }
   return String(value || "").slice(0, 30);
 }
+
+
+/*
+ * ESCRIPTURA DOCENT (preparada, NO activada a la passarel·la).
+ * INTEGRAR NOMÉS DESPRÉS D'AUTENTICAR EL TOKEN GOOGLE EN EL BACKEND.
+ * No acceptar mai verifiedTeacherEmail des del POST/body del navegador.
+ * Exemple servidor, després de validar el token de cada crida:
+ *   const saved = robotiaSaveCorrectionForVerifiedTeacher_(verifiedEmail, payload);
+ */
+function robotiaSaveCorrectionForVerifiedTeacher_(verifiedTeacherEmail, payload) {
+  robotiaRequireTeacher_(verifiedTeacherEmail);
+  if (!payload || typeof payload !== "object") throw new Error("Falten dades de correcció");
+  const email = String(payload.email || "").trim().toLowerCase();
+  const id = String(payload.id || "").trim();
+  if (!/^[a-z0-9._%+-]+@instituticaria\.cat$/.test(email)) throw new Error("Correu alumne incorrecte");
+  if (!/^[a-z0-9_-]{1,32}$/i.test(id)) throw new Error("ID de repte incorrecte");
+  const grade = robotiaValidGrade_(payload.grade);
+  if (payload.grade !== "" && payload.grade !== null && payload.grade !== undefined && grade === null) {
+    throw new Error("La nota ha de ser de 0 a 10");
+  }
+  const ai = robotiaValidGrade_(payload.ai);
+  if (payload.ai !== "" && payload.ai !== null && payload.ai !== undefined && ai === null) {
+    throw new Error("Proposta IA incorrecta");
+  }
+  const workId = String(payload.workId || "").slice(0, 100);
+  const title = String(payload.title || id).slice(0, 200);
+  const category = String(payload.category || "").slice(0, 30);
+  const publicComment = String(payload.comment || "").slice(0, 3000);
+  const privateComment = String(payload.privateComment || "").slice(0, 3000);
+  const evidence = String(payload.evidenceUrl || "").slice(0, 500);
+  const today = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd");
+  const values = [email,id,title,category,workId,"Corregit · esborrany",
+    ai === null ? "" : ai,grade === null ? "" : grade,
+    publicComment,privateComment,"No",today,
+    String(verifiedTeacherEmail).trim().toLowerCase(),evidence,String(payload.deliveredAt || "").slice(0, 40)];
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(15000)) throw new Error("Correcció ocupada: torna-ho a provar");
+  try {
+    const sheet = SpreadsheetApp.openById(ROBOTIA_PRIVATE_GRADES_SHEET_ID_).getSheetByName("Correccions");
+    if (!sheet) throw new Error("Falta la pestanya Correccions");
+    const rows = sheet.getLastRow();
+    const existing = rows > 1 ? sheet.getRange(2,1,rows-1,5).getValues() : [];
+    let target = rows + 1;
+    for (let i = existing.length - 1; i >= 0; i--) {
+      const row = existing[i];
+      if (String(row[0] || "").trim().toLowerCase() === email &&
+          String(row[1] || "").trim() === id && String(row[4] || "").trim() === workId) {
+        target = i + 2; break;
+      }
+    }
+    sheet.getRange(target,1,1,15).setValues([values]);
+    return { saved:true, email:email, id:id, row:target, published:false };
+  } finally {lock.releaseLock()}
+}
+function robotiaSetCorrectionPublishedForVerifiedTeacher_(verifiedTeacherEmail, email, id, workId, published) {
+  robotiaRequireTeacher_(verifiedTeacherEmail);
+  email = String(email || "").trim().toLowerCase();
+  id = String(id || "").trim();
+  workId = String(workId || "").trim();
+  if (!/^[a-z0-9._%+-]+@instituticaria\.cat$/.test(email) ||
+      !/^[a-z0-9_-]{1,32}$/i.test(id)) throw new Error("Destinatari incorrecte");
+  if (typeof published !== "boolean") throw new Error("Cal confirmar expressament la publicació");
+  const lock=LockService.getScriptLock();
+  if (!lock.tryLock(15000)) throw new Error("Publicació ocupada: torna-ho a provar");
+  try {
+    const sheet = SpreadsheetApp.openById(ROBOTIA_PRIVATE_GRADES_SHEET_ID_).getSheetByName("Correccions");
+    const last=sheet.getLastRow();
+    if(last<2)throw new Error("Encara no hi ha correccions");
+    const rows=sheet.getRange(2,1,last-1,5).getValues();
+    const matching=[];
+    rows.forEach((row,i)=>{
+      if(String(row[0]||"").trim().toLowerCase()===email&&String(row[1]||"").trim()===id&&String(row[4]||"").trim()===workId)matching.push(i+2);
+    });
+    if(matching.length!==1)throw new Error("La correcció no és única; revisa ID i identificador de treball");
+    sheet.getRange(matching[0],11).setValue(published?"Sí":"No");
+    return {published:published,email:email,id:id};
+  } finally {lock.releaseLock()}
+}
+function robotiaRequireTeacher_(verifiedEmail) {
+  if (String(verifiedEmail || "").trim().toLowerCase() !== "jlesan@instituticaria.cat") {
+    throw new Error("Accés docent no autoritzat");
+  }
+}
