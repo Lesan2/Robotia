@@ -1763,10 +1763,10 @@
     const active=challenges.filter(c=>state.progress[c.id]?.started||storedProject(c.id)||state.portfolio[c.id]?.attachments?.length||state.portfolio[c.id]?.makeCodeUrl||state.portfolio[c.id]?.codeText);
     if(!active.length){list.innerHTML='<div class="card portfolio-empty"><b>Encara no hi ha treballs al portafoli.</b><p>Comença un repte o importa una activitat .robotia.</p></div>';return}
     list.innerHTML=active.map(c=>{
-      const p=challengeProgress(c.id),r=portfolioEntry(c.id),project=storedProject(c.id),owners=projectOwners(project),atts=r.attachments||[];
-      return `<article class="portfolio-item card ${p.completed?'done':''}">
+      const p=challengeProgress(c.id),r=portfolioEntry(c.id),project=storedProject(c.id),owners=projectOwners(project),atts=r.attachments||[],validEvidence=c.kind!=='practical'||practicalCanSubmit(c.id),shownCompleted=!!p.completed&&validEvidence;
+      return `<article class="portfolio-item card ${shownCompleted?'done':''}">
         <div class="portfolio-item-head">
-          <div><div class="portfolio-status ${p.completed?'done':'progress'}">${p.completed?'Entregat · pendent de validar':'En curs'}</div><span class="portfolio-category">${escapeHtml(categoryLabel(c.category))}</span><h2>${escapeHtml(c.title)}</h2><p>+${c.points} punts · màxim ${c.maxNote}${owners.length?' · '+escapeHtml(owners.join(' + ')):''}</p>${r.versionHistory?.length?`<div class="version-count">${r.versionHistory.length} versió/versions alternatives preservades</div>`:''}</div>
+          <div><div class="portfolio-status ${shownCompleted?'done':'progress'}">${shownCompleted?'Entregat · pendent de validar':p.completed?'Registrat · falta evidència verificable':'En curs'}</div><span class="portfolio-category">${escapeHtml(categoryLabel(c.category))}</span><h2>${escapeHtml(c.title)}</h2><p>+${c.points} punts · màxim ${c.maxNote}${owners.length?' · '+escapeHtml(owners.join(' + ')):''}</p>${r.versionHistory?.length?`<div class="version-count">${r.versionHistory.length} versió/versions alternatives preservades</div>`:''}</div>
           <div class="portfolio-item-actions">${project?`<button class="btn secondary" data-port-open="${c.id}">Obrir</button><button class="btn ghost" data-port-download="${c.id}">Descarregar .robotia</button>`:''}</div>
         </div>
         <div class="portfolio-reflection-grid">
