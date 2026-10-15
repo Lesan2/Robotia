@@ -55,7 +55,7 @@ function asNumber(x){
 }
 function selectedId(){return el("v3-corr-challenge").value}
 function getRubric(){return RUBRICS[active?.category]||RUBRICS.flux}
-function currentKey(){return [el("v3-corr-email").value.trim().toLowerCase(),selectedId()].join("|")}
+function currentKey(){return [el("v3-corr-email").value.trim().toLowerCase(),active?.id||selectedId()].join("|")}
 function rememberDraft(){
  if(!active)return;
  drafts.set(currentKey(),{
