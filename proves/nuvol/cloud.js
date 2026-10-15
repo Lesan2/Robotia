@@ -5,7 +5,7 @@ const app=window.ROBOTIA_CLOUD_APP;
 const config=window.ROBOTIA_CLOUD_CONFIG||{};
 if(!app){console.error('ROBOTIA: manca el pont intern de l’aplicació original');return}
 const $=s=>document.querySelector(s);
-const cloud={token:'',email:'',revision:0,shared:{},bridge:null,remoteWindow:null,remoteOrigin:'',ready:false,seq:0,pending:new Map(),saving:false,savedSig:'',timer:0,poll:0,blocked:false};
+const cloud={token:'',email:'',revision:0,shared:{},bridge:null,remoteWindow:null,remoteOrigin:'',ready:false,seq:0,pending:new Map(),saving:false,savedSig:'',timer:0,poll:0,blocked:false,pendingSave:false};
 const disabled=!/^\d+-[a-z0-9_-]+\.apps\.googleusercontent\.com$/i.test(config.clientId||'')||!/^https:\/\/script\.google\.com\/(?:a\/macros\/instituticaria\.cat\/s\/|macros\/s\/)[\w-]+\/exec$/.test(config.bridgeUrl||'');
 const html=`<section id="robotia-cloud" class="card" style="padding:18px;margin:15px 0;border:1px solid #93c5fd;border-radius:15px">
  <h2 style="margin-top:0">☁️ Desar els meus treballs al núvol</h2>
@@ -57,6 +57,11 @@ function call(method,args){return new Promise((resolve,reject)=>{
  cloud.pending.set(id,{resolve,reject,timeout});cloud.remoteWindow.postMessage({robotiaBridge:1,id,method,args},cloud.remoteOrigin);
 })}
 function stable(obj){return JSON.stringify(obj,(key,value)=>['exportedAt','updatedAt','appBuild'].includes(key)?undefined:value)}
+// Only a previously server-confirmed, unchanged local copy can resume without merging.
+function fingerprint(value){let h=2166136261;for(let i=0;i<value.length;i++)h=Math.imul(h^value.charCodeAt(i),16777619);return value.length+':'+(h>>>0).toString(36)}
+function confirmedKey(){return 'robotia.cloud.confirmed.v1.'+cloud.email.toLowerCase()}
+function recordConfirmed(sig){try{localStorage.setItem(confirmedKey(),JSON.stringify({fingerprint:fingerprint(sig),revision:String(cloud.revision)}))}catch{}}
+function canResumeSameVersion(){try{const record=JSON.parse(localStorage.getItem(confirmedKey())||'null');return !!record&&record.fingerprint===fingerprint(stable(snapshot()))&&record.revision===String(cloud.revision)}catch{return false}}
 function snapshot(){const p=app.makePortfolioBundle();p.identity.email=cloud.email;if(typeof app.scoreForCategory==='function'){p.cloudSummary={flux:app.scoreForCategory('flux'),microbit:app.scoreForCategory('microbit'),sensors:app.scoreForCategory('sensors'),robot:app.scoreForCategory('robot')}}return p}
 function localHasWork(){const b=app.makePortfolioBundle();return Object.keys(b.activities||{}).length>0||Object.keys(b.projects||{}).length>0}
 function downloadLocal(){app.exportPortfolioBundle()}
@@ -110,11 +115,17 @@ async function enter(token){
      app.renderChallenges();app.renderPortfolio();
    }
    if(info.portfolio){
-     message('Sessió: '+cloud.email+' · Hi ha un portafoli al núvol. Prem «Carregar / fusionar» per recuperar-lo abans de continuar.');
-     // No substituïm una versió local sense consentiment explícit.
-     if(!localHasWork())await load(true,info);
+     if(localHasWork()&&canResumeSameVersion()){
+       cloud.savedSig=stable(snapshot());cloud.blocked=false;buttons();
+       message('✓ Sessió recuperada. Els canvis es desen automàticament al núvol.');
+     }else if(!localHasWork()){
+       await load(true,info);
+     }else{
+       message('Hi ha treballs locals no confirmats. Prem «Carregar / fusionar» una vegada per protegir-los abans de sincronitzar.');
+     }
    }else{
-     message('Sessió: '+cloud.email+' · Encara no tens portafoli al núvol. Desarem el treball actual.');
+     cloud.blocked=false;buttons();
+     message('Sessió iniciada. El treball es desarà automàticament al núvol.');
      markDirty();
    }
  }catch(err){cloud.blocked=true;buttons();message('⚠️ '+err.message)}
@@ -123,7 +134,7 @@ async function load(auto=false,knownInfo=null){
  if(!cloud.email)return;
  cloud.blocked=true;buttons();
  try{
-  message('Comprovant el portafoli del núvol…');const info=knownInfo||await cloudInfo();cloud.revision=info.revision;
+  message('Comprovant el portafoli del núvol…');const info=knownInfo||await cloudInfo();cloud.revision=info.revision;const hadLocalWork=localHasWork();
   const incoming=syncSharedFromInfo(info);
   if(!incoming){cloud.blocked=false;buttons();message('No hi ha encara cap portafoli al núvol.');return}
   const localName=app.state.identity.name;
@@ -138,32 +149,64 @@ async function load(auto=false,knownInfo=null){
   }
   if(!app.state.identity.name){app.activateIdentity({name:incoming.identity.name,team:incoming.identity.team||'',className:incoming.identity.className||'',email:cloud.email})}
   await new Promise(resolve=>app.importPortfolioBundle(new File([JSON.stringify(incoming)],'ROBOTIA_NUVOL.robotiaportfolio',{type:'application/json'}),resolve));
-  cloud.savedSig=stable(snapshot());cloud.blocked=false;
-  message('✓ Portafoli del núvol carregat / fusionat. Revisa els reptes; conserva la còpia descarregada si n’hi havia.');
+  cloud.savedSig=hadLocalWork?'':stable(snapshot());cloud.blocked=false;
+  message(hadLocalWork?'✓ Portafoli fusionat. Sincronitzant els treballs pendents…':'✓ Portafoli carregat. Desament automàtic activat.');
   $('#cloud-invite-count').textContent=info.invites?.length||'';buttons();
+  if(hadLocalWork){cloud.pendingSave=true;void save(true)}
+  else recordConfirmed(cloud.savedSig);
  }catch(err){message('⚠️ Error en carregar: '+err.message)}
 }
-function markDirty(){if(!active())return;clearTimeout(cloud.timer);cloud.timer=setTimeout(()=>{void save(true)},6500)}
+function markDirty(){
+ if(!active())return;
+ cloud.pendingSave=true;
+ clearTimeout(cloud.timer);
+ cloud.timer=setTimeout(()=>{cloud.timer=0;void save(true)},1800);
+}
+function requestDeliverySync(){
+ if(!cloud.email){
+   message('⚠️ Repte desat al navegador. Inicia sessió per sincronitzar-lo al núvol.');return;
+ }
+ if(cloud.blocked){
+   message('⚠️ Repte desat al navegador, però cal «Carregar / fusionar» abans d’enviar-lo al núvol.');return;
+ }
+ cloud.pendingSave=true;
+ clearTimeout(cloud.timer);
+ cloud.timer=setTimeout(()=>{cloud.timer=0;void save(true)},0);
+}
 async function save(automatic=false){
- if(!active()||cloud.saving||!app.state.identity.name)return false;
+ if(!active()||!app.state.identity.name)return false;
+ if(cloud.saving){cloud.pendingSave=true;return false}
  if(cloud.poll)clearTimeout(cloud.poll);
- const p=snapshot();const sig=stable(p);
- if(automatic&&sig===cloud.savedSig)return true;
- cloud.saving=true;message('☁️ Desant al núvol…');
+ clearTimeout(cloud.timer);cloud.timer=0;
+ const p=snapshot(),sig=stable(p);
+ if(automatic&&sig===cloud.savedSig){cloud.pendingSave=false;return true}
+ cloud.saving=true;cloud.pendingSave=false;buttons();message('☁️ Desant al núvol…');
+ let success=false;
  try{
-  const revs=Object.fromEntries(Object.values(cloud.shared).map(x=>[x.id,x.revision]));
-  const r=await call('cloudSave',[cloud.token,p,cloud.revision,revs]);
-  if(r.conflict||r.sharedConflict){
-    cloud.blocked=true;buttons();downloadLocal();
-    message('⚠️ Una altra sessió ha modificat el portafoli o l’activitat compartida. S’ha descarregat una còpia local: recarrega i fusiona abans de continuar.');
-    return false;
-  }
-  cloud.revision=r.revision;
-  for(const [id,revision] of Object.entries(r.sharedRevisions||{}))if(cloud.shared[id])cloud.shared[id].revision=revision;
-  cloud.savedSig=sig;message((r.gradeWarning?'✓ Portafoli desat · ⚠️ Seguiment docent pendent':'✓ Desat al núvol')+' · '+new Date().toLocaleTimeString('ca-ES'));
-  return true;
- }catch(err){message('⚠️ No s’ha pogut desar: '+err.message+'. Conserva i descarrega el teu portafoli.');return false;}
- finally{cloud.saving=false}
+   const revs=Object.fromEntries(Object.values(cloud.shared).map(x=>[x.id,x.revision]));
+   const r=await call('cloudSave',[cloud.token,p,cloud.revision,revs]);
+   if(r.conflict||r.sharedConflict){
+     cloud.blocked=true;buttons();downloadLocal();
+     message('⚠️ Una altra sessió ha canviat el portafoli. S’ha descarregat una còpia local: cal fusionar abans de continuar.');
+     return false;
+   }
+   cloud.revision=r.revision;
+   for(const [id,revision] of Object.entries(r.sharedRevisions||{}))if(cloud.shared[id])cloud.shared[id].revision=revision;
+   cloud.savedSig=sig;recordConfirmed(sig);
+   success=true;
+   message((r.gradeWarning?'✓ Portafoli desat · ⚠️ Seguiment docent pendent':'✓ Desat al núvol')+' · '+new Date().toLocaleTimeString('ca-ES'));
+   return true;
+ }catch(err){
+   message('⚠️ Error de desament al núvol: '+err.message+'. El portafoli local es conserva. Descarrega una còpia.');
+   return false;
+ }finally{
+   cloud.saving=false;buttons();
+   // Catch edits made while the previous request was still in progress.
+   if(success&&active()&&(cloud.pendingSave||stable(snapshot())!==cloud.savedSig)){
+     cloud.pendingSave=false;clearTimeout(cloud.timer);
+     cloud.timer=setTimeout(()=>{cloud.timer=0;void save(true)},600);
+   }
+ }
 }
 function invite(){
  if(!cloud.email){message('Inicia sessió amb Google per compartir un repte.');return}
@@ -278,12 +321,14 @@ async function refreshPublishedFeedback(){
 }
 function logout(){
  clearTimeout(cloud.timer);if(window.google?.accounts?.id)google.accounts.id.disableAutoSelect();
- cloud.token='';cloud.email='';cloud.ready=!!cloud.remoteWindow;cloud.blocked=true;cloud.shared={};cloud.savedSig='';$('#cloud-share-panel').hidden=true;buttons();
+ cloud.token='';cloud.email='';cloud.ready=!!cloud.remoteWindow;cloud.blocked=true;cloud.shared={};cloud.savedSig='';cloud.pendingSave=false;$('#cloud-share-panel').hidden=true;buttons();
  window.dispatchEvent(new CustomEvent('robotia:teacherSession',{detail:{email:''}}));
  message('Sessió desconnectada. Les dades locals continuen en aquest navegador.');
 }
 function init(){
  window.addEventListener('robotia:refreshFeedback',()=>void refreshPublishedFeedback());
+ window.addEventListener('robotia:portfolioChanged',markDirty);
+ window.addEventListener('robotia:deliverySaved',requestDeliverySync);
  $('#cloud-load').onclick=()=>void load();$('#cloud-save').onclick=()=>void save(false);
  $('#cloud-invite').onclick=invite;$('#cloud-share-send').onclick=()=>void sendInvite();$('#cloud-share-cancel').onclick=()=>{$('#cloud-share-panel').hidden=true};$('#cloud-inbox').onclick=()=>void inbox();$('#cloud-out').onclick=logout;
  if(disabled){message('Núvol en preparació. Configura l’ID de Google i el desplegament d’Apps Script; mentrestant, utilitza les còpies locals.');return}
