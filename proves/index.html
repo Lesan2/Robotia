@@ -963,7 +963,7 @@
     try{
       const u=new URL(raw);
       if(u.protocol!=='https:'||u.hostname.toLowerCase()!=='makecode.microbit.org')return 'invalid';
-      if(/^\/_[a-z0-9-]{4,}$/i.test(u.pathname)||/^\/S[a-z0-9-]{8,}$/i.test(u.pathname)||/^#pub:(?:_|S)[a-z0-9-]{4,}/i.test(u.hash))return 'shared';
+      if(/^\/_[a-z0-9-]{4,}$/i.test(u.pathname)||/^\/S[a-z0-9-]{8,}$/i.test(u.pathname)||/^\/\d{4,6}(?:-\d{4,6}){3}$/i.test(u.pathname)||/^#pub:(?:_|S)[a-z0-9-]{4,}/i.test(u.hash))return 'shared';
       return 'editor';
     }catch{return 'invalid'}
   }
