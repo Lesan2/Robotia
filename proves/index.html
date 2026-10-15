@@ -469,7 +469,7 @@
       <div class="practical-evidence">
         <h3>Evidències del repte</h3>
         <p>Perquè es pugui corregir bé, recomanem pujar el <b>.hex</b> i, si pots, una captura dels blocs o enganxar el JavaScript de MakeCode.</p>
-        <label>Enllaç compartit de MakeCode (opcional)<input id="practicalMakeCodeUrl" placeholder="https://makecode.microbit.org/_..." /></label>
+        <label>Enllaç compartit de MakeCode (opcional)<input id="practicalMakeCodeUrl" placeholder="https://makecode.microbit.org/_..." /><small id="practicalMakeCodeWarning" role="status" style="color:#b42318;font-weight:650"></small></label>
         <label>Codi JavaScript de MakeCode (opcional però molt útil per corregir)<textarea id="practicalCode" rows="7" placeholder="Enganxa aquí el codi si vols..."></textarea></label>
         <label class="btn ghost file-label">+ Adjuntar .hex / captures / PDF<input id="practicalFiles" type="file" accept=".hex,.png,.jpg,.jpeg,.webp,.pdf,.txt,.js,.json,.robotia" multiple hidden></label>
         <div id="practicalFilesList" class="attachment-list"></div>
@@ -957,23 +957,33 @@
       '</details>';
   }
 
-  function practicalCanSubmit(id){
-    const r=portfolioEntry(id),u=(r.makeCodeUrl||'').trim();
-    let shared=false;
+  function makeCodeShareStatus(value){
+    const raw=String(value||'').trim();
+    if(!raw)return 'empty';
     try{
-      const url=new URL(u);
-      shared=url.hostname==='makecode.microbit.org' &&
-        ((/^\/_[A-Za-z0-9-]{4,}$/.test(url.pathname)) || (/^\/S[A-Za-z0-9-]{8,}$/.test(url.pathname)) || (url.hash.startsWith('#pub:')&&url.hash.length>8));
-    }catch(error){}
-    return !!((r.attachments?.length||0)||shared||(r.codeText||'').trim().length>12);
+      const u=new URL(raw);
+      if(u.protocol!=='https:'||u.hostname.toLowerCase()!=='makecode.microbit.org')return 'invalid';
+      if(/^\/_[a-z0-9-]{4,}$/i.test(u.pathname)||/^\/S[a-z0-9-]{8,}$/i.test(u.pathname)||/^#pub:(?:_|S)[a-z0-9-]{4,}/i.test(u.hash))return 'shared';
+      return 'editor';
+    }catch{return 'invalid'}
   }
-  function renderPracticalFiles(id){
+  function makeCodeNotice(value){
+    const status=makeCodeShareStatus(value);
+    if(status==='editor')return 'Aquest enllaç obre MakeCode, però no comparteix el teu programa. Prem «Compartir» al projecte i copia el nou enllaç.';
+    if(status==='invalid')return 'L’enllaç no és un projecte compartit de MakeCode. Utilitza «Compartir» dins del projecte.';
+    return '';
+  }
+  function practicalCanSubmit(id){
+    const r=portfolioEntry(id);
+    return !!((r.attachments?.length||0)||makeCodeShareStatus(r.makeCodeUrl)==='shared'||(r.codeText||'').trim().length>12);
+  }
+    function renderPracticalFiles(id){
     const r=portfolioEntry(id),box=$('#practicalFilesList'); if(!box)return;
     box.innerHTML=(r.attachments||[]).length?r.attachments.map((a,i)=>`<div class="attachment-chip"><a href="${a.data}" download="${escapeHtml(a.name)}">${escapeHtml(a.name)}</a><button data-prac-remove="${i}" title="Eliminar">×</button></div>`).join(''):'<span class="no-attachments">Encara no hi ha fitxers.</span>';
     $$('[data-prac-remove]').forEach(b=>b.onclick=()=>{r.attachments.splice(Number(b.dataset.pracRemove),1);savePortfolio();renderPracticalFiles(id);updatePracticalStatus(id)});
   }
   function updatePracticalStatus(id){
-    const p=challengeProgress(id),ok=practicalCanSubmit(id),el=$('#practicalStatus'); if(el){el.textContent=p.completed&&!ok?'Registrat · falta evidència verificable':p.completed?'Entregat · pendent de validar':ok?'A punt per entregar':'En curs';el.className=`status-pill ${p.completed?'done':ok?'progress':''}`}
+    const p=challengeProgress(id),ok=practicalCanSubmit(id),el=$('#practicalStatus');const warn=$('#practicalMakeCodeWarning');if(warn)warn.textContent=makeCodeNotice(portfolioEntry(id).makeCodeUrl); if(el){el.textContent=p.completed&&!ok?'Registrat · falta evidència verificable':p.completed?'Entregat · pendent de validar':ok?'A punt per entregar':'En curs';el.className=`status-pill ${p.completed&&ok?'done':ok?'progress':''}`}
   }
   function openPracticalChallenge(id){
     if(!requireIdentity())return; const c=challenges.find(x=>x.id===id); if(!c)return; state.practicalId=id;
@@ -988,7 +998,7 @@
     $('#practicalMakeCodeUrl').value=r.makeCodeUrl||'';$('#practicalCode').value=r.codeText||'';renderPracticalFiles(id);updatePracticalStatus(id);$('#modalPractical').showModal();
   }
   function savePractical(){
-    const id=state.practicalId;if(!id)return;const r=portfolioEntry(id);r.makeCodeUrl=$('#practicalMakeCodeUrl').value.trim();r.codeText=$('#practicalCode').value.trim();savePortfolio();const p=challengeProgress(id);p.started=true;p.lastAt=new Date().toISOString();if(practicalCanSubmit(id)){p.completed=true;p.completedAt=p.completedAt||new Date().toISOString()}saveProgress();updatePracticalStatus(id);renderChallenges();toast(practicalCanSubmit(id)?'Evidències desades ✓':p.completed?'Repte registrat; cal afegir evidències per revisar-lo':'Desat. Comparteix el projecte MakeCode o adjunta una evidència.');
+    const id=state.practicalId;if(!id)return;const r=portfolioEntry(id);r.makeCodeUrl=$('#practicalMakeCodeUrl').value.trim();r.codeText=$('#practicalCode').value.trim();savePortfolio();const p=challengeProgress(id);p.started=true;p.lastAt=new Date().toISOString();if(practicalCanSubmit(id)){p.completed=true;p.completedAt=p.completedAt||new Date().toISOString()}saveProgress();updatePracticalStatus(id);renderChallenges();toast(makeCodeNotice(r.makeCodeUrl)?'Desat al navegador, però l’enllaç de MakeCode no comparteix el projecte.':practicalCanSubmit(id)?'Evidències desades al navegador. Comprova la sincronització al núvol.':'Desat al navegador. Cal compartir el projecte MakeCode o adjuntar evidències.');
   }
   function openPracticalDiagram(){
     const id=state.practicalId,c=challenges.find(x=>x.id===id);if(!c)return;$('#modalPractical').close();openChallenge(c.linkedFlow||id);
@@ -1764,12 +1774,12 @@
           <label>Dificultats<textarea rows="3" data-ref-field="difficulties" data-ref-id="${c.id}" placeholder="On t'has encallat? Què ha fallat?">${escapeHtml(r.difficulties||'')}</textarea></label>
           <label>Què ha funcionat / què t'ha agradat<textarea rows="3" data-ref-field="successes" data-ref-id="${c.id}" placeholder="Què repetiria? Què has après?">${escapeHtml(r.successes||'')}</textarea></label>
         </div>
-        ${(c.kind==='practical'||c.makeCodeCompatible)?`<div class="portfolio-practical-fields"><label>Enllaç MakeCode<input data-ref-field="makeCodeUrl" data-ref-id="${c.id}" value="${escapeHtml(r.makeCodeUrl||'')}" placeholder="Enllaç compartit opcional"></label><label>Codi JavaScript MakeCode<textarea rows="4" data-ref-field="codeText" data-ref-id="${c.id}" placeholder="Opcional però útil per corregir">${escapeHtml(r.codeText||'')}</textarea></label></div>`:''}
+        ${(c.kind==='practical'||c.makeCodeCompatible)?`<div class="portfolio-practical-fields"><label>Enllaç MakeCode<input data-ref-field="makeCodeUrl" data-ref-id="${c.id}" value="${escapeHtml(r.makeCodeUrl||'')}" placeholder="Enllaç compartit opcional"><small data-makecode-warning="${c.id}" role="status" style="color:#b42318;font-weight:650">${escapeHtml(makeCodeNotice(r.makeCodeUrl))}</small></label><label>Codi JavaScript MakeCode<textarea rows="4" data-ref-field="codeText" data-ref-id="${c.id}" placeholder="Opcional però útil per corregir">${escapeHtml(r.codeText||'')}</textarea></label></div>`:''}
         <div class="portfolio-evidence"><div><b>Evidències</b><span>${p.attempts||0} comprovacions · ${p.hints||0} pistes · ${Math.round((p.activeSeconds||0)/60)} min aprox.</span></div><label class="btn ghost file-label">+ Adjuntar arxius<input data-attach-id="${c.id}" type="file" accept=".hex,.png,.jpg,.jpeg,.webp,.pdf,.txt,.js,.json,.robotia" multiple hidden></label></div>
         <div class="attachment-list">${atts.length?atts.map((a,i)=>`<div class="attachment-chip"><a href="${a.data}" download="${escapeHtml(a.name)}">${escapeHtml(a.name)}</a><button data-remove-attachment="${c.id}" data-attachment-index="${i}" title="Eliminar">×</button></div>`).join(''):'<span class="no-attachments">Sense adjunts</span>'}</div>
       </article>`;
     }).join('');
-    $$('[data-ref-field]').forEach(el=>el.addEventListener('input',()=>{const id=el.dataset.refId,r=portfolioEntry(id);r[el.dataset.refField]=el.value;const c=challenges.find(x=>x.id===id);if(c?.kind==='practical'&&(r.makeCodeUrl||r.codeText||r.attachments?.length)){const p=challengeProgress(id);p.started=true;p.completed=true;p.completedAt=p.completedAt||new Date().toISOString();saveProgress()}savePortfolio();if(state.project?.challengeId===id)syncProjectMeta()}));
+    $$('[data-ref-field]').forEach(el=>el.addEventListener('input',()=>{const id=el.dataset.refId,r=portfolioEntry(id);r[el.dataset.refField]=el.value;if(el.dataset.refField==='makeCodeUrl'){const warn=document.querySelector('[data-makecode-warning="'+id+'"]');if(warn)warn.textContent=makeCodeNotice(r.makeCodeUrl)}const c=challenges.find(x=>x.id===id);if(c?.kind==='practical'&&practicalCanSubmit(id)){const p=challengeProgress(id);p.started=true;p.completed=true;p.completedAt=p.completedAt||new Date().toISOString();saveProgress()}savePortfolio();if(state.project?.challengeId===id)syncProjectMeta()}));
     $$('[data-port-open]').forEach(b=>b.onclick=()=>openStoredPortfolioProject(b.dataset.portOpen));
     $$('[data-port-download]').forEach(b=>b.onclick=()=>downloadStoredPortfolioProject(b.dataset.portDownload));
     $$('[data-attach-id]').forEach(inp=>inp.onchange=e=>addPortfolioAttachments(inp.dataset.attachId,e.target.files));
