@@ -43,7 +43,7 @@ root.innerHTML=[
 "<div class='actions'><button type='button' class='btn primary' id='v3-corr-copy'>Copiar fila de correcció</button><button type='button' class='btn secondary' id='v3-corr-download'>Descarregar fila TSV</button><a class='btn ghost' href='"+SHEET+"#gid=15321901' target='_blank' rel='noopener noreferrer'>Obrir Correccions ↗</a></div>",
 "<p id='v3-corr-result' class='status' role='status'>Les files preparades tenen «Publicar? = No» per defecte. Si ja existeix una correcció d'aquest repte, actualitza la fila anterior en lloc de crear-ne un duplicat.</p>"
 ].join("");
-host.append(root);
+host.prepend(root);
 const el=id=>root.querySelector("#"+id);
 let portfolio=null,items=[],active=null;
 const drafts=new Map();
