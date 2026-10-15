@@ -827,6 +827,7 @@
   function savePortfolio(){
     Object.values(state.portfolio||{}).forEach(r=>{if(r)r.updatedAt=new Date().toISOString()});
     if(!safeLocalSet(portfolioStorageKey(),JSON.stringify(state.portfolio),{quiet:true}))toast('Portafoli en memòria temporal: descarrega’l per conservar els canvis.');
+    window.dispatchEvent(new Event('robotia:portfolioChanged'));
   }
   function mergeProgressRecord(id,incoming={}){
     const p=challengeProgress(id); p.started=!!(p.started||incoming.started); p.completed=!!(p.completed||incoming.completed);
@@ -998,7 +999,9 @@
     $('#practicalMakeCodeUrl').value=r.makeCodeUrl||'';$('#practicalCode').value=r.codeText||'';renderPracticalFiles(id);updatePracticalStatus(id);$('#modalPractical').showModal();
   }
   function savePractical(){
-    const id=state.practicalId;if(!id)return;const r=portfolioEntry(id);r.makeCodeUrl=$('#practicalMakeCodeUrl').value.trim();r.codeText=$('#practicalCode').value.trim();savePortfolio();const p=challengeProgress(id);p.started=true;p.lastAt=new Date().toISOString();if(practicalCanSubmit(id)){p.completed=true;p.completedAt=p.completedAt||new Date().toISOString()}saveProgress();updatePracticalStatus(id);renderChallenges();toast(makeCodeNotice(r.makeCodeUrl)?'Desat al navegador, però l’enllaç de MakeCode no comparteix el projecte.':practicalCanSubmit(id)?'Evidències desades al navegador. Comprova la sincronització al núvol.':'Desat al navegador. Cal compartir el projecte MakeCode o adjuntar evidències.');
+    const id=state.practicalId;if(!id)return;const r=portfolioEntry(id);r.makeCodeUrl=$('#practicalMakeCodeUrl').value.trim();r.codeText=$('#practicalCode').value.trim();savePortfolio();const p=challengeProgress(id);p.started=true;p.lastAt=new Date().toISOString();if(practicalCanSubmit(id)){p.completed=true;p.completedAt=p.completedAt||new Date().toISOString()}saveProgress();updatePracticalStatus(id);renderChallenges();
+    window.dispatchEvent(new Event('robotia:deliverySaved'));
+    toast(makeCodeNotice(r.makeCodeUrl)?'Desat localment, però l’enllaç MakeCode no és compartit.':practicalCanSubmit(id)?'Repte desat. Sincronització automàtica si hi ha sessió al núvol.':'Desat localment. Afegeix un enllaç MakeCode compartit o evidències.');
   }
   function openPracticalDiagram(){
     const id=state.practicalId,c=challenges.find(x=>x.id===id);if(!c)return;$('#modalPractical').close();openChallenge(c.linkedFlow||id);
@@ -1628,6 +1631,7 @@
     state.project.exportedBy=state.identity.name; state.project.exportedAt=new Date().toISOString();
     autosave();
     downloadBlob(JSON.stringify(state.project,null,2),fileBase()+'.robotia','application/json');
+    window.dispatchEvent(new Event('robotia:deliverySaved'));
   }
   function exportProject(){saveProjectFile()}
   function importProjectData(project,{open=false,source='activitat importada'}={}){
