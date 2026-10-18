@@ -852,6 +852,14 @@
     renderChallenges();renderPortfolio();
   }
   function clearCloudIdentity(){
+    // Abans de buidar la pantalla, preservem les dades de recuperació
+    // del perfil local antic sense exposar-les ni assignar-les a un altre usuari.
+    try{
+      const legacy=JSON.parse(safeLocalGet(STORAGE.identity)||'null');
+      if(legacy?.name&&!legacy.email&&!safeLocalGet('robotia.legacy.identity.backup.v1')){
+        safeLocalSet('robotia.legacy.identity.backup.v1',JSON.stringify(legacy),{quiet:true});
+      }
+    }catch{}
     verifiedPortfolioEmail='';
     state.identity={name:'',team:'',className:''};
     state.progress={};state.portfolio={};state.project=null;state.currentChallenge=null;state.practicalId=null;
