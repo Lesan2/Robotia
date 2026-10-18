@@ -43,3 +43,16 @@ L'antic `cloudInfo` continua filtrant les dades per usuari verificat i només re
 
 ## Compatibilitat
 No s'han substituït ni alterat `cloudSave`, `cloudInvite`, `cloudAccept`, els noms de carpetes i portafolis, les propietats ni els identificadors de reptes. El codi antic s'ha conservat sencer.
+
+
+## Actualització visual 18/10/2026
+
+- El desplegable **Alumne del núvol** mostra **Nom · Correu institucional · Grup**.
+- El corrector inclou el mòdul independent `proves/visor-correccio-v3.js`.
+- Si hi ha un diagrama de flux, la vista de correcció mostra tots els nodes i les connexions en un SVG de **només lectura**. Botons **+**, **−** i **Ajustar**; es poden moure el pla i fer clic a un bloc per llegir-ne el text complet.
+- Si hi ha un enllaç MakeCode compartit vàlid, el visor oficial de blocs intenta generar la imatge SVG dels blocs de manera automàtica amb `--docs?render=1` i `packageId`. El botó **Editor aquí** obre el projecte compartit al simulador/editor incrustat. **Obrir MakeCode** proporciona l'alternativa en una pestanya nova quan l'incrustador extern falla.
+- Dins les evidències hi ha els accessos ràpids **Puntuar aquest repte** i **Escriure comentari**, que situen el cursor a la rúbrica o al comentari docent respectivament.
+- No hi ha cap modificació al backend Apps Script, al sistema de desament, ni a les notes o portafolis; només canvis a GitHub.
+- Proves completades: sintaxi dels tres JS modificats, previsualització d'un diagrama real de prova de 6 nodes/5 connexions, validació d'URL MakeCode i simulació de resposta del motor oficial de blocs.
+- Pendent validar la càrrega real d'iframes de MakeCode en el navegador amb la connexió a Internet del centre.
+
