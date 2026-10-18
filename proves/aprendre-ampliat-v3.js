@@ -49,7 +49,7 @@ function section(parent,title,intro,id){
  const root=document.createElement("section");root.className="edu-more";root.id=id;
  const h=document.createElement("h2");h.textContent=title;root.append(h);
  const p=document.createElement("p");p.className="intro";p.textContent=intro;root.append(p);
- parent.append(root);return root;
+ parent.prepend(root);return root;
 }
 function markup(root,html){const d=document.createElement("div");d.innerHTML=html;root.append(d);return d}
 function svgElem(name,attrs={},value){
@@ -123,6 +123,7 @@ for(const ex of examples){
 markup(flow,'<p class="edu-help warning"><b>Tria el símbol correcte:</b> «llegir» i «mostrar» → entrada/sortida; «assignar» i «calcular» → procés; «és més gran?» → decisió; «repetir» → fletxa de retorn. A ROBOTIA pots provar-ho directament amb el simulador.</p>');
 // MICRO:BIT
 const mic=section(micro,"Guia completa de blocs MakeCode · de zero a projectes reals","Localitza cada família de blocs, entén què fa i copia exemples per provar-los al simulador o amb la placa.","edu-makecode");
+markup(mic,'<p><a href="#edu-makecode-dictionary">🔎 Ves al diccionari cercable dels blocs ↓</a></p>');
 markup(mic,'<div class="edu-makecode-steps"><span>1 · Obre MakeCode</span><span>2 · Tria «Blocs»</span><span>3 · Busca la categoria</span><span>4 · Crea i prova</span><span>5 · Comparteix el projecte</span></div>'+
 '<p>'+link("https://makecode.microbit.org/","Obrir l’editor MakeCode")+' · '+link("https://makecode.microbit.org/blocks/variables","Guia oficial de variables")+' · '+link("https://makecode.microbit.org/blocks/loops","Guia oficial de bucles")+'</p>');
 const categories=[
