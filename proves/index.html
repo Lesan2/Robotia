@@ -726,8 +726,11 @@
     practicalId:null
   };
 
+  // Les claus velles per nom es mantenen, però no es transfereixen automàticament.
+  let verifiedPortfolioEmail='';
   function profileSlug(name=state.identity.name){
-    const n=normalize(name||'').replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,''); return n||'anon';
+    const owner=verifiedPortfolioEmail?'institucional_'+verifiedPortfolioEmail:(name||'');
+    const n=normalize(owner).replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');return n||'anon';
   }
   function progressStorageKey(name=state.identity.name){return `${STORAGE.progress}.${profileSlug(name)}`}
   function portfolioStorageKey(name=state.identity.name){return `${STORAGE.portfolio}.${profileSlug(name)}`}
@@ -751,11 +754,12 @@
     return [...new Map(names.map(n=>[normalize(n),n])).values()];
   }
   function requireIdentity(){
-    const typed=$('#studentName')?.value?.trim();
-    if(typed && typed!==state.identity.name){
-      activateIdentity({name:typed,team:$('#teamNames')?.value.trim()||'',className:$('#className')?.value.trim()||''});
+    if(!verifiedPortfolioEmail||state.identity.email!==verifiedPortfolioEmail){
+      toast('Inicia sessió amb el compte Google institucional per treballar amb el teu portafoli.');
+      showView('#viewPortfolio');
+      document.getElementById('robotia-cloud')?.scrollIntoView({behavior:'smooth'});
+      return false;
     }
-    if(!state.identity.name){toast('Primer identifica’t amb el teu nom i cognoms.');showView('#viewHome');setTimeout(()=>$('#studentName')?.focus(),50);return false}
     return true;
   }
   function projectOwners(project){return Array.isArray(project?.owners)?project.owners.filter(Boolean):[]}
@@ -802,15 +806,46 @@
   }
 
   function loadStored(){
-    try{state.identity={...state.identity,...JSON.parse(safeLocalGet(STORAGE.identity)||'{}')}}catch{}
-    loadProfileState();
-    $('#studentName').value=state.identity.name||'';$('#teamNames').value=state.identity.team||'';$('#className').value=state.identity.className||'';
+    // Un ordinador compartit no mostra els treballs de l'últim alumne abans d'autenticar-se.
+    // Es conserven totes les dades antigues (sense esborrar res de localStorage).
+    state.identity={name:'',team:'',className:''};
+    state.progress={};state.portfolio={};
+    $('#studentName').value='';$('#teamNames').value='';$('#className').value='';
   }
-
   function saveIdentity(){
-    const next={name:$('#studentName').value.trim(),team:$('#teamNames').value.trim(),className:$('#className').value.trim()};
-    if(!next.name){toast('Escriu el teu nom i cognoms.');return}
-    activateIdentity(next); renderChallenges(); toast('Dades desades');
+    if(!verifiedPortfolioEmail){
+      toast('Inicia sessió amb el compte Google de l’institut.');
+      showView('#viewPortfolio');document.getElementById('robotia-cloud')?.scrollIntoView({behavior:'smooth'});return;
+    }
+    const next={...state.identity,team:$('#teamNames').value.trim(),className:$('#className').value.trim()};
+    activateIdentity(next);renderChallenges();toast('Dades guardades per al compte institucional.');
+  }
+  function activateCloudIdentity(profile){
+    const email=String(profile?.email||'').trim().toLowerCase();
+    if(!/^[a-z0-9._%+-]+@instituticaria\.cat$/.test(email))throw Error('Correu institucional incorrecte.');
+    const name=String(profile.name||'').trim();
+    if(!name)throw Error('Falta el nom del compte.');
+    const changed=verifiedPortfolioEmail!==email;
+    verifiedPortfolioEmail=email;
+    activateIdentity({name,team:profile.team||'',className:profile.className||'',email});
+    $('#studentName').readOnly=true;
+    if(changed){
+      state.project=null;state.currentChallenge=null;state.practicalId=null;
+      state.selected=null;state.selectedNodes.clear();state.history=[];state.future=[];
+      document.querySelectorAll('dialog[open]').forEach(x=>x.close());
+    }
+    renderChallenges();renderPortfolio();
+  }
+  function clearCloudIdentity(){
+    verifiedPortfolioEmail='';
+    state.identity={name:'',team:'',className:''};
+    state.progress={};state.portfolio={};state.project=null;state.currentChallenge=null;state.practicalId=null;
+    state.selected=null;state.selectedNodes.clear();state.history=[];state.future=[];
+    safeLocalSet(STORAGE.identity,JSON.stringify(state.identity),{quiet:true});
+    $('#studentName').readOnly=false;
+    $('#studentName').value='';$('#teamNames').value='';$('#className').value='';
+    document.querySelectorAll('dialog[open]').forEach(x=>x.close());
+    renderChallenges();renderPortfolio();
   }
 
   function saveProgress(){ if(state.identity.name)safeLocalSet(progressStorageKey(),JSON.stringify(state.progress),{quiet:true}); updateProgressUI(); }
@@ -1890,6 +1925,9 @@
   function importPortfolioBundle(file, done){
     if(!requireIdentity())return; const reader=new FileReader();reader.onload=()=>{try{
       const bundle=JSON.parse(reader.result);if(bundle.app!=='ROBOTIA FlowLab Portfolio')throw 0;
+      if(!verifiedPortfolioEmail||String(bundle.identity?.email||'').toLowerCase()!==verifiedPortfolioEmail){
+        toast('El fitxer no acredita el teu correu institucional. Demana al professor ajuda per recuperar portafolis antics.');return;
+      }
       if(normalize(bundle.identity?.name||'')!==normalize(state.identity.name)){toast(`Aquest portafoli és de ${bundle.identity?.name||'un altre alumne'}`);return}
       const activityMap=bundle.activities&&Object.keys(bundle.activities).length?bundle.activities:null;
       const ids=new Set([...(activityMap?Object.keys(activityMap):[]),...Object.keys(bundle.projects||{}),...Object.keys(bundle.progress||{}),...Object.keys(bundle.reflections||{})]);
@@ -2063,7 +2101,7 @@
 
   function renderTutorial(){const [title,text,visual]=tutorialSteps[state.tutorialStep];$('#tutorialTitle').textContent=title;$('#tutorialText').textContent=text;$('#tutorialVisual').innerHTML=visual;$('#tutorialStep').textContent=`${state.tutorialStep+1} / ${tutorialSteps.length}`;$('#tutorialPrev').disabled=state.tutorialStep===0;$('#tutorialNext').textContent=state.tutorialStep===tutorialSteps.length-1?'Fer primer repte':'Següent'}
 
-  window.ROBOTIA_CLOUD_APP={state,makePortfolioBundle,exportPortfolioBundle,importPortfolioBundle,applyAcceptedSharedActivity,activateIdentity,renderChallenges,renderPortfolio,scoreForCategory};
+  window.ROBOTIA_CLOUD_APP={state,makePortfolioBundle,exportPortfolioBundle,importPortfolioBundle,applyAcceptedSharedActivity,activateIdentity,activateCloudIdentity,clearCloudIdentity,renderChallenges,renderPortfolio,scoreForCategory};
   loadStored(); bindUI(); initDragDropPalette(); renderChallenges(); updateProgressUI(); setInterval(tickActiveTime,15000);
 })();
 
