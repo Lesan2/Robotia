@@ -1,45 +1,43 @@
-# ROBOTIA V3 · Corrector docent (15/10/2026)
+# ROBOTIA V3 · Correccions del professor (18/10/2026)
 
-## Estat
-- **Frontend actiu:** `proves/correccio-v3.js`, visible només en el panell Professorat amb la sessió institucional `jlesan@instituticaria.cat`. Importa un `portafoli.json` o `.robotiaportfolio`, mostra evidències, aplica rúbriques ponderades, redacta nota docent, comentari públic i anotació privada. Permet copiar la fila (15 columnes) a la pestanya Correccions del full docent o descarregar-la en TSV.
-- **Full institucional privat existent:** https://docs.google.com/spreadsheets/d/1DqBcfjOzdL8_vO0hXynbAVa42wBuaB3FhMIsOblR6l4/edit
-- **Publicació als alumnes:** hi ha la pantalla a `proves/comentaris-v3.js`, però NO està activada al servidor fins a integrar l'addon d'Apps Script.
-- **Add-on backend preparat i provat amb dades simulades:** `proves/nuvol/ROBOTIA_Grades_Addon.gs`.
-- **Sense canvis** als portafolis dels alumnes ni a les notes reals.
+## Estat real
 
-## Funcions de la versió actual
-1. Iniciar sessió amb el compte institucional del professor.
-2. Anar a Professorat → Corrector de reptes.
-3. Importar el `portafoli.json` de l'alumne. Per fer proves, usar «Carregar el meu portafoli de prova».
-4. Escollir repte; revisar diagrama, MakeCode, adjunts i comentaris.
-5. Puntuar els tres indicadors de la rúbrica i, si es vol, aplicar-ne la mitjana ponderada a la nota docent.
-6. Escriure el comentari públic i l'observació privada.
-7. Copiar una fila a **Correccions**, a la primera columna d'una fila nova; si ja existeix una correcció per al mateix alumne/repte, modificar la fila en lloc de duplicar-la.
-8. Mantenir **Publicar? = No** fins a revisar i validar.
+- **Frontend disponible** a `proves/correccio-v3.js`, dins de `Professorat → Corrector de reptes`.
+- **Backend preparat però no desplegat**: l'usuari té el paquet `ROBOTIA_V3_CORRECCIONS_20261018.zip` amb `Codigo.gs` (codi original íntegre + 5 funcions noves) i `Bridge.html` (llista de mètodes ampliada).
+- El `Código.gs` real que ha facilitat l'usuari **JA CONTÉ** `robotiaPublishedFeedback_` i el retorn de `publishedFeedback` a `cloudInfo`. **NO** s'ha d'afegir `ROBOTIA_Grades_Addon.gs`: és un esborrany antic no necessari, que podria causar confusió.
+- No s'han modificat fitxers de portafolis ni dades de notes reals durant el desenvolupament.
 
-## Què falta per a la publicació real
-El Code.gs del desplegament institucional no està present en aquest repositori ni és accessible a les connexions actuals. Cal que el propietari de l'script faciliti el codi actual per poder inserir l'addon sense modificar ni trencar el login i `cloudSave`.
+## Funcions noves del servidor
 
-Integració un cop es disposi del codi:
-- Afegir `ROBOTIA_Grades_Addon.gs` al mateix projecte Apps Script que implementa `cloudInfo`.
-- Dins la implementació de `cloudInfo`, **després de verificar el Google ID token**, afegir al resultat retornat:
-  `result.publishedFeedback = robotiaPublishedFeedbackForVerifiedEmail_(result.email);`
-  El correu ha de provenir de la identitat verificada al servidor, mai d'un camp aportat pel navegador.
-- Opcionalment, integrar els mètodes docents `robotiaSaveCorrectionForVerifiedTeacher_` i `robotiaSetCorrectionPublishedForVerifiedTeacher_` en el dispatcher del servidor, validant el token institucional en cada petició; llavors afegir el botó de desament directe al frontend.
-- Publicar una **nova versió** del desplegament Apps Script.
-- Fer proves només amb l'**Alumne de Prova**: nota no publicada invisible, nota publicada visible al compte correcte, observacions privades invisibles, un segon alumne mai veu dades del primer, i `cloudSave` continua funcionant.
+Cada mètode verifica el token Google mitjançant `auth_(token)` i comprova el correu docent `jlesan@instituticaria.cat`:
 
-### Contracte de dades del feedback
-```json
-{
-  "email":"alumne@instituticaria.cat",
-  "grades":{"flux":8,"microbit":7,"sensors":6,"practices":7,"attitude":9,"robot":8,"final":8},
-  "general":[{"date":"2026-10-15","type":"Observació","grade":8,"comment":"..."}],
-  "exercises":[{"id":"m0","title":"Hola, micro:bit!","grade":7.5,"comment":"..."}]
-}
-```
+- `cloudTeacherList(token)`: llista d'alumnes del registre institucional.
+- `cloudTeacherPortfolio(token,email)`: consulta de portafoli (sense escriure-hi).
+- `cloudTeacherReadCorrections(token,email)`: correccions existents, només per al docent.
+- `cloudTeacherSaveCorrection(token,payload)`: desa/actualitza el registre de correccions, sempre com a **no publicat**.
+- `cloudTeacherPublishCorrection(token,email,id,workId,visible)`: publica o retira de manera explícita.
 
-Els camps privats J de Correccions, F d'Observacions i R d'Alumnes **no es retornen mai**. La proposta IA (columna G de Correccions) tampoc s'ha de publicar com si fos la nota docent. Les notes globals només es retornen si la columna S d'Alumnes indica publicació, i cada correcció només si la columna K de Correccions indica Sí.
+El front conserva els controls manuals d'importació/exportació com a alternativa si el backend no està desplegat o falla.
 
-## Notes de compatibilitat
-Els fitxers de ROBOTIA V2/V3, els IDs dels reptes, els enllaços de Classroom i el núvol antic no han estat modificats pel corrector. El corrector no esborra o altera el registre docent automàticament.
+## Instal·lació (la fa el propietari del projecte Apps Script)
+
+1. Substituir `Código.gs` pel nou fitxer complet proporcionat al paquet. Conservar una còpia de seguretat de la versió anterior.
+2. Substituir `Bridge.html` pel fitxer del paquet.
+3. Desar. A **Implementar → Gestionar implementacions**, editar la implementació web existent i triar **Nova versió**, sense canviar-ne la URL.
+4. A ROBOTIA V3, actualitzar el navegador amb `Ctrl+F5`. Accedir com a professor.
+5. Obrir **Professorat → Corrector de reptes → Comprovar connexió docent**.
+6. Provar exclusivament amb l'alumne de prova abans de publicar notes reals.
+
+### Publicació i privadesa
+
+El full privat és `ROBOTIA · Tauler docent privat · Correccions i observacions 2026-27`. Els camps `Publicar?` es mantenen a **No** quan es desa. El docent ha de prémer «Publicar nota» després de validar-la.
+
+L'antic `cloudInfo` continua filtrant les dades per usuari verificat i només retorna columnes publicables. Les anotacions privades i la proposta d'IA no es retornen a l'alumne.
+
+## Proves de desenvolupament
+- Parse JavaScript: servidor, pont i interfície.
+- Proves simulades del servidor: bloqueig d'accés d'alumne, consulta de portafolis, desament, actualització sense duplicats, publicació, retirada, validació de notes.
+- **Pendent**: prova final en el servidor real després del desplegament per part del propietari.
+
+## Compatibilitat
+No s'han substituït ni alterat `cloudSave`, `cloudInvite`, `cloudAccept`, els noms de carpetes i portafolis, les propietats ni els identificadors de reptes. El codi antic s'ha conservat sencer.
