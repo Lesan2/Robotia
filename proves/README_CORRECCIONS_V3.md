@@ -56,3 +56,34 @@ No s'han substituït ni alterat `cloudSave`, `cloudInvite`, `cloudAccept`, els n
 - Proves completades: sintaxi dels tres JS modificats, previsualització d'un diagrama real de prova de 6 nodes/5 connexions, validació d'URL MakeCode i simulació de resposta del motor oficial de blocs.
 - Pendent validar la càrrega real d'iframes de MakeCode en el navegador amb la connexió a Internet del centre.
 
+
+
+## Protecció de portafolis als ordinadors compartits (18/10/2026)
+
+Problema localitzat: ROBOTIA històricament desava al navegador utilitzant el **nom** de l'alumne i `Carregar / fusionar` podia confondre treballs locals amb els d'un compte institucional.
+
+### Proteccions de la interfície activades a GitHub
+- Ara els projectes, progrés i evidències del navegador s'associen a una clau derivada **sense col·lisions del correu institucional verificat** pel servidor.
+- Quan s'obre ROBOTIA sense iniciar sessió no es mostra automàticament el perfil del darrer usuari.
+- El portafoli només és editable un cop el compte Google institucional està validat.
+- A l'entrada amb Google es recupera exclusivament l'espai local del correu verificat i el seu portafoli remot.
+- Els treballs antics sense propietari verificat queden conservats a les claus històriques, però **no es fusionen automàticament** ni es poden reclamar escrivint simplement un nom.
+- La fusió manual d'un `.robotiaportfolio` només accepta un fitxer que declari el mateix correu verificat i nom; no és una firma digital ni garanteix l'autoria davant de manipulació intencionada.
+- `Desconnectar` esborra el perfil de la pantalla, però conserva els desaments locals individuals per a la seva recuperació.
+- Si falla l'autenticació d'un altre compte, el darrer portafoli queda ocult.
+- El servidor existent ja verifica els tokens OAuth amb `auth_`, separa els espais de Drive per l'identificador del compte Google i assigna invitacions només al destinatari institucional.
+
+### Condicions i limitacions
+- Els treballs locals preexistents només per nom s'han d'associar manualment, amb el professor i comprovant l'autoria; no s'han esborrat.
+- Les dades desades a `localStorage` no estan xifrades. Si diversos alumnes comparteixen **el mateix perfil de Chrome**, un usuari amb accés a les eines de desenvolupador pot inspeccionar dades del navegador. Per confidencialitat forta cal usar perfils diferents, sessió de convidat o eliminar dades locals **després de verificar el núvol**.
+- No s'han desplegat canvis a Apps Script: les proteccions són al frontend i el servidor conserva la seva autentificació existent.
+- Per garantir autoria davant de manipulacions de fitxers, en una evolució cal validar i signar al servidor les entregues, les invitacions i les importacions; no confiar en noms/propietaris declarats dins de JSON.
+
+### Proves estàtiques fetes
+- Sintaxi JavaScript de `index.html` i `cloud.js`.
+- Dos comptes diferents amb el mateix nom produeixen claus locals diferents.
+- Correus amb punt i guió baix no col·lisionen.
+- Sense inici de sessió institucional no es pot editar ni fusionar.
+- Les dades històriques no es transfereixen automàticament.
+- La vista de logout es buida.
+- **Pendent de prova real al navegador** amb dos comptes institucionals successius i una invitació de compartició.
