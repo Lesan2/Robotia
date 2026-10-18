@@ -62,7 +62,9 @@ function fingerprint(value){let h=2166136261;for(let i=0;i<value.length;i++)h=Ma
 function confirmedKey(){return 'robotia.cloud.confirmed.v1.'+cloud.email.toLowerCase()}
 function recordConfirmed(sig){try{localStorage.setItem(confirmedKey(),JSON.stringify({fingerprint:fingerprint(sig),revision:String(cloud.revision)}))}catch{}}
 function canResumeSameVersion(){try{const record=JSON.parse(localStorage.getItem(confirmedKey())||'null');return !!record&&record.fingerprint===fingerprint(stable(snapshot()))&&record.revision===String(cloud.revision)}catch{return false}}
-function snapshot(){const p=app.makePortfolioBundle();p.identity.email=cloud.email;if(typeof app.scoreForCategory==='function'){p.cloudSummary={flux:app.scoreForCategory('flux'),microbit:app.scoreForCategory('microbit'),sensors:app.scoreForCategory('sensors'),robot:app.scoreForCategory('robot')}}return p}
+function snapshot(){
+  if(!cloud.email||app.state.identity?.email!==cloud.email)throw Error('El compte del navegador no coincideix amb la sessió verificada. Torna a iniciar sessió.');
+  const p=app.makePortfolioBundle();p.identity.email=cloud.email;if(typeof app.scoreForCategory==='function'){p.cloudSummary={flux:app.scoreForCategory('flux'),microbit:app.scoreForCategory('microbit'),sensors:app.scoreForCategory('sensors'),robot:app.scoreForCategory('robot')}}return p}
 function localHasWork(){const b=app.makePortfolioBundle();return Object.keys(b.activities||{}).length>0||Object.keys(b.projects||{}).length>0}
 function downloadLocal(){app.exportPortfolioBundle()}
 function syncSharedFromInfo(r){
@@ -103,17 +105,24 @@ async function cloudInfo(){
   return r;
 }
 async function enter(token){
+ if(cloud.saving){message('Espera que s’acabi el desament abans de canviar de compte.');return}
+ clearTimeout(cloud.timer);cloud.pendingSave=false;
  cloud.token=token;cloud.blocked=true;buttons();message('Verificant el compte institucional…');
  try{
    const registration=await call('cloudRegister',[token]);cloud.email=registration.email;
    const info=await cloudInfo();cloud.revision=info.revision;syncSharedFromInfo(info);
+   // Mai no s'adopta el darrer perfil local per semblança de nom.
+   // Cada usuari té la seva pròpia zona local vinculada al correu verificat.
+   const profile=info.portfolio?.identity||{};
+   app.activateCloudIdentity({
+     email:cloud.email,
+     name:profile.name||registration.name,
+     team:profile.team||'',className:profile.className||''
+   });
+   cloud.savedSig='';cloud.pendingSave=false;
    window.dispatchEvent(new CustomEvent('robotia:teacherSession',{detail:{email:cloud.email}}));
    if(info.publishedFeedback?.email===cloud.email){window.dispatchEvent(new CustomEvent('robotia:publishedFeedback',{detail:info.publishedFeedback}));}
    cloud.blocked=!!info.portfolio;buttons();$('#cloud-invite-count').textContent=info.invites?.length||'';
-   if(!app.state.identity.name){
-     app.activateIdentity({name:registration.name,team:'',className:''});
-     app.renderChallenges();app.renderPortfolio();
-   }
    if(info.portfolio){
      if(localHasWork()&&canResumeSameVersion()){
        cloud.savedSig=stable(snapshot());cloud.blocked=false;buttons();
@@ -334,10 +343,14 @@ async function refreshPublishedFeedback(){
  }
 }
 function logout(){
+ if(cloud.saving){
+   message('Espera que s’acabi el desament al núvol abans de desconnectar.');return;
+ }
  clearTimeout(cloud.timer);if(window.google?.accounts?.id)google.accounts.id.disableAutoSelect();
  cloud.token='';cloud.email='';cloud.ready=!!cloud.remoteWindow;cloud.blocked=true;cloud.shared={};cloud.savedSig='';cloud.pendingSave=false;$('#cloud-share-panel').hidden=true;buttons();
+ app.clearCloudIdentity();
  window.dispatchEvent(new CustomEvent('robotia:teacherSession',{detail:{email:''}}));
- message('Sessió desconnectada. Les dades locals continuen en aquest navegador.');
+ message('Sessió desconnectada. Els treballs dels altres comptes no es mostraran en aquest navegador. Les dades antigues es conserven sense fusionar.');
 }
 function init(){
  window.addEventListener('robotia:refreshFeedback',()=>void refreshPublishedFeedback());
