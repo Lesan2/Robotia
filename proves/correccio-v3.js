@@ -260,7 +260,7 @@ async function connectTeacher(){
    const first=document.createElement("option");first.value="";first.textContent="Selecciona un alumne";picker.append(first);
    data.students.forEach(st=>{
      const option=document.createElement("option");option.value=st.email;
-     option.textContent=(st.name||st.email)+" · "+(st.group||"sense grup");picker.append(option);
+     option.textContent=(st.name||"Sense nom")+" · "+st.email+" · "+(st.group||"sense grup");picker.append(option);
    });
    remoteReady=true;el("v3-corr-fetch").disabled=false;
    remoteStatus("✓ Connexió docent verificada al servidor. "+data.students.length+" comptes disponibles. Encara no s'ha modificat cap nota.");
