@@ -23,6 +23,11 @@ root.innerHTML=[
 "<p>Importa el <b>portafoli.json</b> d'un alumne des del Drive, revisa'n les evidències i prepara una correcció amb la rúbrica del departament. Les notes només passaran al registre quan les enganxis al full docent; <b>no es publiquen automàticament.</b></p>",
 "<div class='actions'><label class='btn secondary' style='display:inline-flex;cursor:pointer'>📂 Importar portafoli .json / .robotiaportfolio<input type='file' id='v3-corr-file' accept='.json,.robotiaportfolio,application/json' hidden></label><button type='button' class='btn ghost' id='v3-corr-self'>Carregar el meu portafoli de prova</button><a class='btn secondary' target='_blank' rel='noopener noreferrer' href='"+SHEET+"#gid=1269118972'>👥 Portafolis d'alumnes ↗</a></div>",
 "<p id='v3-corr-info' class='status' role='status'>Esperant un portafoli. Les dades es processen localment al navegador.</p>",
+"<div class='review-card' style='background:#eff6ff'><b>☁️ Correccions connectades al núvol</b><p>Cal instal·lar i desplegar la nova versió d'Apps Script abans de fer servir aquests controls. Les opcions manuals continuen funcionant.</p>",
+"<div class='actions'><button type='button' class='btn secondary' id='v3-corr-connect'>Comprovar connexió docent</button></div>",
+"<div class='v3-corrector-grid'><label class='full'>Alumne del núvol<select id='v3-corr-student-picker'><option value=''>Connecta el servidor per carregar la llista</option></select></label></div>",
+"<div class='actions'><button type='button' class='btn secondary' id='v3-corr-fetch' disabled>Carregar treball de l'alumne</button><button type='button' class='btn primary' id='v3-corr-save' disabled>Desar correcció al full privat</button><button type='button' class='btn secondary' id='v3-corr-publish' disabled>Publicar nota</button><button type='button' class='btn ghost' id='v3-corr-unpublish' disabled>Retirar publicació</button></div>",
+"<p id='v3-corr-remote-info' class='status' role='status'>Connexió pendent; cap nota modificada.</p></div>",
 "<div class='v3-corrector-grid'>",
 "<label>Correu institucional de l'alumne<input type='email' id='v3-corr-email' placeholder='alumne@instituticaria.cat'></label>",
 "<label>Nom de l'alumne<input id='v3-corr-student' placeholder='Nom i cognoms'></label>",
@@ -47,6 +52,17 @@ host.prepend(root);
 const el=id=>root.querySelector("#"+id);
 let portfolio=null,items=[],active=null;
 const drafts=new Map();
+let remoteReady=false,serverRows=[],savedRef=null;
+function cloudAPI(){return window.ROBOTIA_TEACHER_API}
+function remoteStatus(msg){el("v3-corr-remote-info").textContent=msg}
+function savedFormKey(){return currentKey()+"|"+el("v3-corr-grade").value+"|"+el("v3-corr-public").value+"|"+el("v3-corr-private").value+"|"+el("v3-corr-ai").value}
+function validSavedRef(){return !!savedRef&&savedRef.formKey===savedFormKey()}
+function updatePublishControls(){
+ const activeSave=remoteReady&&!!portfolio&&!!active;
+ el("v3-corr-save").disabled=!activeSave;
+ el("v3-corr-publish").disabled=!activeSave||!validSavedRef();
+ el("v3-corr-unpublish").disabled=!activeSave||!validSavedRef();
+}
 function setMessage(message){el("v3-corr-result").textContent=message}
 function asNumber(x){
  if(x===null||x===undefined||String(x).trim()==="")return null;
@@ -153,12 +169,12 @@ function renderEvidence(){
 function selectChallenge(){
  rememberDraft();
  active=items.find(i=>i.id===selectedId())||null;
- renderRubric();renderEvidence();applyDraft();
+ savedRef=null;renderRubric();renderEvidence();applyDraft();applyStoredCorrection();
 }
 function loadData(data,origin){
  if(!data||typeof data!=="object"||(!data.activities&&!data.reflections&&!data.projects))throw Error("El fitxer no conté un portafoli ROBOTIA");
  if(data.identity?.email&&!/^[a-z0-9._%+-]+@instituticaria\.cat$/i.test(data.identity.email))throw Error("El correu del portafoli no és institucional");
- portfolio=data;items=[];
+ portfolio=data;items=[];savedRef=null;serverRows=[];
  const keys=new Set([...Object.keys(data.activities||{}),...Object.keys(data.reflections||{}),...Object.keys(data.projects||{})]);
  for(const id of keys){
    if(!/^[a-z0-9_-]{1,32}$/i.test(id))continue;
@@ -173,7 +189,7 @@ function loadData(data,origin){
  const drop=el("v3-corr-challenge");drop.replaceChildren();
  items.forEach(item=>{const opt=document.createElement("option");opt.value=item.id;opt.textContent=item.title+" · "+item.id;drop.append(opt)});
  active=null;el("v3-corr-info").textContent="✓ "+origin+" · "+items.length+" reptes disponibles · "+(data.identity?.name||"alumne sense nom");
- if(items.length){active=items[0];renderRubric();renderEvidence();applyDraft()}
+ if(items.length){active=items[0];renderRubric();renderEvidence();applyDraft();updatePublishControls()}
  else {el("v3-corr-evidence").textContent="Aquest portafoli no conté reptes.";setMessage("No hi ha activitats per corregir.")}
 }
 function cleanCell(value){
@@ -216,6 +232,93 @@ function downloadRow(){
    setMessage("✓ Fitxer TSV descarregat. Revisa i incorpora la fila al full privat. No s'ha publicat cap nota.");
  }catch(e){setMessage("⚠️ "+e.message)}
 }
+
+function applyStoredCorrection(){
+ updatePublishControls();
+ if(!active||!portfolio)return;
+ const workId=String(active.activity.workId||active.activity.project?.workId||"");
+ const record=[...serverRows].reverse().find(x=>x.id===active.id&&String(x.workId||"")===workId);
+ if(!record)return;
+ el("v3-corr-grade").value=record.grade===null?"":record.grade;
+ el("v3-corr-ai").value=record.ai===null?"":record.ai;
+ el("v3-corr-public").value=record.comment||"";
+ el("v3-corr-private").value=record.privateComment||"";
+ rememberDraft();
+ savedRef={formKey:savedFormKey(),email:el("v3-corr-email").value.trim().toLowerCase(),id:active.id,workId};
+ remoteStatus("✓ Correcció anterior recuperada. "+(record.published?"Està PUBLICADA; desar-ne una nova versió la deixarà sense publicar.":"Encara no està publicada."));
+ updatePublishControls();
+}
+async function connectTeacher(){
+ const api=cloudAPI();
+ if(!api?.authorized?.()){remoteStatus("⚠️ Entra a ROBOTIA amb el compte Google institucional del professor.");return}
+ el("v3-corr-connect").disabled=true;
+ remoteStatus("Consultant els permisos i la llista d'alumnes…");
+ try{
+   const data=await api.list();
+   if(!data?.enabled||!Array.isArray(data.students))throw Error("Servidor sense funcions docents");
+   const picker=el("v3-corr-student-picker");picker.replaceChildren();
+   const first=document.createElement("option");first.value="";first.textContent="Selecciona un alumne";picker.append(first);
+   data.students.forEach(st=>{
+     const option=document.createElement("option");option.value=st.email;
+     option.textContent=(st.name||st.email)+" · "+(st.group||"sense grup");picker.append(option);
+   });
+   remoteReady=true;el("v3-corr-fetch").disabled=false;
+   remoteStatus("✓ Connexió docent verificada al servidor. "+data.students.length+" comptes disponibles. Encara no s'ha modificat cap nota.");
+   updatePublishControls();
+ }catch(e){
+   remoteReady=false;
+   remoteStatus("⚠️ No s'han pogut activar les correccions directes: "+e.message+". Revisa el desplegament d'Apps Script; la correcció manual continua funcionant.");
+ }finally{el("v3-corr-connect").disabled=false}
+}
+async function pullTeacherPortfolio(){
+ if(!remoteReady)return;
+ const email=el("v3-corr-student-picker").value||el("v3-corr-email").value.trim().toLowerCase();
+ if(!email){remoteStatus("Selecciona primer un alumne.");return}
+ el("v3-corr-fetch").disabled=true;remoteStatus("Carregant el portafoli del núvol…");
+ try{
+   const res=await cloudAPI().portfolio(email);
+   if(!res?.portfolio)throw Error("No s'ha rebut un portafoli.");
+   loadData(res.portfolio,"Núvol institucional");
+   const existing=await cloudAPI().corrections(email);
+   serverRows=Array.isArray(existing.corrections)?existing.corrections:[];
+   applyStoredCorrection();
+   remoteStatus("✓ Portafoli carregat amb "+serverRows.length+" correcció(ns) prèvia(es). No s'ha canviat cap treball de l'alumne.");
+ }catch(e){remoteStatus("⚠️ "+e.message)}
+ finally{el("v3-corr-fetch").disabled=false;updatePublishControls()}
+}
+async function saveTeacherCorrection(){
+ if(!remoteReady||!portfolio||!active)return;
+ let row;
+ try{row=buildRow()}catch(e){remoteStatus("⚠️ "+e.message);return}
+ const payload={email:row[0],id:row[1],title:active.title,category:active.category,
+  workId:String(active.activity.workId||active.activity.project?.workId||""),
+  ai:el("v3-corr-ai").value,grade:el("v3-corr-grade").value,comment:el("v3-corr-public").value,
+  privateComment:el("v3-corr-private").value,evidenceUrl:row[13],deliveredAt:row[14]};
+ if(!confirm("Desar la correcció al full privat? No es publicarà fins que premis «Publicar nota».\n\nAlumne: "+payload.email+"\nRepte: "+payload.title))return;
+ el("v3-corr-save").disabled=true;
+ remoteStatus("Desant la correcció privada…");
+ try{
+   const res=await cloudAPI().save(payload);
+   if(!res?.saved)throw Error("El servidor no ha confirmat el desament");
+   savedRef={formKey:savedFormKey(),email:payload.email,id:payload.id,workId:payload.workId};
+   const existing=await cloudAPI().corrections(payload.email);
+   serverRows=Array.isArray(existing.corrections)?existing.corrections:[];
+   remoteStatus("✓ Nota desada al full privat (fila "+res.row+"). Encara NO és visible per a l'alumne. Pots publicar-la explícitament.");
+ }catch(e){remoteStatus("⚠️ No s'ha confirmat el desament: "+e.message)}
+ finally{updatePublishControls()}
+}
+async function publishTeacherCorrection(publish){
+ if(!validSavedRef())return remoteStatus("Cal desar la versió actual de la correcció abans de publicar-la.");
+ const {email,id,workId}=savedRef;
+ if(!confirm((publish?"PUBLICAR aquesta nota perquè la pugui veure l'alumne":"RETIRAR la publicació d'aquesta nota")+"?\n\n"+email+" · "+id))return;
+ el("v3-corr-publish").disabled=true;el("v3-corr-unpublish").disabled=true;
+ try{
+   const r=await cloudAPI().publish(email,id,workId,publish);
+   if(r?.published!==publish)throw Error("El servidor no ha confirmat la publicació");
+   remoteStatus(publish?"✓ Nota PUBLICADA. L'alumne la veurà quan actualitzi les valoracions.":"✓ Nota retirada de la vista de l'alumne.");
+ }catch(e){remoteStatus("⚠️ No s'ha pogut canviar la publicació: "+e.message)}
+ finally{updatePublishControls()}
+}
 el("v3-corr-file").addEventListener("change",async event=>{
  const file=event.target.files?.[0];if(!file)return;
  if(file.size>10*1024*1024){setMessage("⚠️ El portafoli supera 10 MB. Descarrega una còpia més petita.");return}
@@ -225,8 +328,19 @@ el("v3-corr-file").addEventListener("change",async event=>{
 el("v3-corr-self").addEventListener("click",()=>{try{loadData(app.makePortfolioBundle(),"portafoli local de prova");setMessage("Portafoli local carregat. No s'ha desat res a Google.")}catch(e){setMessage("⚠️ "+e.message)}});
 el("v3-corr-challenge").addEventListener("change",selectChallenge);
 el("v3-corr-apply").addEventListener("click",()=>{const val=calculate();if(val===null){setMessage("Puntua primer tots els criteris de la rúbrica.");return}el("v3-corr-grade").value=val;rememberDraft();setMessage("Proposta copiada a la nota docent. Pots ajustar-la abans de copiar la fila.")});
-["v3-corr-grade","v3-corr-ai","v3-corr-public","v3-corr-private"].forEach(id=>el(id).addEventListener("input",rememberDraft));
+["v3-corr-grade","v3-corr-ai","v3-corr-public","v3-corr-private"].forEach(id=>el(id).addEventListener("input",()=>{rememberDraft();updatePublishControls()}));
 el("v3-corr-copy").addEventListener("click",()=>void copyRow());
 el("v3-corr-download").addEventListener("click",downloadRow);
+el("v3-corr-connect").addEventListener("click",()=>void connectTeacher());
+el("v3-corr-fetch").addEventListener("click",()=>void pullTeacherPortfolio());
+el("v3-corr-save").addEventListener("click",()=>void saveTeacherCorrection());
+el("v3-corr-publish").addEventListener("click",()=>void publishTeacherCorrection(true));
+el("v3-corr-unpublish").addEventListener("click",()=>void publishTeacherCorrection(false));
+window.addEventListener("robotia:teacherSession",ev=>{
+  if(String(ev.detail?.email||"").toLowerCase()!=="jlesan@instituticaria.cat"){
+    remoteReady=false;savedRef=null;serverRows=[];updatePublishControls();
+    remoteStatus("Sessió docent desconnectada. Les correccions directes queden bloquejades.");
+  }
+});
 renderRubric();
 })();
