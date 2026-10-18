@@ -126,6 +126,7 @@ function addLink(container,label,href){
  a.textContent=label+" ↗";a.target="_blank";a.rel="noopener noreferrer";a.href=href;p.append(a);container.append(p);
 }
 function renderEvidence(){
+ window.ROBOTIA_REVIEW_VISUALS?.close();
  const target=el("v3-corr-evidence");target.replaceChildren();
  if(!active){target.textContent="Selecciona un repte.";return}
  const a=active.activity,p=a.project||{},r=a.reflection||{};
@@ -133,13 +134,32 @@ function renderEvidence(){
  addDetail(target,"Estat",a.progressRecord?.completed?"Entregat, pendent de validació docent":"Iniciat / encara no consta completat");
  if(p.nodes?.length)addDetail(target,"Diagrama",p.nodes.length+" blocs i "+(p.edges||[]).length+" connexions");
  addDetail(target,"Treball",a.workId||p.workId||"Sense identificador");
+ const shortcuts=document.createElement("div");shortcuts.className="actions";
+ const gradeShortcut=document.createElement("button");
+ gradeShortcut.type="button";gradeShortcut.className="btn primary";
+ gradeShortcut.textContent="✎ Puntuar aquest repte";
+ gradeShortcut.addEventListener("click",()=>{
+   const field=root.querySelector(".v3-corr-score")||el("v3-corr-grade");
+   field.scrollIntoView({behavior:"smooth",block:"center"});field.focus({preventScroll:true});
+ });
+ const commentShortcut=document.createElement("button");
+ commentShortcut.type="button";commentShortcut.className="btn secondary";
+ commentShortcut.textContent="💬 Escriure comentari";
+ commentShortcut.addEventListener("click",()=>{
+   el("v3-corr-public").scrollIntoView({behavior:"smooth",block:"center"});
+   el("v3-corr-public").focus({preventScroll:true});
+ });
+ shortcuts.append(gradeShortcut,commentShortcut);target.append(shortcuts);
+ if(p.nodes?.length)window.ROBOTIA_REVIEW_VISUALS?.renderDiagram(target,p);
  if(r.notes)addDetail(target,"Anotacions",r.notes);
  if(r.difficulties)addDetail(target,"Dificultats",r.difficulties);
  if(r.successes)addDetail(target,"Aprenentatges",r.successes);
  if(r.makeCodeUrl){
    const url=safeSharedLink(r.makeCodeUrl);
-   if(url)addLink(target,"Obrir programa MakeCode compartit",url);
-   else addDetail(target,"Avís MakeCode","L'enllaç no és una publicació compartida verificable: "+String(r.makeCodeUrl).slice(0,160));
+   if(url){
+     if(window.ROBOTIA_REVIEW_VISUALS?.renderMakeCode)window.ROBOTIA_REVIEW_VISUALS.renderMakeCode(target,url);
+     else addLink(target,"Obrir programa MakeCode compartit",url);
+   }else addDetail(target,"Avís MakeCode","L'enllaç no és una publicació compartida verificable: "+String(r.makeCodeUrl).slice(0,160));
  }
  if(r.codeText){
    const details=document.createElement("details"),summary=document.createElement("summary"),pre=document.createElement("pre");
