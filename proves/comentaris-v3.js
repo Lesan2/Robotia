@@ -26,6 +26,24 @@ function addComment(container,label,note){
  const p=document.createElement("p");p.textContent=note;
  block.append(head,p);container.append(block);
 }
+function updateMainGradeCards(){
+ const app=window.ROBOTIA_CLOUD_APP;
+ for(const key of ["flux","microbit","sensors","robot"]){
+   const strong=document.getElementById("v3-"+key);
+   if(!strong)continue;
+   const progress=typeof app?.scoreForCategory==="function"?app.scoreForCategory(key):null;
+   const current=!!verifiedEmail&&published?.email===verifiedEmail;
+   const teacher=current?published?.grades?.[key]:null;
+   const valid=typeof teacher==="number"&&Number.isFinite(teacher)&&teacher>=0&&teacher<=10;
+   strong.textContent=valid?teacher.toLocaleString("ca-ES")+"/10":progress?.completed?progress.note+"/10":"—";
+   const label=strong.nextElementSibling;
+   if(label?.tagName==="SMALL")label.textContent=valid?"Nota docent · provisional":"Potencial segons reptes";
+   const count=document.getElementById("v3-"+key+"-count");
+   if(count&&valid&&progress){
+     count.textContent="Potencial automàtic: "+(progress.completed?progress.note+"/10":"pendent")+" · "+progress.completed+" repte(s) verificables";
+   }
+ }
+}
 function refreshNotes(){
  card.replaceChildren();
  const title=document.createElement("h2");title.textContent="Comentaris i qualificacions del professor";card.append(title);
@@ -70,6 +88,7 @@ function refreshNotes(){
  addComment(card,(item.title||item.id||"Repte")+(Number.isFinite(item.grade)?" · "+item.grade+"/10":""),item.comment||"Qualificació publicada pel professor.");
  }
  }
+ updateMainGradeCards();
  refreshPerChallenge();
 }
 function refreshPerChallenge(){
