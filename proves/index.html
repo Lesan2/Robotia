@@ -831,6 +831,16 @@
     const name=String(profile.name||'').trim();
     if(!name)throw Error('Falta el nom del compte.');
     const changed=verifiedPortfolioEmail!==email;
+    // Es conserva un rastre mínim del perfil local antic per poder-ne recuperar
+    // treballs amb ajuda docent, però mai no s’importen sense verificació.
+    if(!verifiedPortfolioEmail){
+      try{
+        const legacy=JSON.parse(safeLocalGet(STORAGE.identity)||'null');
+        if(legacy?.name&&!legacy.email&&!safeLocalGet('robotia.legacy.identity.backup.v1')){
+          safeLocalSet('robotia.legacy.identity.backup.v1',JSON.stringify(legacy),{quiet:true});
+        }
+      }catch{}
+    }
     verifiedPortfolioEmail=email;
     activateIdentity({name,team:profile.team||'',className:profile.className||'',email});
     $('#studentName').readOnly=true;
