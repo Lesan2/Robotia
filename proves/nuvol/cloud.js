@@ -208,6 +208,20 @@ async function save(automatic=false){
    }
  }
 }
+// Teacher actions stay behind the signed-in, server-verified Google account.
+const teacherOnly=()=>cloud.ready&&cloud.email.toLowerCase()==='jlesan@instituticaria.cat'&&!!cloud.token;
+function teacherCall(method,args){
+ if(!teacherOnly())return Promise.reject(Error('Cal entrar com a professor amb el compte institucional.'));
+ return call(method,[cloud.token,...args]);
+}
+window.ROBOTIA_TEACHER_API=Object.freeze({
+ list:()=>teacherCall('cloudTeacherList',[]),
+ portfolio:email=>teacherCall('cloudTeacherPortfolio',[email]),
+ corrections:email=>teacherCall('cloudTeacherReadCorrections',[email]),
+ save:payload=>teacherCall('cloudTeacherSaveCorrection',[payload]),
+ publish:(email,id,workId,visible)=>teacherCall('cloudTeacherPublishCorrection',[email,id,workId,visible]),
+ authorized:()=>teacherOnly()
+});
 function invite(){
  if(!cloud.email){message('Inicia sessió amb Google per compartir un repte.');return}
  if(cloud.blocked){message('Primer prem «1. Carregar / fusionar (necessari)» per recuperar el teu portafoli. Després podràs compartir-lo.');$('#cloud-load').focus();return}
