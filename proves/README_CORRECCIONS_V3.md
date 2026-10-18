@@ -21,12 +21,14 @@ El front conserva els controls manuals d'importació/exportació com a alternati
 
 ## Instal·lació (la fa el propietari del projecte Apps Script)
 
-1. Substituir `Código.gs` pel nou fitxer complet proporcionat al paquet. Conservar una còpia de seguretat de la versió anterior.
-2. Substituir `Bridge.html` pel fitxer del paquet.
+1. **NO tocar `Código.gs`.** Afegir un fitxer de tipus «Script» anomenat `ROBOTIA_Correccions` i enganxar-hi el contingut del `teacher_addon.gs` del paquet.
+2. Substituir només el contingut de `Bridge.html` pel del paquet.
 3. Desar. A **Implementar → Gestionar implementacions**, editar la implementació web existent i triar **Nova versió**, sense canviar-ne la URL.
 4. A ROBOTIA V3, actualitzar el navegador amb `Ctrl+F5`. Accedir com a professor.
 5. Obrir **Professorat → Corrector de reptes → Comprovar connexió docent**.
 6. Provar exclusivament amb l'alumne de prova abans de publicar notes reals.
+
+El `Codigo.gs` complet del ZIP és una alternativa, no necessària per al procediment recomanat. La còpia original permet comparar o restaurar el codi.
 
 ### Publicació i privadesa
 
