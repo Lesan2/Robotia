@@ -117,7 +117,7 @@
 .v3-resources{padding:14px;border:1px solid #d9e2ea;background:white;border-radius:12px;margin-bottom:16px}
 .v3-resources summary{cursor:pointer;font-weight:800}
 .v3-resources p{font-size:13px;line-height:1.6;color:#475467}
-.v3-grade-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin:16px 0}
+.v3-grade-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin:16px 0}@media(min-width:851px) and (max-width:1180px){.v3-grade-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .v3-grade-cards article{padding:22px;display:flex;flex-direction:column;gap:10px}
 .v3-grade-cards article strong{color:#235e88;font-size:33px}
 .v3-grade-cards article p{font-size:13px;color:#475467;margin:0}
@@ -274,10 +274,11 @@
         <article class="card"><b>1 · Diagrames de flux</b><strong id="v3-flux">—</strong><small>Potencial segons reptes</small><p>Nota docent: <b data-teacher-grade="flux">Pendent</b></p><small id="v3-flux-count"></small></article>
         <article class="card"><b>2 · Programació micro:bit</b><strong id="v3-microbit">—</strong><small>Potencial segons reptes</small><p>Nota docent: <b data-teacher-grade="microbit">Pendent</b></p><small id="v3-microbit-count"></small></article>
         <article class="card"><b>3 · Sensors i actuadors</b><strong id="v3-sensors">—</strong><small>Potencial segons reptes</small><p>Nota docent: <b data-teacher-grade="sensors">Pendent</b></p><small id="v3-sensors-count"></small></article>
+        <article class="card"><b>4 · Projecte final del robot</b><strong id="v3-robot">—</strong><small>Potencial segons reptes</small><p>Nota docent: <b data-teacher-grade="robot">Pendent</b></p><small id="v3-robot-count"></small></article>
       </div>
       <div class="card v3-note">
-        <h2>Projecte final del robot (independent)</h2>
-        <p>Nota docent: <b data-teacher-grade="robot">Pendent</b>. El projecte final representa el 30% de la qualificació, separat de les tres àrees de reptes.</p>
+        <h2>Les quatre notes de ROBOTIA</h2>
+        <p>Flux, micro:bit, sensors i actuadors, i robot final. Les tres primeres entren en la nota de pràctiques; el robot té el seu 30% separat. Les categories encara no treballades queden pendents, no amb un zero.</p>
         <h2>Com es calcula l'assignatura?</h2>
         <p><b>20%</b> actitud, participació i normes amb el material · <b>50%</b> treball a classe i pràctiques · <b>30%</b> projecte final.</p>
         <p>El professor revisa la lògica, els programes i les evidències. Una categoria sense exercicis no equival automàticament a un zero. Els comentaris i les qualificacions validades es mostraran quan estiguin publicats.</p><h2>Observacions generals</h2><p>Encara no hi ha observacions docents publicades.</p>
@@ -926,21 +927,32 @@
   }
 
   function renderV3Grades(){
-    for(const id of ['flux','microbit','sensors']){
+    for(const id of ['flux','microbit','sensors','robot']){
       const result=scoreForCategory(id);
       const score=document.getElementById('v3-'+id);
       const count=document.getElementById('v3-'+id+'-count');
-      if(score) score.textContent=result.completed ? (result.note+'/10') : '—';
-      if(count) count.textContent=result.completed ? (result.completed+' reptes registrats · pendents de validar') : 'Sense reptes registrats';
+      if(score)score.textContent=result.completed?(result.note+'/10'):'—';
+      if(count){
+        const validated=result.completed?result.completed+' reptes amb evidència · pendent de correcció docent':'Sense reptes verificables';
+        count.textContent=validated+(result.pendingEvidence?' · '+result.pendingEvidence+' per recuperar evidències':'');
+      }
     }
   }
   function scoreForCategory(category='flux', progress=state.progress){
     const pool=challenges.filter(c=>c.category===category);
-    const done=pool.filter(c=>progress[c.id]?.completed);
+    const registered=pool.filter(c=>progress[c.id]?.completed);
+    // Les entregues pràctiques antigues amb un enllaç genèric #editor
+    // es conserven, però NO acrediten un programa MakeCode revisable.
+    // La valoració presencial del professor és independent d'aquest potencial.
+    const done=registered.filter(c=>c.kind!=='practical'||(()=>{
+      const r=state.portfolio[c.id]||{};
+      return !!((r.attachments?.length||0)||(r.codeText||'').trim().length>12||
+        makeCodeShareStatus(r.makeCodeUrl)==='shared');
+    })());
     const points=done.reduce((a,c)=>a+(c.points||0),0);
     const unlockedMax=done.reduce((a,c)=>Math.max(a,c.maxNote||0),0);
     const note=Math.min(points,unlockedMax);
-    return {points,unlockedMax,note,completed:done.length,total:pool.length};
+    return {points,unlockedMax,note,completed:done.length,registered:registered.length,pendingEvidence:registered.length-done.length,total:pool.length};
   }
   function categoryLabel(category){return categoryMeta[category]?.label||category}
   function renderScorePanel(){
@@ -972,7 +984,7 @@
     const intro=$('#categoryIntro'); if(intro)intro.innerHTML=`<b>${escapeHtml(meta.label)}</b> · ${escapeHtml(meta.subtitle)}`;
     const pool=challenges.filter(c=>c.category===cat);
     grid.innerHTML=pool.map(c=>{
-      const p=challengeProgress(c.id),stars='★'.repeat(c.difficulty)+'☆'.repeat(5-c.difficulty),isDone=p.completed,isPractical=c.kind==='practical',link=linkedCounterpart(c);
+      const p=challengeProgress(c.id),stars='★'.repeat(c.difficulty)+'☆'.repeat(5-c.difficulty),isPractical=c.kind==='practical',isDone=!!p.completed&&(!isPractical||practicalCanSubmit(c.id)),link=linkedCounterpart(c);
       const bridge=linkedBadge(c),linkProgress=link?challengeProgress(link.id):null;
       const quickLink=link?`<button class="bridge-open-btn" data-open-linked="${link.id}">${c.category==='flux'?'⚡ '+escapeHtml(categoryLabel(link.category)):'◇ Diagrama'}${linkProgress?.completed?' ✓':''}</button>`:'';
       return `<article class="challenge-card ${isDone?'completed':''} cat-${c.category}" style="--accent:${c.accent}"><div class="challenge-card-inner"><div class="challenge-mana">+${c.points}</div><div class="challenge-top"><span class="challenge-level">Nivell ${c.level}</span><span class="challenge-type-line">Màxim ${c.maxNote}</span></div>${isDone?'<div class="challenge-stamp">ENTREGAT</div>':''}<h3 class="challenge-name">${escapeHtml(c.title)}</h3><div class="challenge-subtype">${escapeHtml(categoryLabel(c.category))}</div><div class="challenge-art"><div class="challenge-art-glyph">${escapeHtml((c.title.match(/[A-ZÀ-Ú0-9]/gi)||[]).slice(0,2).join('').toUpperCase()||'R')}</div></div><p>${escapeHtml(c.brief)}</p><div class="challenge-metrics"><span class="metric gold">+${c.points} punt${c.points>1?'s':''}</span><span class="metric">Sostre ${c.maxNote}</span><span class="metric stars">${stars}</span>${bridge}</div><div class="tags">${c.tags.map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>${quickLink?`<div class="challenge-link-actions">${quickLink}</div>`:''}<div class="challenge-foot"><span class="status-pill ${isDone?'done':p.started?'progress':''}">${isDone?'Entregat · pendent de validar':p.started?'En curs':'Nou'}</span><button class="btn ${isDone?'secondary':'primary'}" data-open-challenge="${c.id}">${isPractical?(isDone?'Revisar':'Obrir repte'):(isDone?'Reobrir':'Començar')}</button></div></div></article>`;
@@ -983,7 +995,7 @@
   }
 
   function updateProgressUI(){
-    const cat=state.challengeCategory||'flux',pool=challenges.filter(c=>c.category===cat),done=pool.filter(c=>state.progress[c.id]?.completed).length,pct=pool.length?Math.round(done/pool.length*100):0;
+    const cat=state.challengeCategory||'flux',pool=challenges.filter(c=>c.category===cat),done=scoreForCategory(cat).completed,pct=pool.length?Math.round(done/pool.length*100):0;
     $('#progressPercent').textContent=`${done} fets`; $('#progressRing').style.background=`conic-gradient(var(--primary) ${pct*3.6}deg,#e8edf6 0deg)`; $('#progressRing').title=`${done} reptes lliurats en aquesta àrea. No cal fer-los tots.`;
   }
 
