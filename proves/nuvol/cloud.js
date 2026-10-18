@@ -107,6 +107,10 @@ async function cloudInfo(){
 async function enter(token){
  if(cloud.saving){message('Espera que s’acabi el desament abans de canviar de compte.');return}
  clearTimeout(cloud.timer);cloud.pendingSave=false;
+ // No deixar visible el perfil anterior mentre es verifica un compte nou.
+ app.clearCloudIdentity();
+ window.dispatchEvent(new CustomEvent('robotia:teacherSession',{detail:{email:''}}));
+ cloud.email='';cloud.shared={};cloud.savedSig='';cloud.revision=0;
  cloud.token=token;cloud.blocked=true;buttons();message('Verificant el compte institucional…');
  try{
    const registration=await call('cloudRegister',[token]);cloud.email=registration.email;
@@ -137,7 +141,7 @@ async function enter(token){
      message('Sessió iniciada. El treball es desarà automàticament al núvol.');
      markDirty();
    }
- }catch(err){cloud.blocked=true;buttons();message('⚠️ '+err.message)}
+ }catch(err){cloud.blocked=true;cloud.email='';cloud.token='';cloud.shared={};app.clearCloudIdentity();buttons();message('⚠️ '+err.message)}
 }
 async function load(auto=false,knownInfo=null){
  if(!cloud.email)return;
