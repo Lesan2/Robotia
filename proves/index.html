@@ -470,6 +470,7 @@
       <div class="practical-evidence">
         <h3>Evidències del repte</h3>
         <p>Perquè es pugui corregir bé, recomanem pujar el <b>.hex</b> i, si pots, una captura dels blocs o enganxar el JavaScript de MakeCode.</p>
+        <p id="practicalFirstProgramme" hidden><b>Programa 1 · Emissor</b> (o micro:bit principal)</p>
         <label>Enllaç compartit de MakeCode (opcional)<input id="practicalMakeCodeUrl" placeholder="https://makecode.microbit.org/_..." /><small id="practicalMakeCodeWarning" role="status" style="color:#b42318;font-weight:650"></small></label>
         <label>Codi JavaScript de MakeCode (opcional però molt útil per corregir)<textarea id="practicalCode" rows="7" placeholder="Enganxa aquí el codi si vols..."></textarea></label>
         <button class="btn secondary" type="button" id="practicalSecondToggle" aria-controls="practicalSecondEvidence" aria-expanded="false">+ Afegir el programa 2 (receptor)</button>
@@ -1076,7 +1077,9 @@
     $('#practicalDiagram').textContent=linked?'◇ Fer / obrir diagrama vinculat':'◇ Afegir diagrama al projecte';
     $('#practicalMakeCodeUrl').value=r.makeCodeUrl||'';$('#practicalCode').value=r.codeText||'';
     $('#practicalMakeCodeUrl2').value=r.makeCodeUrl2||'';$('#practicalCode2').value=r.codeText2||'';
-    setSecondProgrammeVisible(['m5','m12','m13','m14','s4','rb0'].includes(id)||!!(r.makeCodeUrl2||r.codeText2));
+    const needsTwoProgrammes=['m5','m12','m13','m14','s4','rb0'].includes(id);
+    $('#practicalFirstProgramme').hidden=!needsTwoProgrammes;
+    setSecondProgrammeVisible(needsTwoProgrammes||!!(r.makeCodeUrl2||r.codeText2));
     renderPracticalFiles(id);updatePracticalStatus(id);$('#modalPractical').showModal();
   }
   function setSecondProgrammeVisible(show){
@@ -2171,7 +2174,7 @@
 <script src="contacte-docent-v3.js?v=contact20261014a"></script>
 <script src="tauler-docent-v3.js?rev=professor20261015b"></script>
 <script src="visor-correccio-v3.js?rev=visor20261018a"></script>
-<script src="correccio-v3.js?rev=corrector20261018-visual"></script>
+<script src="correccio-v3.js?rev=corrector20261025-dos-programes"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="nuvol/config.js"></script>
 <script src="nuvol/cloud.js?rev=privacy20261018b" defer></script>
