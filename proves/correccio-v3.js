@@ -167,6 +167,21 @@ function renderEvidence(){
    pre.style.cssText="max-height:320px;overflow:auto;white-space:pre-wrap;font-size:12px;";
    details.append(summary,pre);target.append(details);
  }
+ if(r.makeCodeUrl2||r.codeText2){
+   addDetail(target,"Programa 2","Receptor o segona micro:bit");
+   if(r.makeCodeUrl2){
+     const second=safeSharedLink(r.makeCodeUrl2);
+     if(second)addLink(target,"Obrir projecte MakeCode · Programa 2",second);
+     else addDetail(target,"Avís del programa 2","L'enllaç del segon programa no és una publicació compartida: "+String(r.makeCodeUrl2).slice(0,160));
+   }
+   if(r.codeText2){
+     const details=document.createElement("details"),summary=document.createElement("summary"),pre=document.createElement("pre");
+     summary.textContent="Veure codi JavaScript · Programa 2";
+     pre.textContent=String(r.codeText2).slice(0,20000);
+     pre.style.cssText="max-height:320px;overflow:auto;white-space:pre-wrap;font-size:12px;";
+     details.append(summary,pre);target.append(details);
+   }
+ }
  if(Array.isArray(r.attachments)&&r.attachments.length){
    const ul=document.createElement("ul");ul.className="evidence-list";
    r.attachments.forEach(att=>{
@@ -182,7 +197,7 @@ function renderEvidence(){
    b.addEventListener("click",()=>{const data=new Blob([JSON.stringify(p,null,2)],{type:"application/json"});const url=URL.createObjectURL(data);const a=document.createElement("a");a.href=url;a.download="ROBOTIA_"+active.id+".robotia";a.click();setTimeout(()=>URL.revokeObjectURL(url),5000)});
    target.append(b);
  }
- if(!p.nodes?.length&&!r.makeCodeUrl&&!r.codeText&&!r.attachments?.length){
+ if(!p.nodes?.length&&!r.makeCodeUrl&&!r.codeText&&!r.makeCodeUrl2&&!r.codeText2&&!r.attachments?.length){
    const warning=document.createElement("p");warning.className="warn";warning.textContent="Aquest repte no té evidències revisables dins del portafoli.";target.append(warning);
  }
 }
