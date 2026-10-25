@@ -472,6 +472,12 @@
         <p>Perquè es pugui corregir bé, recomanem pujar el <b>.hex</b> i, si pots, una captura dels blocs o enganxar el JavaScript de MakeCode.</p>
         <label>Enllaç compartit de MakeCode (opcional)<input id="practicalMakeCodeUrl" placeholder="https://makecode.microbit.org/_..." /><small id="practicalMakeCodeWarning" role="status" style="color:#b42318;font-weight:650"></small></label>
         <label>Codi JavaScript de MakeCode (opcional però molt útil per corregir)<textarea id="practicalCode" rows="7" placeholder="Enganxa aquí el codi si vols..."></textarea></label>
+        <button class="btn secondary" type="button" id="practicalSecondToggle" aria-controls="practicalSecondEvidence" aria-expanded="false">+ Afegir el programa 2 (receptor)</button>
+        <div id="practicalSecondEvidence" hidden>
+          <p><b>Programa 2 · Receptor</b> (o segona micro:bit). Es desaran tots dos programes al mateix repte.</p>
+          <label>Enllaç compartit del programa 2<input id="practicalMakeCodeUrl2" placeholder="https://makecode.microbit.org/_..." /><small id="practicalMakeCodeWarning2" role="status" style="color:#b42318;font-weight:650"></small></label>
+          <label>Codi JavaScript del programa 2<textarea id="practicalCode2" rows="7" placeholder="Enganxa el codi del receptor aquí..."></textarea></label>
+        </div>
         <label class="btn ghost file-label">+ Adjuntar .hex / captures / PDF<input id="practicalFiles" type="file" accept=".hex,.png,.jpg,.jpeg,.webp,.pdf,.txt,.js,.json,.robotia" multiple hidden></label>
         <div id="practicalFilesList" class="attachment-list"></div>
       </div>
@@ -788,7 +794,7 @@
     project.version=DATA_SCHEMA_VERSION; project.appBuild=APP_BUILD; project.catalogVersion=project.catalogVersion||CHALLENGE_CATALOG_VERSION;
     return project;
   }
-  function meaningfulReflection(r){return !!(r&&(r.notes||r.difficulties||r.successes||r.makeCodeUrl||r.codeText||(r.attachments&&r.attachments.length)))}
+  function meaningfulReflection(r){return !!(r&&(r.notes||r.difficulties||r.successes||r.makeCodeUrl||r.codeText||r.makeCodeUrl2||r.codeText2||(r.attachments&&r.attachments.length)))}
   function reflectionSnapshot(r){if(!r)return null;const x=JSON.parse(JSON.stringify(r));delete x.versionHistory;return x}
   function projectSignature(p){if(!p)return '';try{return JSON.stringify({workId:p.workId||'',challengeId:p.challengeId||'',updatedAt:p.updatedAt||'',owners:p.owners||[],nodes:p.nodes||[],edges:p.edges||[]})}catch{return String(p?.updatedAt||'')}}
   function archiveVersion(id,{project=null,reflection=null,label='versió alternativa'}={}){
@@ -880,7 +886,7 @@
   }
 
   function portfolioEntry(id){
-    if(!state.portfolio[id])state.portfolio[id]={notes:'',difficulties:'',successes:'',attachments:[],makeCodeUrl:'',codeText:'',workId:generateWorkId(),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),owners:currentOwnerNames(),className:state.identity.className||''};
+    if(!state.portfolio[id])state.portfolio[id]={notes:'',difficulties:'',successes:'',attachments:[],makeCodeUrl:'',codeText:'',makeCodeUrl2:'',codeText2:'',workId:generateWorkId(),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),owners:currentOwnerNames(),className:state.identity.className||''};
     return state.portfolio[id];
   }
   function savePortfolio(){
@@ -946,8 +952,8 @@
     // La valoració presencial del professor és independent d'aquest potencial.
     const done=registered.filter(c=>c.kind!=='practical'||(()=>{
       const r=state.portfolio[c.id]||{};
-      return !!((r.attachments?.length||0)||(r.codeText||'').trim().length>12||
-        makeCodeShareStatus(r.makeCodeUrl)==='shared');
+      return !!((r.attachments?.length||0)||(r.codeText||'').trim().length>12||(r.codeText2||'').trim().length>12||
+        makeCodeShareStatus(r.makeCodeUrl)==='shared'||makeCodeShareStatus(r.makeCodeUrl2)==='shared');
     })());
     const points=done.reduce((a,c)=>a+(c.points||0),0);
     const unlockedMax=done.reduce((a,c)=>Math.max(a,c.maxNote||0),0);
@@ -1046,7 +1052,7 @@
   }
   function practicalCanSubmit(id){
     const r=portfolioEntry(id);
-    return !!((r.attachments?.length||0)||makeCodeShareStatus(r.makeCodeUrl)==='shared'||(r.codeText||'').trim().length>12);
+    return !!((r.attachments?.length||0)||makeCodeShareStatus(r.makeCodeUrl)==='shared'||makeCodeShareStatus(r.makeCodeUrl2)==='shared'||(r.codeText||'').trim().length>12||(r.codeText2||'').trim().length>12);
   }
     function renderPracticalFiles(id){
     const r=portfolioEntry(id),box=$('#practicalFilesList'); if(!box)return;
@@ -1054,7 +1060,9 @@
     $$('[data-prac-remove]').forEach(b=>b.onclick=()=>{r.attachments.splice(Number(b.dataset.pracRemove),1);savePortfolio();renderPracticalFiles(id);updatePracticalStatus(id)});
   }
   function updatePracticalStatus(id){
-    const p=challengeProgress(id),ok=practicalCanSubmit(id),el=$('#practicalStatus');const warn=$('#practicalMakeCodeWarning');if(warn)warn.textContent=makeCodeNotice(portfolioEntry(id).makeCodeUrl); if(el){el.textContent=p.completed&&!ok?'Registrat · falta evidència verificable':p.completed?'Entregat · pendent de validar':ok?'A punt per entregar':'En curs';el.className=`status-pill ${p.completed&&ok?'done':ok?'progress':''}`}
+    const p=challengeProgress(id),ok=practicalCanSubmit(id),el=$('#practicalStatus');const warn=$('#practicalMakeCodeWarning');if(warn)warn.textContent=makeCodeNotice(portfolioEntry(id).makeCodeUrl);
+    const warn2=$('#practicalMakeCodeWarning2');if(warn2)warn2.textContent=makeCodeNotice(portfolioEntry(id).makeCodeUrl2);
+    if(el){el.textContent=p.completed&&!ok?'Registrat · falta evidència verificable':p.completed?'Entregat · pendent de validar':ok?'A punt per entregar':'En curs';el.className=`status-pill ${p.completed&&ok?'done':ok?'progress':''}`}
   }
   function openPracticalChallenge(id){
     if(!requireIdentity())return; const c=challenges.find(x=>x.id===id); if(!c)return; state.practicalId=id;
@@ -1066,10 +1074,19 @@
     const linked=c.linkedFlow?challenges.find(x=>x.id===c.linkedFlow):null,lp=linked?challengeProgress(linked.id):null;
     $('#practicalLinkedFlow').innerHTML=linked?`<b>Diagrama vinculat:</b> ${escapeHtml(linked.title)} · <b>+${linked.points} punts de Flux</b> <span class="linked-status ${lp?.completed?'done':''}">${lp?.completed?'fet ✓':lp?.started?'en curs':'no iniciat'}</span><br>No és obligatori fer tots dos, però el diagrama és la millor preparació abans de MakeCode.`:'<b>Diagrama opcional:</b> pots crear un diagrama específic d’aquest repte perquè quedi al portafoli juntament amb el codi.';
     $('#practicalDiagram').textContent=linked?'◇ Fer / obrir diagrama vinculat':'◇ Afegir diagrama al projecte';
-    $('#practicalMakeCodeUrl').value=r.makeCodeUrl||'';$('#practicalCode').value=r.codeText||'';renderPracticalFiles(id);updatePracticalStatus(id);$('#modalPractical').showModal();
+    $('#practicalMakeCodeUrl').value=r.makeCodeUrl||'';$('#practicalCode').value=r.codeText||'';
+    $('#practicalMakeCodeUrl2').value=r.makeCodeUrl2||'';$('#practicalCode2').value=r.codeText2||'';
+    setSecondProgrammeVisible(['m5','m12','m13','m14','s4','rb0'].includes(id)||!!(r.makeCodeUrl2||r.codeText2));
+    renderPracticalFiles(id);updatePracticalStatus(id);$('#modalPractical').showModal();
+  }
+  function setSecondProgrammeVisible(show){
+    $('#practicalSecondEvidence').hidden=!show;
+    $('#practicalSecondToggle').setAttribute('aria-expanded',String(show));
+    $('#practicalSecondToggle').textContent=show?'− Amagar el programa 2':'+ Afegir el programa 2 (receptor)';
   }
   function savePractical(){
-    const id=state.practicalId;if(!id)return;const r=portfolioEntry(id);r.makeCodeUrl=$('#practicalMakeCodeUrl').value.trim();r.codeText=$('#practicalCode').value.trim();savePortfolio();const p=challengeProgress(id);p.started=true;p.lastAt=new Date().toISOString();if(practicalCanSubmit(id)){p.completed=true;p.completedAt=p.completedAt||new Date().toISOString()}saveProgress();updatePracticalStatus(id);renderChallenges();
+    const id=state.practicalId;if(!id)return;const r=portfolioEntry(id);r.makeCodeUrl=$('#practicalMakeCodeUrl').value.trim();r.codeText=$('#practicalCode').value.trim();
+    r.makeCodeUrl2=$('#practicalMakeCodeUrl2').value.trim();r.codeText2=$('#practicalCode2').value.trim();savePortfolio();const p=challengeProgress(id);p.started=true;p.lastAt=new Date().toISOString();if(practicalCanSubmit(id)){p.completed=true;p.completedAt=p.completedAt||new Date().toISOString()}saveProgress();updatePracticalStatus(id);renderChallenges();
     window.dispatchEvent(new Event('robotia:deliverySaved'));
     toast(makeCodeNotice(r.makeCodeUrl)?'Desat localment, però l’enllaç MakeCode no és compartit.':practicalCanSubmit(id)?'Repte desat. Sincronització automàtica si hi ha sessió al núvol.':'Desat localment. Afegeix un enllaç MakeCode compartit o evidències.');
   }
@@ -1834,7 +1851,7 @@
     const flux=scoreForCategory('flux'),micro=scoreForCategory('microbit'),sensors=scoreForCategory('sensors'),robot=scoreForCategory('robot'),k=$$('#portfolioKpis .kpi b');
     const delivered=[...new Set(challenges.filter(c=>state.progress[c.id]?.completed).map(c=>c.id))].length;
     if(k.length>=4){k[0].textContent=delivered;k[1].textContent=`${flux.note}/10`;k[2].textContent=`${micro.note}/10`;k[3].textContent=`${sensors.completed+robot.completed}`}
-    const active=challenges.filter(c=>state.progress[c.id]?.started||storedProject(c.id)||state.portfolio[c.id]?.attachments?.length||state.portfolio[c.id]?.makeCodeUrl||state.portfolio[c.id]?.codeText);
+    const active=challenges.filter(c=>state.progress[c.id]?.started||storedProject(c.id)||state.portfolio[c.id]?.attachments?.length||state.portfolio[c.id]?.makeCodeUrl||state.portfolio[c.id]?.codeText||state.portfolio[c.id]?.makeCodeUrl2||state.portfolio[c.id]?.codeText2);
     if(!active.length){list.innerHTML='<div class="card portfolio-empty"><b>Encara no hi ha treballs al portafoli.</b><p>Comença un repte o importa una activitat .robotia.</p></div>';return}
     list.innerHTML=active.map(c=>{
       const p=challengeProgress(c.id),r=portfolioEntry(c.id),project=storedProject(c.id),owners=projectOwners(project),atts=r.attachments||[],validEvidence=c.kind!=='practical'||practicalCanSubmit(c.id),shownCompleted=!!p.completed&&validEvidence;
@@ -1848,12 +1865,12 @@
           <label>Dificultats<textarea rows="3" data-ref-field="difficulties" data-ref-id="${c.id}" placeholder="On t'has encallat? Què ha fallat?">${escapeHtml(r.difficulties||'')}</textarea></label>
           <label>Què ha funcionat / què t'ha agradat<textarea rows="3" data-ref-field="successes" data-ref-id="${c.id}" placeholder="Què repetiria? Què has après?">${escapeHtml(r.successes||'')}</textarea></label>
         </div>
-        ${(c.kind==='practical'||c.makeCodeCompatible)?`<div class="portfolio-practical-fields"><label>Enllaç MakeCode<input data-ref-field="makeCodeUrl" data-ref-id="${c.id}" value="${escapeHtml(r.makeCodeUrl||'')}" placeholder="Enllaç compartit opcional"><small data-makecode-warning="${c.id}" role="status" style="color:#b42318;font-weight:650">${escapeHtml(makeCodeNotice(r.makeCodeUrl))}</small></label><label>Codi JavaScript MakeCode<textarea rows="4" data-ref-field="codeText" data-ref-id="${c.id}" placeholder="Opcional però útil per corregir">${escapeHtml(r.codeText||'')}</textarea></label></div>`:''}
+        ${(c.kind==='practical'||c.makeCodeCompatible)?`<div class="portfolio-practical-fields"><label>Enllaç MakeCode<input data-ref-field="makeCodeUrl" data-ref-id="${c.id}" value="${escapeHtml(r.makeCodeUrl||'')}" placeholder="Enllaç compartit opcional"><small data-makecode-warning="${c.id}" role="status" style="color:#b42318;font-weight:650">${escapeHtml(makeCodeNotice(r.makeCodeUrl))}</small></label><label>Codi JavaScript MakeCode<textarea rows="4" data-ref-field="codeText" data-ref-id="${c.id}" placeholder="Opcional però útil per corregir">${escapeHtml(r.codeText||'')}</textarea></label>${(r.makeCodeUrl2||r.codeText2||['m5','m12','m13','m14','s4','rb0'].includes(c.id))?`<label>Programa 2 · Enllaç MakeCode<input data-ref-field="makeCodeUrl2" data-ref-id="${c.id}" value="${escapeHtml(r.makeCodeUrl2||'')}" placeholder="Enllaç del receptor"><small data-makecode-warning2="${c.id}" role="status" style="color:#b42318;font-weight:650">${escapeHtml(makeCodeNotice(r.makeCodeUrl2))}</small></label><label>Programa 2 · Codi JavaScript<textarea rows="4" data-ref-field="codeText2" data-ref-id="${c.id}" placeholder="Codi del receptor">${escapeHtml(r.codeText2||'')}</textarea></label>`:''}</div>`:''}
         <div class="portfolio-evidence"><div><b>Evidències</b><span>${p.attempts||0} comprovacions · ${p.hints||0} pistes · ${Math.round((p.activeSeconds||0)/60)} min aprox.</span></div><label class="btn ghost file-label">+ Adjuntar arxius<input data-attach-id="${c.id}" type="file" accept=".hex,.png,.jpg,.jpeg,.webp,.pdf,.txt,.js,.json,.robotia" multiple hidden></label></div>
         <div class="attachment-list">${atts.length?atts.map((a,i)=>`<div class="attachment-chip"><a href="${a.data}" download="${escapeHtml(a.name)}">${escapeHtml(a.name)}</a><button data-remove-attachment="${c.id}" data-attachment-index="${i}" title="Eliminar">×</button></div>`).join(''):'<span class="no-attachments">Sense adjunts</span>'}</div>
       </article>`;
     }).join('');
-    $$('[data-ref-field]').forEach(el=>el.addEventListener('input',()=>{const id=el.dataset.refId,r=portfolioEntry(id);r[el.dataset.refField]=el.value;if(el.dataset.refField==='makeCodeUrl'){const warn=document.querySelector('[data-makecode-warning="'+id+'"]');if(warn)warn.textContent=makeCodeNotice(r.makeCodeUrl)}const c=challenges.find(x=>x.id===id);if(c?.kind==='practical'&&practicalCanSubmit(id)){const p=challengeProgress(id);p.started=true;p.completed=true;p.completedAt=p.completedAt||new Date().toISOString();saveProgress()}savePortfolio();if(state.project?.challengeId===id)syncProjectMeta()}));
+    $$('[data-ref-field]').forEach(el=>el.addEventListener('input',()=>{const id=el.dataset.refId,r=portfolioEntry(id);r[el.dataset.refField]=el.value;if(el.dataset.refField==='makeCodeUrl'){const warn=document.querySelector('[data-makecode-warning="'+id+'"]');if(warn)warn.textContent=makeCodeNotice(r.makeCodeUrl)}if(el.dataset.refField==='makeCodeUrl2'){const warn=document.querySelector('[data-makecode-warning2="'+id+'"]');if(warn)warn.textContent=makeCodeNotice(r.makeCodeUrl2)}const c=challenges.find(x=>x.id===id);if(c?.kind==='practical'&&practicalCanSubmit(id)){const p=challengeProgress(id);p.started=true;p.completed=true;p.completedAt=p.completedAt||new Date().toISOString();saveProgress()}savePortfolio();if(state.project?.challengeId===id)syncProjectMeta()}));
     $$('[data-port-open]').forEach(b=>b.onclick=()=>openStoredPortfolioProject(b.dataset.portOpen));
     $$('[data-port-download]').forEach(b=>b.onclick=()=>downloadStoredPortfolioProject(b.dataset.portDownload));
     $$('[data-attach-id]').forEach(inp=>inp.onchange=e=>addPortfolioAttachments(inp.dataset.attachId,e.target.files));
@@ -1991,8 +2008,8 @@
   }
   function generatePortfolioDossier(){
     if(!requireIdentity())return; if(state.project)autosave(); const sc=scoreForCategory('flux'),mc=scoreForCategory('microbit'),ss=scoreForCategory('sensors'),rr=scoreForCategory('robot');
-    const active=challenges.filter(c=>state.progress[c.id]?.started||storedProject(c.id)||state.portfolio[c.id]?.attachments?.length||state.portfolio[c.id]?.makeCodeUrl||state.portfolio[c.id]?.codeText);
-    const sections=active.map(c=>{const p=challengeProgress(c.id),r=portfolioEntry(c.id),project=storedProject(c.id),svg=project?storedProjectSvg(project):'';const atts=(r.attachments||[]).map(a=>a.type?.startsWith('image/')?`<figure><img src="${a.data}" alt="${escapeHtml(a.name)}"><figcaption>${escapeHtml(a.name)}</figcaption></figure>`:`<a class="attachment" href="${a.data}" download="${escapeHtml(a.name)}">Adjunt: ${escapeHtml(a.name)}</a>`).join('');return `<section class="work"><div class="workhead"><div><span>${escapeHtml(categoryLabel(c.category))} · ${p.completed?'ENTREGAT · PENDENT DE VALIDAR':'EN CURS'}</span><h2>${escapeHtml(c.title)}</h2></div><b>+${c.points} · màx. ${c.maxNote}</b></div><p class="meta">${p.attempts||0} comprovacions · ${p.hints||0} pistes · ${Math.round((p.activeSeconds||0)/60)} min aprox.</p>${svg?`<div class="diagram">${svg}</div>`:''}${r.makeCodeUrl?`<p><b>MakeCode:</b> ${escapeHtml(r.makeCodeUrl)}</p>`:''}${r.codeText?`<pre style="white-space:pre-wrap;background:#111827;color:#d1fae5;padding:12px;border-radius:10px">${escapeHtml(r.codeText)}</pre>`:''}<div class="reflection"><h3>Anotacions</h3><p>${escapeHtml(r.notes||'—').replace(/\n/g,'<br>')}</p><h3>Dificultats</h3><p>${escapeHtml(r.difficulties||'—').replace(/\n/g,'<br>')}</p><h3>Què ha funcionat / què m'ha agradat</h3><p>${escapeHtml(r.successes||'—').replace(/\n/g,'<br>')}</p></div>${atts?`<div class="attachments">${atts}</div>`:''}</section>`}).join('');
+    const active=challenges.filter(c=>state.progress[c.id]?.started||storedProject(c.id)||state.portfolio[c.id]?.attachments?.length||state.portfolio[c.id]?.makeCodeUrl||state.portfolio[c.id]?.codeText||state.portfolio[c.id]?.makeCodeUrl2||state.portfolio[c.id]?.codeText2);
+    const sections=active.map(c=>{const p=challengeProgress(c.id),r=portfolioEntry(c.id),project=storedProject(c.id),svg=project?storedProjectSvg(project):'';const atts=(r.attachments||[]).map(a=>a.type?.startsWith('image/')?`<figure><img src="${a.data}" alt="${escapeHtml(a.name)}"><figcaption>${escapeHtml(a.name)}</figcaption></figure>`:`<a class="attachment" href="${a.data}" download="${escapeHtml(a.name)}">Adjunt: ${escapeHtml(a.name)}</a>`).join('');return `<section class="work"><div class="workhead"><div><span>${escapeHtml(categoryLabel(c.category))} · ${p.completed?'ENTREGAT · PENDENT DE VALIDAR':'EN CURS'}</span><h2>${escapeHtml(c.title)}</h2></div><b>+${c.points} · màx. ${c.maxNote}</b></div><p class="meta">${p.attempts||0} comprovacions · ${p.hints||0} pistes · ${Math.round((p.activeSeconds||0)/60)} min aprox.</p>${svg?`<div class="diagram">${svg}</div>`:''}${r.makeCodeUrl?`<p><b>MakeCode:</b> ${escapeHtml(r.makeCodeUrl)}</p>`:''}${r.codeText?`<pre style="white-space:pre-wrap;background:#111827;color:#d1fae5;padding:12px;border-radius:10px">${escapeHtml(r.codeText)}</pre>`:''}${r.makeCodeUrl2?`<p><b>MakeCode · programa 2:</b> ${escapeHtml(r.makeCodeUrl2)}</p>`:''}${r.codeText2?`<pre style="white-space:pre-wrap;background:#111827;color:#d1fae5;padding:12px;border-radius:10px"><b>Programa 2 · JavaScript</b>\n${escapeHtml(r.codeText2)}</pre>`:''}<div class="reflection"><h3>Anotacions</h3><p>${escapeHtml(r.notes||'—').replace(/\n/g,'<br>')}</p><h3>Dificultats</h3><p>${escapeHtml(r.difficulties||'—').replace(/\n/g,'<br>')}</p><h3>Què ha funcionat / què m'ha agradat</h3><p>${escapeHtml(r.successes||'—').replace(/\n/g,'<br>')}</p></div>${atts?`<div class="attachments">${atts}</div>`:''}</section>`}).join('');
     const html=`<!doctype html><html lang="ca"><head><meta charset="utf-8"><title>${escapeHtml(portfolioFileBase())}</title><style>body{font-family:Arial,sans-serif;margin:0;background:#f5f6f8;color:#111827}.page{max-width:1000px;margin:auto;padding:36px}.head{background:#111827;color:white;border-radius:22px;padding:28px}.head h1{margin:6px 0}.stats{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}.stat{background:white;color:#111827;border-radius:12px;padding:10px 14px}.work{background:white;margin:22px 0;border:1px solid #dfe4eb;border-radius:18px;padding:22px;break-inside:avoid}.workhead{display:flex;justify-content:space-between;gap:15px}.workhead span{font-size:11px;font-weight:bold;color:#2563eb}.workhead h2{margin:4px 0}.meta{color:#667085}.diagram svg{width:100%;height:auto;border:1px solid #e5e7eb;border-radius:12px}.reflection{display:grid;grid-template-columns:180px 1fr;gap:8px 18px;margin-top:18px}.reflection h3,.reflection p{margin:0;padding:7px 0;border-bottom:1px solid #eef1f5}.attachments img{max-width:360px;max-height:260px}.attachment{display:block;margin:8px 0}.foot{text-align:center;color:#98a2b3;font-size:12px;margin:28px}@media print{body{background:#fff}.page{padding:0}.work{box-shadow:none}}</style></head><body><main class="page"><header class="head"><small>ROBOTIA FLOWLAB · PORTAFOLI</small><h1>${escapeHtml(state.identity.name)}</h1><p>${escapeHtml(state.identity.className||'')}</p><div class="stats"><div class="stat"><b>${sc.note}/10</b><br>flux prov.</div><div class="stat"><b>${mc.note}/10</b><br>micro:bit prov.</div><div class="stat"><b>${ss.note}/10</b><br>sensors prov.</div><div class="stat"><b>${rr.note}/10</b><br>robot prov.</div></div><p style="margin:16px 0 0;color:#fde68a;font-size:12px">* Resultat provisional pendent de validació docent dels algoritmes.</p></header>${sections||'<p>Encara no hi ha treballs.</p>'}<div class="foot">Creat amb ROBOTIA FlowLab · Jordi Lesan · ${new Date().toLocaleDateString('ca-ES')}</div></main></body></html>`;
     downloadBlob(html,portfolioFileBase()+'_Dossier.html','text/html;charset=utf-8');toast('Dossier generat');
   }
@@ -2114,6 +2131,9 @@
     $('#practicalMakeCode').onclick=()=>window.open('https://makecode.microbit.org/','_blank','noopener');
     $('#practicalDiagram').onclick=openPracticalDiagram;
     $('#practicalSave').onclick=savePractical;
+    $('#practicalSecondToggle').onclick=()=>setSecondProgrammeVisible($('#practicalSecondEvidence').hidden);
+    $('#practicalMakeCodeUrl2').addEventListener('input',()=>{const id=state.practicalId;if(!id)return;portfolioEntry(id).makeCodeUrl2=$('#practicalMakeCodeUrl2').value;savePortfolio();updatePracticalStatus(id)});
+    $('#practicalCode2').addEventListener('input',()=>{const id=state.practicalId;if(!id)return;portfolioEntry(id).codeText2=$('#practicalCode2').value;savePortfolio();updatePracticalStatus(id)});
     $('#practicalMakeCodeUrl').addEventListener('input',()=>{const id=state.practicalId;if(!id)return;portfolioEntry(id).makeCodeUrl=$('#practicalMakeCodeUrl').value;savePortfolio();updatePracticalStatus(id)});
     $('#practicalCode').addEventListener('input',()=>{const id=state.practicalId;if(!id)return;portfolioEntry(id).codeText=$('#practicalCode').value;savePortfolio();updatePracticalStatus(id)});
     $('#practicalFiles').onchange=e=>{const id=state.practicalId;if(id)addPortfolioAttachments(id,e.target.files);setTimeout(()=>{renderPracticalFiles(id);updatePracticalStatus(id)},50)};
