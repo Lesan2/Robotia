@@ -25,8 +25,8 @@
  <h2>👨‍🏫 Eines del professor</h2>
  <p>Obre el full institucional per consultar les entregues, revisar notes i editar comentaris. Només tu tens accés a les dades privades.</p>
  <div class="v3-teacher-start">
-  <div><strong>1 · Revisar entregues</strong><p>Al full <b>Alumnes</b>, columna «Treball al núvol»: obre el portafoli i consulta el diagrama, els programes i les evidències.</p></div>
-  <div><strong>2 · Corregir activitats</strong><p>A <b>Correccions</b>, busca el correu i l'ID del repte. Escriu la nota docent de 0 a 10, el comentari que llegirà l'alumne i la teva anotació privada.</p></div>
+  <div><strong>1 · Revisar entregues</strong><p>A <b>Professorat → Corrector de reptes</b>, connecta el compte docent, selecciona un alumne i carrega el seu portafoli del núvol. Consulta el diagrama, els programes i les evidències sense modificar el treball.</p></div>
+  <div><strong>2 · Corregir activitats</strong><p>Al <b>Corrector de reptes</b> pots revisar l'exercici, puntuar-lo amb la rúbrica i desar la nota docent /10, el comentari per a l'alumne i l'anotació privada. Les correccions es registren al full <b>Correccions</b>.</p></div>
   <div><strong>3 · Fer el seguiment</strong><p>A <b>Observacions</b> escriu les notes generals; a <b>Alumnes</b> hi ha les notes de flux, micro:bit, sensors, actitud i projecte final.</p></div>
  </div>
  <div class="v3-teacher-links">
@@ -39,7 +39,7 @@
    <article><b>Alumnes</b><p>Consulta els portafolis i les notes de flux, micro:bit, sensors, actitud i robot final.</p></article>
    <article><b>Correccions</b><p>Per cada repte, escriu o modifica la nota, el comentari per a l'alumne i l'anotació privada.</p></article>
    <article><b>Observacions</b><p>Afegeix comentaris generals per alumne i separa els missatges públics dels privats.</p></article>
-   <article><b>Publicació</b><p>Revisa i valida les notes; la publicació dins de ROBOTIA continuarà pendent de la connexió del servidor.</p></article>
+   <article><b>Publicació</b><p>Desa primer la correcció privada i després utilitza «Publicar nota» o «Retirar publicació». Cal una connexió docent al servidor; comprova el resultat amb el compte de prova abans de donar la publicació per confirmada.</p></article>
  </div>
  <h3>📨 Proposar un repte personal o enviar un missatge</h3>
  <p>Prepara un correu individual al Gmail institucional. Allà pots adjuntar fitxers del teu ordinador o documents de Drive. No s'enviarà res fins que premis «Envia» a Gmail.</p>

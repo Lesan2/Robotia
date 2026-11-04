@@ -131,6 +131,12 @@ function renderEvidence(){
  if(!active){target.textContent="Selecciona un repte.";return}
  const a=active.activity,p=a.project||{},r=a.reflection||{};
  addDetail(target,"Categoria",getRubric().label);
+ const assignment=a.challengeMeta||p.challengeMeta||r.assignmentMeta||null;
+ if(assignment?.legacy){
+   addDetail(target,"Consigna històrica",String(assignment.title||active.title)+" · "+String(assignment.brief||"Consultar evidències originals"));
+   addDetail(target,"Puntuació original",String(assignment.points||0)+" punt(s) de potencial · cota "+String(assignment.maxNote||0)+" (la correcció docent continua sent de 0 a 10)");
+ }
+ if(assignment?.needsReview)addDetail(target,"REVISIÓ NECESSÀRIA","Falten data i metadades fiables per confirmar la versió d'aquest repte. Contrasta la consigna amb el programa, les captures i l'alumne abans d'avaluar.");
  addDetail(target,"Estat",a.progressRecord?.completed?"Entregat, pendent de validació docent":"Iniciat / encara no consta completat");
  if(p.nodes?.length)addDetail(target,"Diagrama",p.nodes.length+" blocs i "+(p.edges||[]).length+" connexions");
  addDetail(target,"Treball",a.workId||p.workId||"Sense identificador");

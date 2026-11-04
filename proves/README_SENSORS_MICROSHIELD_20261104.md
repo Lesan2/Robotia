@@ -15,7 +15,7 @@ Activitats que es puguin desenvolupar amb les peces reals del **Conjunt de senso
 - Sense canvis al JavaScript del núvol, Apps Script, rúbriques d'altres categories o fulls de notes.
 
 ## Punts i cotes
-**Punts potencials** de Sensors: `mínim(suma de punts dels reptes entregats amb evidència, cota màxima més alta entre els reptes entregats)`, com en Flux i micro:bit. Aquesta és una nota **potencial** que no equival a un aprovat automàtic; el professor puntua cada repte de 0 fins als punts possibles, amb decimals, i publica la **nota docent de Sensors**.
+**Punts potencials** de Sensors: `mínim(suma de punts dels reptes entregats amb evidència, cota màxima més alta entre els reptes entregats)`, com en Flux i micro:bit. Aquesta és una nota **potencial** que no equival a un aprovat automàtic. El **corrector docent puntua cada repte amb rúbrica de 0 a 10** (amb decimals). Els «punts del repte» i la «cota» són exclusivament el sistema de potencial de l'aplicació; **no** són l'escala de la nota individual. La **nota docent general de Sensors** es registra per separat a `Alumnes!L` i només es publica quan el professor ho decideix.
 
 Connexió amb la qualificació:
 1. `Alumnes!L` = nota docent de Sensors (0–10), introduïda després de corregir els reptes.
@@ -45,7 +45,10 @@ Connexió amb la qualificació:
 
 ## Compatibilitat amb dades existents
 - **Mai s'esborren ni es reutilitzen els IDs** `s0`–`s19`; es mantenen les claus dels projectes i portafolis.
-- Les activitats antigues es reformulen per fer-les amb el kit real, i els seus objectius poden variar (per exemple, LED extern → 4 NeoPixel integrats; relé/bomba → motor DC). Si apareix un portafoli antic amb un dels IDs reformulats, el professor ha de revisar-lo segons l'objectiu amb què es va entregar originalment, que queda conservat a la metadada de l'entrega original.
+- Les activitats antigues es reformulen per fer-les amb el kit real, i els seus objectius poden variar (per exemple, LED extern → 4 NeoPixel integrats; relé/bomba → motor DC). Per corregir-los, s'ha de respectar **l'objectiu, la consigna i els punts originals**.
+- Des de la reparació del 04/11/2026, RobotIA conserva una **còpia de les metadades originals dels IDs s0–s19** abans de sobreescriure el catàleg a la pàgina. L'exportació i el dossier trien les metadades d'època segons la data original, el projecte o una instantània de l'assignació; **el potencial es calcula amb els punts de l'entrega original**.
+- Per a registres molt antics sense data ni metadades, el programa aplica per prudència la puntuació anterior i els marca com a **pendents de revisió**. Aquest criteri no pot demostrar per si sol el contingut real de l'exercici: el docent ha de llegir les evidències.
+- Els enllaços conceptualment incompatibles queden desactivats en ambdós sentits (f17→s0, f20→s3, f23→s6, f24→s7); es conserven els diagrames com a reptes de Flux independents.
 - El full docent no contenia notes de Sensors ni correccions de Sensors en la verificació del 04/11/2026.
 - Les altres categories (31 Flux, 19 micro:bit i 3 Robot) es mantenen sense alteracions en el catàleg.
 
@@ -63,3 +66,8 @@ Connexió amb la qualificació:
 3. Fer `s15` amb dos programes i comprovar que emissor/receptor es mostren al corrector.
 4. Fer una correcció docent amb punts parcials de Sensors, publicar-la i comprovar-la des de «Les meves notes».
 5. Comprovar la compatibilitat física de cada mòdul abans del primer muntatge a l'aula.
+
+## Còpia de seguretat i reparació de compatibilitat · 04/11/2026
+- Estat original intacte a `backup/robotia-2026-11-04-original-abans-reparacions`, commit `65ae74d7c65b0f70a41621c6d47fcc2005b8d5e8`.
+- Les reparacions es preparen a `fix/robotia-2026-11-04-historic-i-enllacos` abans de passar a la branca pública.
+- Les proves estàtiques del codi i els casos d'historial passen; la prova amb el servidor real, els comptes d'alumnes i el maquinari segueix pendent.
