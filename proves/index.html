@@ -525,7 +525,7 @@
   }
   function challengeMetaFor(id){
     const c=challenges.find(x=>x.id===id); if(!c)return null;
-    return {id:c.id,title:c.title,category:c.category||'flux',kind:c.kind||'diagram',points:c.points||0,maxNote:c.maxNote||0,level:c.level||0,makeCodeBridge:c.makeCodeBridge||null,linkedFlow:c.linkedFlow||null,catalogVersion:CHALLENGE_CATALOG_VERSION};
+    return {id:c.id,title:c.title,brief:c.brief||'',category:c.category||'flux',kind:c.kind||'diagram',points:c.points||0,maxNote:c.maxNote||0,level:c.level||0,makeCodeBridge:c.makeCodeBridge||null,linkedFlow:c.linkedFlow||null,catalogVersion:CHALLENGE_CATALOG_VERSION,catalogRevision:c.category==='sensors'?(window.ROBOTIA_SENSORS_V4?.revision||'sensors-v3-original'):'robotia-v3'};
   }
 
   const STORAGE = {
@@ -635,14 +635,14 @@
     {id:'f14',category:'flux',level:4,title:'Flux · Pedra, paper o tisores',difficulty:3,accent:'#8b5cf6',points:3,maxNote:8,brief:'En sacsejar, genera un valor aleatori i decideix entre pedra, paper o tisores.',tags:['micro:bit','Atzar','Variable'],minCounts:{start:1,variable:1,decision:2,process:3},minEdges:6,makeCodeCompatible:true,makeCodeBridge:'m3',hints:['Guarda l’aleatori en una variable.','Pots encadenar decisions per arribar als tres resultats.'],criteria:['C2.2','C2.3','C3.2']},
     {id:'f15',category:'flux',level:4,title:'Flux · Story Cubes',difficulty:3,accent:'#7c3aed',points:3,maxNote:9,brief:'En sacsejar, genera un valor aleatori i selecciona una de cinc icones o més.',tags:['micro:bit','Aleatori','5 camins'],minCounts:{start:1,variable:1,decision:4,process:5},minEdges:9,makeCodeCompatible:true,makeCodeBridge:'m4',hints:['Necessites arribar a cinc resultats diferents.','Una cadena de decisions és una opció vàlida.'],criteria:['C2.2','C2.3','C3.2']},
     {id:'f16',category:'flux',level:5,title:'Flux · Ràdio emissor i receptor',difficulty:4,accent:'#0ea5e9',points:3,maxNote:9,brief:'Representa el flux de dues micro:bit: una envia una dada per ràdio i l’altra la rep i actua.',tags:['micro:bit','Ràdio','2 plaques'],minCounts:{start:2,io:2,process:2},minEdges:5,makeCodeCompatible:true,makeCodeBridge:'m5',hints:['Pensa en dos fluxos: emissor i receptor.','Indica clarament què s’envia i què passa quan es rep.'],criteria:['C2.1','C2.2','C2.3','C3.2']},
-    {id:'f17',category:'flux',level:3,title:'Flux · LED extern',difficulty:2,accent:'#10b981',points:1,maxNote:6,brief:'Representa quan i com s’encén o s’apaga un LED extern connectat a la micro:bit.',tags:['Sensor/actuador','LED','Pin'],minCounts:{start:1,process:2},minEdges:2,makeCodeCompatible:true,makeCodeBridge:'s0',hints:['Un LED és un actuador.','Pots afegir una entrada o condició si vols controlar-lo.'],criteria:['C2.2','C3.2']},
+    {id:'f17',category:'flux',level:3,title:'Flux · LED extern',difficulty:2,accent:'#10b981',points:1,maxNote:6,brief:'Representa quan i com s’encén o s’apaga un LED extern connectat a la micro:bit.',tags:['Sensor/actuador','LED','Pin'],minCounts:{start:1,process:2},minEdges:2,makeCodeCompatible:true,hints:['Un LED és un actuador.','Pots afegir una entrada o condició si vols controlar-lo.'],criteria:['C2.2','C3.2']},
     {id:'f18',category:'flux',level:4,title:'Flux · Detector de moviment',difficulty:3,accent:'#059669',points:2,maxNote:7,brief:'Llegeix un PIR i decideix quin color ha de mostrar el NeoPixel segons hi hagi moviment o no.',tags:['PIR','NeoPixel','Micro:Shield'],minCounts:{start:1,io:1,decision:1,process:2},minEdges:5,decisionLabels:true,cycleExpected:true,makeCodeCompatible:true,makeCodeBridge:'s1',hints:['Llegeix PIR → decideix → actua.','Torna a llegir el sensor.'],criteria:['C2.2','C3.2','C3.4']},
     {id:'f19',category:'flux',level:4,title:'Flux · Control d’humitat',difficulty:3,accent:'#14b8a6',points:2,maxNote:7,brief:'Mesura la humitat i decideix el color del NeoPixel segons el valor obtingut.',tags:['Humitat','NeoPixel','Micro:Shield'],minCounts:{start:1,io:1,decision:1,process:2},minEdges:5,decisionLabels:true,cycleExpected:true,makeCodeCompatible:true,makeCodeBridge:'s2',hints:['Llegeix primer la humitat.','Després de mostrar l’estat, torna a mesurar.'],criteria:['C2.2','C3.2','C3.4']},
-    {id:'f20',category:'flux',level:5,title:'Flux · Barrera automàtica',difficulty:4,accent:'#0d9488',points:3,maxNote:8,brief:'Mesura distància amb ultrasons i controla un servo per obrir o tancar una barrera.',tags:['Ultrasons','Servo','Micro:Shield'],minCounts:{start:1,io:1,decision:1,process:3},minEdges:6,decisionLabels:true,cycleExpected:true,makeCodeCompatible:true,makeCodeBridge:'s3',hints:['Distància és entrada; servo és actuador.','El sistema ha de tornar a mesurar.'],criteria:['C2.2','C2.3','C3.2','C3.4']},
+    {id:'f20',category:'flux',level:5,title:'Flux · Barrera automàtica',difficulty:4,accent:'#0d9488',points:3,maxNote:8,brief:'Mesura distància amb ultrasons i controla un servo per obrir o tancar una barrera.',tags:['Ultrasons','Servo','Micro:Shield'],minCounts:{start:1,io:1,decision:1,process:3},minEdges:6,decisionLabels:true,cycleExpected:true,makeCodeCompatible:true,hints:['Distància és entrada; servo és actuador.','El sistema ha de tornar a mesurar.'],criteria:['C2.2','C2.3','C3.2','C3.4']},
     {id:'f21',category:'flux',level:5,title:'Flux · Inclinació, ràdio i servo',difficulty:4,accent:'#0891b2',points:4,maxNote:9,brief:'Representa una micro:bit que llegeix inclinació i envia una dada, i una altra que mou un servo segons la recepció.',tags:['Acceleròmetre','Ràdio','Servo'],minCounts:{start:2,io:2,decision:2,process:3},minEdges:7,makeCodeCompatible:true,makeCodeBridge:'s4',hints:['Separa emissor i receptor.','La dada rebuda ha de determinar l’angle del servo.'],criteria:['C2.1','C2.2','C2.3','C3.2','C3.4']},
     {id:'f22',category:'flux',level:5,title:'Flux · Contaminació acústica',difficulty:4,accent:'#f59e0b',points:3,maxNote:9,brief:'Llegeix el nivell de so i activa indicadors diferents segons un llindar.',tags:['So','LED','Micro:Shield'],minCounts:{start:1,io:1,decision:1,process:2},minEdges:5,decisionLabels:true,cycleExpected:true,makeCodeCompatible:true,makeCodeBridge:'s5',hints:['Llegeix el so abans de comparar.','Torna a mesurar perquè el nivell canvia.'],criteria:['C2.2','C3.2','C3.4']},
-    {id:'f23',category:'flux',level:6,title:'Flux · Transvasament d’aigua',difficulty:5,accent:'#0284c7',points:4,maxNote:10,brief:'Representa el control segur d’una bomba d’aigua mitjançant un relé i una entrada de la micro:bit.',tags:['Relé','Bomba','Micro:Shield'],minCounts:{start:1,io:1,decision:1,process:2},minEdges:5,decisionLabels:true,makeCodeCompatible:true,makeCodeBridge:'s6',hints:['Ha d’existir una manera clara d’aturar la bomba.','El relé és l’actuador que controla la bomba.'],criteria:['C2.1','C2.2','C3.2','C3.4']},
-    {id:'f24',category:'flux',level:6,title:'Flux · Monitoratge ambiental',difficulty:5,accent:'#15803d',points:4,maxNote:10,brief:'Representa la lectura de temperatura, humitat i qualitat de l’aire i què fa el sistema amb aquestes dades.',tags:['DHT','CO₂','Dades'],minCounts:{start:1,io:3,process:2},minEdges:5,cycleExpected:true,makeCodeCompatible:true,makeCodeBridge:'s7',hints:['Cada sensor aporta una entrada.','Decideix si només mostres dades o també prens decisions.'],criteria:['C2.1','C2.2','C3.2','C3.4']},
+    {id:'f23',category:'flux',level:6,title:'Flux · Transvasament d’aigua',difficulty:5,accent:'#0284c7',points:4,maxNote:10,brief:'Representa el control segur d’una bomba d’aigua mitjançant un relé i una entrada de la micro:bit.',tags:['Relé','Bomba','Micro:Shield'],minCounts:{start:1,io:1,decision:1,process:2},minEdges:5,decisionLabels:true,makeCodeCompatible:true,hints:['Ha d’existir una manera clara d’aturar la bomba.','El relé és l’actuador que controla la bomba.'],criteria:['C2.1','C2.2','C3.2','C3.4']},
+    {id:'f24',category:'flux',level:6,title:'Flux · Monitoratge ambiental',difficulty:5,accent:'#15803d',points:4,maxNote:10,brief:'Representa la lectura de temperatura, humitat i qualitat de l’aire i què fa el sistema amb aquestes dades.',tags:['DHT','CO₂','Dades'],minCounts:{start:1,io:3,process:2},minEdges:5,cycleExpected:true,makeCodeCompatible:true,hints:['Cada sensor aporta una entrada.','Decideix si només mostres dades o també prens decisions.'],criteria:['C2.1','C2.2','C3.2','C3.4']},
     {id:'f25',category:'flux',level:6,title:'Flux · Cotxe teledirigit',difficulty:5,accent:'#334155',points:5,maxNote:9,brief:'Representa comandament, ràdio i receptor del cotxe: avançar, aturar i girar.',tags:['Robot','Ràdio','Motors DC'],minCounts:{start:2,io:2,decision:3,process:4},minEdges:9,makeCodeCompatible:true,makeCodeBridge:'rb0',hints:['Separa comandament i cotxe.','Cada ordre rebuda ha de provocar una acció dels motors.'],criteria:['C2.1','C2.2','C2.3','C3.2','C3.4']},
     {id:'f26',category:'flux',level:7,title:'Flux · Projecte final de robot',difficulty:5,accent:'#111827',points:6,maxNote:10,brief:'Dissenya el diagrama complet del teu robot final: entrades, decisions, actuadors, bucles i situacions d’error.',tags:['Robot final','Disseny','Complex'],minCounts:{start:1,io:1,decision:2,process:4},minEdges:9,cycleExpected:true,makeCodeCompatible:true,makeCodeBridge:'rb1',hints:['Comença definint l’objectiu del robot.','Inclou què passa si el sensor no detecta res o hi ha una situació inesperada.'],criteria:['C2.1','C2.2','C2.3','C3.2','C3.4']},
 
@@ -693,6 +693,18 @@
     {"id":"s18","category":"sensors","kind":"practical","level":5,"title":"Cotxe per gestos i ràdio","difficulty":5,"accent":"#0f766e","points":4,"maxNote":10,"brief":"Controla els motors DC del robot receptor inclinant una altra micro:bit. Inclina endavant/enrere i cap als costats, i programa una aturada segura.","tags":["Control remot","Motors DC","Acceleròmetre"],"deliverables":["Programa comandament","Programa receptor","Foto ports motors + alimentació","Vídeo amb moviment i aturada"]},
     {"id":"s19","category":"sensors","kind":"practical","level":5,"title":"Barrera d'ultrasons amb control remot","difficulty":5,"accent":"#0f766e","points":4,"maxNote":10,"brief":"El receptor mesura distància amb ultrasons i governa el servo; el comandament activa/desactiva el mode automàtic per ràdio.","tags":["Ultrasons","Servo","Ràdio","Automatització"],"deliverables":["Programes de les dues plaques","Foto del muntatge","Vídeo de mode automàtic i aturada remota"]}
   ];
+  // Fotografia INALTERABLE del catàleg anterior a la revisió del kit (s0–s19).
+  // Els identificadors antics es mantenen, però el professor ha de poder corregir
+  // una entrega anterior amb la seva consigna i els punts originals.
+  const sensorLegacyCatalog=Object.freeze(Object.fromEntries(
+    challenges.filter(c=>c.category==='sensors').map(c=>[c.id,Object.freeze({
+      id:c.id,title:c.title,brief:c.brief||'',category:'sensors',kind:'practical',
+      points:c.points,maxNote:c.maxNote,level:c.level,linkedFlow:c.linkedFlow||null,
+      catalogVersion:1,catalogRevision:'sensors-v3-original'
+    })])
+  ));
+  // Primer commit de publicació del nou catàleg: 04/11/2026 18:19:47 UTC.
+  const SENSOR_KIT_CHANGE_AT=Date.parse('2026-11-04T18:19:47.000Z');
   // Ampliació del kit real: només afecta els reptes de Sensors, amb IDs històrics estables.
   const sensorsModule=window.ROBOTIA_SENSORS_V4;
   if(sensorsModule){
@@ -706,6 +718,36 @@
       if(c.category!=='sensors'||currentIds.has(c.id))continue;
       challenges.push(c);currentIds.add(c.id);
     }
+  }
+
+  // Torna la consigna/puntuació corresponents al treball REAL, mai les
+  // substitueix en silenci per la revisió actual d'un ID reaprofitat.
+  function activityChallengeMeta(id,project=null,reflection=null,progress=null){
+    const current=challengeMetaFor(id);
+    if(!current)return null;
+    const pr=project||storedProject(id);
+    const rf=reflection||state.portfolio[id]||null;
+    const pg=progress||state.progress[id]||null;
+    const previous=sensorLegacyCatalog[id]||null;
+    const snapshots=[rf?.assignmentMeta,pr?.challengeMeta,rf?.challengeMeta]
+      .filter(m=>m&&m.id===id&&typeof m.title==='string'&&
+        Number.isFinite(Number(m.points))&&Number.isFinite(Number(m.maxNote)));
+    const dates=[pr?.createdAt,rf?.createdAt,pg?.completedAt]
+      .map(t=>Date.parse(t)).filter(Number.isFinite);
+    if(previous){
+      const beforeChange=dates.some(t=>t<SENSOR_KIT_CHANGE_AT);
+      const oldDescription=snapshots.some(m=>m.title===previous.title&&m.title!==current.title);
+      // Si és una entrega antiga sense marques de temps ni metadades, millor
+      // respectar els punts originals i demanar revisió que inflar la cota.
+      const uncertainHistoric=!dates.length&&!!pg?.completed&&!snapshots.length;
+      if(beforeChange||oldDescription||uncertainHistoric){
+        return {...previous,legacy:true,needsReview:uncertainHistoric};
+      }
+    }
+    const snapshot=snapshots[0];
+    if(snapshot)return {...current,...snapshot,id,category:current.category,kind:current.kind,
+      points:Number(snapshot.points),maxNote:Number(snapshot.maxNote)};
+    return current;
   }
 
   const issueLabels = {
@@ -805,7 +847,7 @@
     if(!Array.isArray(project.owners)||!project.owners.length)project.owners=currentOwnerNames();
     if(!project.className)project.className=state.identity.className||'';
     if(!project.canvas)project.canvas={width:1400,height:900};
-    if(project.challengeId&&!project.challengeMeta)project.challengeMeta=challengeMetaFor(project.challengeId)||{id:project.challengeId,title:project.title||'Activitat antiga',category:'flux',points:0,maxNote:0,legacy:true};
+    if(project.challengeId&&!project.challengeMeta)project.challengeMeta=activityChallengeMeta(project.challengeId,project)||{id:project.challengeId,title:project.title||'Activitat antiga',category:'flux',points:0,maxNote:0,legacy:true};
     project.version=DATA_SCHEMA_VERSION; project.appBuild=APP_BUILD; project.catalogVersion=project.catalogVersion||CHALLENGE_CATALOG_VERSION;
     return project;
   }
@@ -901,7 +943,7 @@
   }
 
   function portfolioEntry(id){
-    if(!state.portfolio[id])state.portfolio[id]={notes:'',difficulties:'',successes:'',attachments:[],makeCodeUrl:'',codeText:'',makeCodeUrl2:'',codeText2:'',workId:generateWorkId(),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),owners:currentOwnerNames(),className:state.identity.className||''};
+    if(!state.portfolio[id])state.portfolio[id]={notes:'',difficulties:'',successes:'',attachments:[],makeCodeUrl:'',codeText:'',makeCodeUrl2:'',codeText2:'',workId:generateWorkId(),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),owners:currentOwnerNames(),className:state.identity.className||'',assignmentMeta:activityChallengeMeta(id)};
     return state.portfolio[id];
   }
   function savePortfolio(){
@@ -919,7 +961,7 @@
     if(!project)return project;
     if(!project.workId)project.workId=generateWorkId();
     if(!project.createdAt)project.createdAt=new Date().toISOString();
-    if(!project.challengeMeta&&project.challengeId)project.challengeMeta=challengeMetaFor(project.challengeId);
+    if(!project.challengeMeta&&project.challengeId)project.challengeMeta=activityChallengeMeta(project.challengeId,project);
     const owners=projectOwners(project); if(!owners.length)project.owners=currentOwnerNames();
     project.className=project.className||state.identity.className||'';
     if(project.challengeId){project.progressRecord=JSON.parse(JSON.stringify(challengeProgress(project.challengeId)));project.reflection=JSON.parse(JSON.stringify(portfolioEntry(project.challengeId)))}
@@ -955,7 +997,7 @@
       if(score)score.textContent=result.completed?(result.note+'/10'):'—';
       if(count){
         const validated=result.completed?result.completed+' reptes amb evidència · pendent de correcció docent':'Sense reptes verificables';
-        count.textContent=validated+(result.pendingEvidence?' · '+result.pendingEvidence+' per recuperar evidències':'');
+        count.textContent=validated+(result.pendingEvidence?' · '+result.pendingEvidence+' per recuperar evidències':'')+(result.legacyCount?' · '+result.legacyCount+' entrega/es històrica/ques preservada/es':'');
       }
     }
   }
@@ -970,10 +1012,10 @@
       return !!((r.attachments?.length||0)||(r.codeText||'').trim().length>12||(r.codeText2||'').trim().length>12||
         makeCodeShareStatus(r.makeCodeUrl)==='shared'||makeCodeShareStatus(r.makeCodeUrl2)==='shared');
     })());
-    const points=done.reduce((a,c)=>a+(c.points||0),0);
-    const unlockedMax=done.reduce((a,c)=>Math.max(a,c.maxNote||0),0);
+    const points=done.reduce((a,c)=>a+(activityChallengeMeta(c.id)?.points||0),0);
+    const unlockedMax=done.reduce((a,c)=>Math.max(a,activityChallengeMeta(c.id)?.maxNote||0),0);
     const note=Math.min(points,unlockedMax);
-    return {points,unlockedMax,note,completed:done.length,registered:registered.length,pendingEvidence:registered.length-done.length,total:pool.length};
+    return {points,unlockedMax,note,completed:done.length,registered:registered.length,pendingEvidence:registered.length-done.length,total:pool.length,legacyCount:done.filter(c=>activityChallengeMeta(c.id)?.legacy).length};
   }
   function categoryLabel(category){return categoryMeta[category]?.label||category}
   function renderScorePanel(){
@@ -1874,10 +1916,10 @@
     const active=challenges.filter(c=>state.progress[c.id]?.started||storedProject(c.id)||state.portfolio[c.id]?.attachments?.length||state.portfolio[c.id]?.makeCodeUrl||state.portfolio[c.id]?.codeText||state.portfolio[c.id]?.makeCodeUrl2||state.portfolio[c.id]?.codeText2);
     if(!active.length){list.innerHTML='<div class="card portfolio-empty"><b>Encara no hi ha treballs al portafoli.</b><p>Comença un repte o importa una activitat .robotia.</p></div>';return}
     list.innerHTML=active.map(c=>{
-      const p=challengeProgress(c.id),r=portfolioEntry(c.id),project=storedProject(c.id),owners=projectOwners(project),atts=r.attachments||[],validEvidence=c.kind!=='practical'||practicalCanSubmit(c.id),shownCompleted=!!p.completed&&validEvidence;
+      const p=challengeProgress(c.id),r=portfolioEntry(c.id),project=storedProject(c.id),assignment=activityChallengeMeta(c.id,project,r,p)||c,owners=projectOwners(project),atts=r.attachments||[],validEvidence=c.kind!=='practical'||practicalCanSubmit(c.id),shownCompleted=!!p.completed&&validEvidence;
       return `<article class="portfolio-item card ${shownCompleted?'done':''}">
         <div class="portfolio-item-head">
-          <div><div class="portfolio-status ${shownCompleted?'done':'progress'}">${shownCompleted?'Entregat · pendent de validar':p.completed?'Registrat · falta evidència verificable':'En curs'}</div><span class="portfolio-category">${escapeHtml(categoryLabel(c.category))}</span><h2>${escapeHtml(c.title)}</h2><p>+${c.points} punts · màxim ${c.maxNote}${owners.length?' · '+escapeHtml(owners.join(' + ')):''}</p>${r.versionHistory?.length?`<div class="version-count">${r.versionHistory.length} versió/versions alternatives preservades</div>`:''}</div>
+          <div><div class="portfolio-status ${shownCompleted?'done':'progress'}">${shownCompleted?'Entregat · pendent de validar':p.completed?'Registrat · falta evidència verificable':'En curs'}</div><span class="portfolio-category">${escapeHtml(categoryLabel(c.category))}</span><h2>${escapeHtml(assignment.title)}</h2><p>+${assignment.points} punts · màxim ${assignment.maxNote}${assignment.legacy?' · versió històrica preservada':''}${owners.length?' · '+escapeHtml(owners.join(' + ')):''}</p>${r.versionHistory?.length?`<div class="version-count">${r.versionHistory.length} versió/versions alternatives preservades</div>`:''}</div>
           <div class="portfolio-item-actions">${project?`<button class="btn secondary" data-port-open="${c.id}">Obrir</button><button class="btn ghost" data-port-download="${c.id}">Descarregar .robotia</button>`:''}</div>
         </div>
         <div class="portfolio-reflection-grid">
@@ -1928,7 +1970,7 @@
       if(project&&currentUserOwns(project))projects[c.id]=project;
       if(project||r||p?.started){
         const owners=projectOwners(project).length?projectOwners(project):(r?.owners?.length?r.owners:currentOwnerNames());
-        activities[c.id]={challengeMeta:challengeMetaFor(c.id),progressRecord:p||{},reflection:r||{},project:project||null,workId:project?.workId||r?.workId||('progress-'+profileSlug()+'-'+c.id),owners,className:project?.className||r?.className||state.identity.className||'',createdAt:project?.createdAt||r?.createdAt||'',updatedAt:project?.updatedAt||r?.updatedAt||'',exportedAt:new Date().toISOString()};
+        activities[c.id]={challengeMeta:activityChallengeMeta(c.id,project,r,p),progressRecord:p||{},reflection:r||{},project:project||null,workId:project?.workId||r?.workId||('progress-'+profileSlug()+'-'+c.id),owners,className:project?.className||r?.className||state.identity.className||'',createdAt:project?.createdAt||r?.createdAt||'',updatedAt:project?.updatedAt||r?.updatedAt||'',exportedAt:new Date().toISOString()};
       }
     });
     return {app:'ROBOTIA FlowLab Portfolio',version:4,appBuild:APP_BUILD,exportedAt:new Date().toISOString(),identity:state.identity,progress:state.progress,reflections:state.portfolio,projects,activities,summary:buildSummary(state.progress)};
@@ -2008,7 +2050,11 @@
         const c=challenges.find(x=>x.id===id); if(!c)return;
         const a=activityMap?.[id]||{};
         let project=a.project||bundle.projects?.[id]||null;
-        const incomingRef=a.reflection||bundle.reflections?.[id]||project?.reflection||null;
+        let incomingRef=a.reflection||bundle.reflections?.[id]||project?.reflection||null;
+        const assignment=a.assignmentMeta||a.challengeMeta||project?.challengeMeta||null;
+        if(assignment?.id===id){
+          incomingRef={...(incomingRef||{}),assignmentMeta:incomingRef?.assignmentMeta||assignment};
+        }
         const incomingProg=a.progressRecord||bundle.progress?.[id]||project?.progressRecord||null;
         if(project){project=migrateProject(project);project.reflection=incomingRef||project.reflection;project.progressRecord=incomingProg||project.progressRecord;if(importProjectData(project,{open:false,source:file.name}))merged++}
         else{
@@ -2029,7 +2075,7 @@
   function generatePortfolioDossier(){
     if(!requireIdentity())return; if(state.project)autosave(); const sc=scoreForCategory('flux'),mc=scoreForCategory('microbit'),ss=scoreForCategory('sensors'),rr=scoreForCategory('robot');
     const active=challenges.filter(c=>state.progress[c.id]?.started||storedProject(c.id)||state.portfolio[c.id]?.attachments?.length||state.portfolio[c.id]?.makeCodeUrl||state.portfolio[c.id]?.codeText||state.portfolio[c.id]?.makeCodeUrl2||state.portfolio[c.id]?.codeText2);
-    const sections=active.map(c=>{const p=challengeProgress(c.id),r=portfolioEntry(c.id),project=storedProject(c.id),svg=project?storedProjectSvg(project):'';const atts=(r.attachments||[]).map(a=>a.type?.startsWith('image/')?`<figure><img src="${a.data}" alt="${escapeHtml(a.name)}"><figcaption>${escapeHtml(a.name)}</figcaption></figure>`:`<a class="attachment" href="${a.data}" download="${escapeHtml(a.name)}">Adjunt: ${escapeHtml(a.name)}</a>`).join('');return `<section class="work"><div class="workhead"><div><span>${escapeHtml(categoryLabel(c.category))} · ${p.completed?'ENTREGAT · PENDENT DE VALIDAR':'EN CURS'}</span><h2>${escapeHtml(c.title)}</h2></div><b>+${c.points} · màx. ${c.maxNote}</b></div><p class="meta">${p.attempts||0} comprovacions · ${p.hints||0} pistes · ${Math.round((p.activeSeconds||0)/60)} min aprox.</p>${svg?`<div class="diagram">${svg}</div>`:''}${r.makeCodeUrl?`<p><b>MakeCode:</b> ${escapeHtml(r.makeCodeUrl)}</p>`:''}${r.codeText?`<pre style="white-space:pre-wrap;background:#111827;color:#d1fae5;padding:12px;border-radius:10px">${escapeHtml(r.codeText)}</pre>`:''}${r.makeCodeUrl2?`<p><b>MakeCode · programa 2:</b> ${escapeHtml(r.makeCodeUrl2)}</p>`:''}${r.codeText2?`<pre style="white-space:pre-wrap;background:#111827;color:#d1fae5;padding:12px;border-radius:10px"><b>Programa 2 · JavaScript</b>\n${escapeHtml(r.codeText2)}</pre>`:''}<div class="reflection"><h3>Anotacions</h3><p>${escapeHtml(r.notes||'—').replace(/\n/g,'<br>')}</p><h3>Dificultats</h3><p>${escapeHtml(r.difficulties||'—').replace(/\n/g,'<br>')}</p><h3>Què ha funcionat / què m'ha agradat</h3><p>${escapeHtml(r.successes||'—').replace(/\n/g,'<br>')}</p></div>${atts?`<div class="attachments">${atts}</div>`:''}</section>`}).join('');
+    const sections=active.map(c=>{const p=challengeProgress(c.id),r=portfolioEntry(c.id),project=storedProject(c.id),assignment=activityChallengeMeta(c.id,project,r,p)||c,svg=project?storedProjectSvg(project):'';const atts=(r.attachments||[]).map(a=>a.type?.startsWith('image/')?`<figure><img src="${a.data}" alt="${escapeHtml(a.name)}"><figcaption>${escapeHtml(a.name)}</figcaption></figure>`:`<a class="attachment" href="${a.data}" download="${escapeHtml(a.name)}">Adjunt: ${escapeHtml(a.name)}</a>`).join('');return `<section class="work"><div class="workhead"><div><span>${escapeHtml(categoryLabel(c.category))} · ${p.completed?'ENTREGAT · PENDENT DE VALIDAR':'EN CURS'}</span><h2>${escapeHtml(assignment.title)}</h2></div><b>+${assignment.points} · màx. ${assignment.maxNote}${assignment.legacy?' · versió històrica':''}</b></div><p class="meta">${p.attempts||0} comprovacions · ${p.hints||0} pistes · ${Math.round((p.activeSeconds||0)/60)} min aprox.</p>${svg?`<div class="diagram">${svg}</div>`:''}${r.makeCodeUrl?`<p><b>MakeCode:</b> ${escapeHtml(r.makeCodeUrl)}</p>`:''}${r.codeText?`<pre style="white-space:pre-wrap;background:#111827;color:#d1fae5;padding:12px;border-radius:10px">${escapeHtml(r.codeText)}</pre>`:''}${r.makeCodeUrl2?`<p><b>MakeCode · programa 2:</b> ${escapeHtml(r.makeCodeUrl2)}</p>`:''}${r.codeText2?`<pre style="white-space:pre-wrap;background:#111827;color:#d1fae5;padding:12px;border-radius:10px"><b>Programa 2 · JavaScript</b>\n${escapeHtml(r.codeText2)}</pre>`:''}<div class="reflection"><h3>Anotacions</h3><p>${escapeHtml(r.notes||'—').replace(/\n/g,'<br>')}</p><h3>Dificultats</h3><p>${escapeHtml(r.difficulties||'—').replace(/\n/g,'<br>')}</p><h3>Què ha funcionat / què m'ha agradat</h3><p>${escapeHtml(r.successes||'—').replace(/\n/g,'<br>')}</p></div>${atts?`<div class="attachments">${atts}</div>`:''}</section>`}).join('');
     const html=`<!doctype html><html lang="ca"><head><meta charset="utf-8"><title>${escapeHtml(portfolioFileBase())}</title><style>body{font-family:Arial,sans-serif;margin:0;background:#f5f6f8;color:#111827}.page{max-width:1000px;margin:auto;padding:36px}.head{background:#111827;color:white;border-radius:22px;padding:28px}.head h1{margin:6px 0}.stats{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}.stat{background:white;color:#111827;border-radius:12px;padding:10px 14px}.work{background:white;margin:22px 0;border:1px solid #dfe4eb;border-radius:18px;padding:22px;break-inside:avoid}.workhead{display:flex;justify-content:space-between;gap:15px}.workhead span{font-size:11px;font-weight:bold;color:#2563eb}.workhead h2{margin:4px 0}.meta{color:#667085}.diagram svg{width:100%;height:auto;border:1px solid #e5e7eb;border-radius:12px}.reflection{display:grid;grid-template-columns:180px 1fr;gap:8px 18px;margin-top:18px}.reflection h3,.reflection p{margin:0;padding:7px 0;border-bottom:1px solid #eef1f5}.attachments img{max-width:360px;max-height:260px}.attachment{display:block;margin:8px 0}.foot{text-align:center;color:#98a2b3;font-size:12px;margin:28px}@media print{body{background:#fff}.page{padding:0}.work{box-shadow:none}}</style></head><body><main class="page"><header class="head"><small>ROBOTIA FLOWLAB · PORTAFOLI</small><h1>${escapeHtml(state.identity.name)}</h1><p>${escapeHtml(state.identity.className||'')}</p><div class="stats"><div class="stat"><b>${sc.note}/10</b><br>flux prov.</div><div class="stat"><b>${mc.note}/10</b><br>micro:bit prov.</div><div class="stat"><b>${ss.note}/10</b><br>sensors prov.</div><div class="stat"><b>${rr.note}/10</b><br>robot prov.</div></div><p style="margin:16px 0 0;color:#fde68a;font-size:12px">* Resultat provisional pendent de validació docent dels algoritmes.</p></header>${sections||'<p>Encara no hi ha treballs.</p>'}<div class="foot">Creat amb ROBOTIA FlowLab · Jordi Lesan · ${new Date().toLocaleDateString('ca-ES')}</div></main></body></html>`;
     downloadBlob(html,portfolioFileBase()+'_Dossier.html','text/html;charset=utf-8');toast('Dossier generat');
   }
