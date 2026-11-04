@@ -422,6 +422,10 @@ const revisions={
     ]
   }
 };
+// Conservem els enllaços als diagrames històrics quan el concepte encara coincideix.
+for(const [id,flow] of Object.entries({s0:"f17",s1:"f18",s2:"f19",s4:"f21",s5:"f22"})){
+  if(revisions[id])revisions[id].linkedFlow=flow;
+}
 const additions=[
   {
     "id": "s20",
