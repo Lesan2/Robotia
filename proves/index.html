@@ -500,6 +500,7 @@
   <input id="projectImport" type="file" accept=".robotia,.json" hidden />
   <script src="recursos.js?actualitzacio=20261014-curs"></script>
 <script src="reptes-ajuda-v3.js?v=radio20261014a"></script>
+<script src="sensors-microshield-v4.js?v=kit-20261104-01"></script>
 <script>
 (() => {
   'use strict';
@@ -692,7 +693,20 @@
     {"id":"s18","category":"sensors","kind":"practical","level":5,"title":"Cotxe per gestos i ràdio","difficulty":5,"accent":"#0f766e","points":4,"maxNote":10,"brief":"Controla els motors DC del robot receptor inclinant una altra micro:bit. Inclina endavant/enrere i cap als costats, i programa una aturada segura.","tags":["Control remot","Motors DC","Acceleròmetre"],"deliverables":["Programa comandament","Programa receptor","Foto ports motors + alimentació","Vídeo amb moviment i aturada"]},
     {"id":"s19","category":"sensors","kind":"practical","level":5,"title":"Barrera d'ultrasons amb control remot","difficulty":5,"accent":"#0f766e","points":4,"maxNote":10,"brief":"El receptor mesura distància amb ultrasons i governa el servo; el comandament activa/desactiva el mode automàtic per ràdio.","tags":["Ultrasons","Servo","Ràdio","Automatització"],"deliverables":["Programes de les dues plaques","Foto del muntatge","Vídeo de mode automàtic i aturada remota"]}
   ];
-
+  // Ampliació del kit real: només afecta els reptes de Sensors, amb IDs històrics estables.
+  const sensorsModule=window.ROBOTIA_SENSORS_V4;
+  if(sensorsModule){
+    const currentIds=new Set(challenges.map(c=>c.id));
+    for(const c of challenges){
+      if(c.category==='sensors'&&sensorsModule.revisions[c.id]){
+        Object.assign(c,sensorsModule.revisions[c.id],{id:c.id,category:'sensors',kind:'practical'});
+      }
+    }
+    for(const c of sensorsModule.additions){
+      if(c.category!=='sensors'||currentIds.has(c.id))continue;
+      challenges.push(c);currentIds.add(c.id);
+    }
+  }
 
   const issueLabels = {
     no_start:'Falta inici',multi_start:'Més d’un inici',no_end:'Sense final explícit',unreachable:'Blocs desconnectats',
@@ -1029,7 +1043,10 @@
     const links=refs.filter(x=>x&&/^https:\/\/[^<>" ]+$/.test(x.url)).map(x=>'<a href="'+escapeHtml(x.url)+'" target="_blank" rel="noopener noreferrer">'+escapeHtml(x.label)+' ↗</a>').join(' ');
     return '<details class="v3-help" open><summary>📚 Guia d’aquest repte i material necessari</summary>'+
       (specific.materials?'<p><b>Materials:</b> '+escapeHtml(specific.materials)+'</p>':'')+
+      (challenge.category==='sensors'&&specific.materialStatus?'<p><b>Preparació:</b> '+escapeHtml(specific.materialStatus)+'</p>':'')+
       '<ol>'+steps+'</ol>'+(data.tip?'<p><b>Consell:</b> '+escapeHtml(data.tip)+'</p>':'')+
+      (challenge.category==='sensors'&&specific.assessment?'<p><b>Punts i correcció:</b> '+escapeHtml(specific.assessment)+'</p>':'')+
+      (challenge.category==='sensors'&&specific.safety?'<p class="v3-hardware-tip"><b>Atenció:</b> '+escapeHtml(specific.safety)+'</p>':'')+
       '<div class="v3-help-links">'+links+'</div>'+
       (challenge.category==='sensors'||challenge.category==='robot'?'<p class="v3-hardware-tip">'+escapeHtml(root.security||'')+'</p>':'')+
       '</details>';
@@ -1077,7 +1094,7 @@
     $('#practicalDiagram').textContent=linked?'◇ Fer / obrir diagrama vinculat':'◇ Afegir diagrama al projecte';
     $('#practicalMakeCodeUrl').value=r.makeCodeUrl||'';$('#practicalCode').value=r.codeText||'';
     $('#practicalMakeCodeUrl2').value=r.makeCodeUrl2||'';$('#practicalCode2').value=r.codeText2||'';
-    const needsTwoProgrammes=['m5','m12','m13','m14','s4','rb0'].includes(id);
+    const needsTwoProgrammes=['m5','m12','m13','m14','s4','s15','s16','s17','s18','s19','rb0'].includes(id);
     $('#practicalFirstProgramme').hidden=!needsTwoProgrammes;
     setSecondProgrammeVisible(needsTwoProgrammes||!!(r.makeCodeUrl2||r.codeText2));
     renderPracticalFiles(id);updatePracticalStatus(id);$('#modalPractical').showModal();
