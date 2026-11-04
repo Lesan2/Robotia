@@ -188,61 +188,38 @@ samples.addEventListener("click",async e=>{
 });
 markup(mic,'<p class="edu-help warning"><b>Per entregar:</b> a MakeCode prem «Compartir» i copia l’enllaç del projecte, no l’adreça genèrica <code>#editor</code>. Desa’l al repte de ROBOTIA i comprova que es sincronitza.</p>');
 // MICRO:SHIELD - three real basic challenges from the centre PDF.
-const sen=section(sensors,"Conjunt de sensors i actuadors 1 · Secundària bàsic (Micro:Shield)","Tutorials del material del centre basats en els reptes originals: detector PIR, control d'humitat i barrera automàtica. Comença pel primer nivell i avança quan domini les connexions.","edu-microshield");
-markup(sen,'<div class="edu-kit-chip"><span>🧩 micro:bit + Micro:Shield</span><span>🔌 G = GND · V = alimentació · S = senyal</span><span>🧑‍🏫 Comprova el connector abans d’endollar</span></div>'+
-'<div class="edu-help warning"><b>Abans de connectar:</b> apaga l’alimentació, identifica la filera GVS adequada, comprova el GND i la tensió admissible de cada mòdul. Els ports de servo i motor no són intercanviables amb els de sensors. Si un sensor d’ultrasons necessita 5 V, verifica la compatibilitat del senyal ECHO amb la micro:bit; no connectis directament una sortida de 5 V a un pin de 3,3 V sense adaptació.</div>');
-const kit=[
-{level:"Nivell I",name:"Detector de moviment (PIR + NeoPixel)",sub:"Guia bàsica · pàgines 1–4",parts:"Micro:Shield, micro:bit, sensor PIR, tira de 10 LED NeoPixel, cables.",pins:"Sensor PIR al pin P1; tira NeoPixel de 10 LED al pin P8 (connectors GVS compatibles).",ext:"tinker-kit i NeoPixel",steps:[
-"Connecta la micro:bit a la Micro:Shield apagada i identifica G, V i S.",
-"Connecta la tira NeoPixel de 10 LED al GVS P8 i el PIR al GVS P1, amb GND correcte.",
-"A MakeCode, «Extensions» → afegeix «tinker-kit» i «NeoPixel».",
-"En «en iniciar» configura la tira de 10 NeoPixel al pin P8.",
-"Dins «per sempre», afegeix «si / si no» de Lògica.",
-"A «si», col·loca «motion detector» del PIR configurat al pin P1.",
-"Si detecta moviment → NeoPixel «show color» vermell; si no → verd.",
-"Descarrega el programa, prova un moviment i després queda't quiet per comprovar el canvi."],
-algo:"EN INICIAR → NeoPixel: tira de 10 LED al P8\nPER SEMPRE → SI motion detector(P1)\n  SÍ: NeoPixel vermell\n  NO: NeoPixel verd",
-check:"Ha d'alternar entre vermell i verd quan el PIR detecta moviment o deixa de detectar-lo.",extra:"Repte extra: posa una pausa, afegeix una alerta sonora o compta moviments amb una variable."},
-{level:"Nivell II",name:"Control d'humitat (variable i llindars)",sub:"Guia bàsica · pàgines 5–10",parts:"Micro:Shield, micro:bit, sensor d'humitat, tira de 10 LED NeoPixel.",pins:"Sensor d'humitat al pin P2; tira NeoPixel al P8 (exemples del dossier).",ext:"tinker-kit i NeoPixel",steps:[
-"Connecta el sensor al pin P2 i NeoPixel (10 LED) al P8, amb GND i alimentació correctes.",
-"Afegeix les extensions «tinker-kit» i «NeoPixel».",
-"Crea la variable «Humitat» a Variables → Crear una variable.",
-"En «en iniciar»: «assigna Humitat a 0» i configura els NeoPixel del P8.",
-"En «per sempre»: «assigna Humitat a arrodoneix(value of moisture sensor P2)».",
-"Mostra el valor de la variable per saber què retorna el sensor; prova en sec i en humit.",
-"Afegeix «si / si no, si / si no» i compara Humitat amb els llindars 30 i 60.",
-"Tria tres colors NeoPixel (per exemple vermell baix, groc intermedi i verd alt).",
-"Afegeix «pausa 1000 ms» (1 segon) perquè les lectures no es repeteixin massa ràpid."],
-algo:"EN INICIAR → Humitat = 0; NeoPixel = 10 LED al P8\nPER SEMPRE → Humitat = arrodoneix(sensor P2)\nSI Humitat < 30 → vermell\nSI NO, SI Humitat <= 60 → groc\nSI NO → verd\nPAUSA 1000 ms",
-check:"En variar la lectura, els colors canvien segons els tres intervals. Els valors 30 i 60 són exemples del dossier: cal calibrar el sensor.",extra:"Repte extra: calcula i mostra el màxim de les lectures amb una segona variable."},
-{level:"Nivell III",name:"Barrera automàtica (ultrasons + servo)",sub:"Guia bàsica · pàgines 11–19",parts:"Micro:Shield, micro:bit, sensor d'ultrasons de 4 fils, servomotor i barrera lleugera.",pins:"Exemple de la guia: senyals TRIG i ECHO al P7 i P8, correctament assignats al bloc de lectura; servo al connector S2.",ext:"microshield (inclou els blocs Sonar segons el dossier)",steps:[
-"Apaga la Micro:Shield i localitza GND, VCC, TRIG, ECHO del sensor d'ultrasons.",
-"Connecta GND i l'alimentació segons el mòdul; TRIG i ECHO als pins de senyal triats, per exemple P7 i P8 com indica el dossier.",
-"Connecta el servomotor al connector S2, respectant GND, alimentació i senyal.",
-"Afegeix l'extensió «microshield» a MakeCode, que en el dossier incorpora «Sonar».",
-"En «en iniciar», posa el servo a la posició inicial de 0°.",
-"En «per sempre», mesura la distància amb Sonar (centímetres) i «mostra número».",
-"Afegeix «si distància < 10», amb el servo al pin S2 que es mou fins a 90°.",
-"Fes una pausa d'uns 1000 ms (1 segon) i retorna el servo a 0°.",
-"Comprova primer el moviment sense la barrera; ajusta els angles i després munta-la."],
-algo:"EN INICIAR → servo S2 = 0°\nPER SEMPRE → distància = Sonar(TRIG, ECHO, cm)\nMOSTRA distància\nSI distància < 10 → servo S2 = 90°\nPAUSA 1000 ms; servo S2 = 0°",
-check:"El servo obre la barrera quan detecta un obstacle a menys de 10 cm i torna a la posició inicial. Revisa si la repetició provoca moviment continu.",extra:"Repte extra: guarda Distància en una variable per no mesurar dues vegades cada volta, o limita la reactivació fins que l'objecte s'allunyi."}
-];
-kit.forEach((x,i)=>{
- const card=document.createElement("details");card.className="edu-kit-card";
- card.open=i===0;
- const title=document.createElement("summary");title.textContent=x.level+" · "+x.name;
- const subt=document.createElement("small");subt.textContent=x.sub;title.append(subt);card.append(title);
+const sen=section(sensors,"Microshield i sensors · Material real del centre","Guia actualitzada segons la fitxa visual del kit de Secundària (04/11/2026). Els reptes es troben a «Reptes → Sensors i actuadors», amb els mateixos punts i cotes que la resta de ROBOTIA.","edu-microshield");
+markup(sen,'<div class="edu-help warning"><b>Connexions:</b> comprova G/V/S amb el circuit apagat. P1 i S1 comparteixen pin, igual que P8 i S8. Els connectors blaus P12–P15/P19/P20 comparteixen el selector 3V3/5V, però seleccionar 5V NO adapta cap senyal de 5V a 3,3V. El sensor HC-SR04 requereix reductor de tensió a ECHO.</div>');
+markup(sen,'<div class="edu-checks">'+
+'<div><b>Col·lisió KS0021</b><p>Digital P1, 3,3 V. Llegeix <b>0 quan es prem</b> i 1 quan està lliure.</p></div>'+
+'<div><b>PIR KS0052</b><p>Digital P2, 3,3 V. Retorna 1 amb moviment. Espera l’estabilització.</p></div>'+
+'<div><b>Llum TEMT6000</b><p>Analògic P0, 3,3 V. Posa el selector P0/BUZZER a P0.</p></div>'+
+'<div><b>Humitat de terra</b><p>Analògic P0, només si el mòdul admet 3,3 V. Cal calibrar.</p></div>'+
+'<div><b>Pantalla OLED KS0271</b><p>I²C: SCL=P19, SDA=P20, VCC 3,3 V. Selector blau a 3V3.</p></div>'+
+'<div><b>4 LED RGB integrats</b><p>NeoPixel al P16 intern, sense cables ni tira externa.</p></div></div>');
+markup(sen,'<h3>Abans de fer els reptes avançats</h3><div class="edu-checks">'+
+'<div><b>Servo</b><p>S8 (= P8) amb alimentació nominal 4,8–6 V adequada, comprova-la.</p></div>'+
+'<div><b>Motors DC</b><p>M3/M4, necessiten adaptador JST i tornavís. Reserven P4–P7.</p></div>'+
+'<div><b>Ultrasons HC-SR04</b><p>5 V; TRIG P14, ECHO P15 amb adaptació 5→3,3 V.</p></div>'+
+'<div><b>Seguidors de línia</b><p>5 V TTL; un adaptador de nivell per cadascun dels tres sensors.</p></div>'+
+'<div><b>Tira de 30 LED</b><p>Cable corrector del kit i font de 5 V amb potència adequada.</p></div>'+
+'<div><b>LM35</b><p>Verifica alimentació i nivell del senyal abans de connectar-lo a P0.</p></div></div>');
+const sensorQuickIds=["s20","s25","s29","s1","s3","s35","s53","s54","s55"];
+const sensorsModule=window.ROBOTIA_SENSORS_V4||{};
+const sensorRecipes=markup(sen,'<h3>Començar per reptes senzills i avançar</h3><p>Aquesta selecció t’indica com connectar els components, programar els blocs i comprovar-los. A la secció «Reptes» hi trobaràs tota la bateria d’exercicis i el formulari d’entrega.</p><div id="edu-sensor-recipes"></div>').querySelector("#edu-sensor-recipes");
+for(const id of sensorQuickIds){
+ const item=sensorsModule.revisions?.[id]||sensorsModule.additions?.find(x=>x.id===id);
+ const guide=window.ROBOTIA_REPTE_GUIDES?.[id];if(!item||!guide)continue;
+ const details=document.createElement("details");details.className="edu-kit-card";details.open=id==="s20";
+ const title=document.createElement("summary");title.textContent=item.title;
+ const sub=document.createElement("small");sub.textContent="+"+item.points+" punts · cota "+item.maxNote+" · "+(guide.materialStatus||"");title.append(sub);details.append(title);
  const body=document.createElement("div");body.className="body";
- const p1=document.createElement("p");p1.innerHTML="<strong>Material:</strong> "+x.parts+"<br><strong>Connexions:</strong> "+x.pins+"<br><strong>Extensions MakeCode:</strong> "+x.ext;body.append(p1);
- const h=document.createElement("h3");h.textContent="Passos pas a pas";body.append(h);
- const ol=document.createElement("ol");x.steps.forEach(s=>{const li=document.createElement("li");li.textContent=s;ol.append(li)});body.append(ol);
- const h2=document.createElement("h3");h2.textContent="Algoritme per construir amb blocs";body.append(h2);
- const pre=document.createElement("pre");pre.className="edu-pseudocode";pre.textContent=x.algo;body.append(pre);
- const ver=document.createElement("p");ver.className="edu-help";ver.textContent="Comprova-ho: "+x.check;body.append(ver);
- const bonus=document.createElement("p");bonus.textContent=x.extra;body.append(bonus);
- const links=document.createElement("p");links.innerHTML=link(doc,"Programar a MakeCode")+" · "+link("https://projectes.xtec.cat/digital/equipaments-i-infraestructures/robotica/formacio-tecnica-robotica/components-i-accessoris/microshield/","Micro:Shield · documentació XTEC");body.append(links);
- card.append(body);sen.append(card);
-});
-markup(sen,'<article class="edu-example"><h3>Com reconèixer els blocs que necessites</h3><div class="edu-checks"><div><b>Entrada</b><p>«motion detector», «moisture sensor» i «Sonar» llegeixen informació externa.</p></div><div><b>Variables i lògica</b><p>Guarda Humitat i Distància; compara el valor amb 30, 60 o 10.</p></div><div><b>Sortides i actuadors</b><p>«show color» posa colors als NeoPixel i «Servo» mou la barrera.</p></div></div><p class="edu-help"><b>Què entregar a ROBOTIA:</b> enllaç del projecte MakeCode compartit, fotografia del muntatge i una frase explicant quan s’activa cada sortida. Si es treballa en parella, identifica els participants i segueix el sistema d’invitacions.</p></article>');
+ const m=document.createElement("p");m.textContent="Materials: "+guide.materials;body.append(m);
+ const ol=document.createElement("ol");guide.steps.forEach(s=>{const li=document.createElement("li");li.textContent=s;ol.append(li)});body.append(ol);
+ const safety=document.createElement("p");safety.className="edu-help warning";safety.textContent="Atenció: "+guide.safety;body.append(safety);
+ const footer=document.createElement("p");footer.textContent="Per fer i entregar aquest repte, obre «Reptes → Sensors i actuadors» i selecciona "+id+".";body.append(footer);
+ details.append(body);sensorRecipes.append(details);
+}
+markup(sen,'<div class="edu-help"><b>Nota de Sensors i actuadors:</b> la nota potencial és el mínim entre els punts sumats i la cota màxima del repte més alt entregat. El docent pot concedir punts parcials en funció del funcionament. També tens tres opcions lliures: sensor propi (+2), actuador propi (+2) i projecte integrat de domini (+8, cota 10).</div>');
+markup(sen,'<p>'+link("https://makecode.microbit.org/","MakeCode")+' · '+link("https://projectes.xtec.cat/digital/wp-content/uploads/usu2317/2024/02/Manual-d_us-micro_shield.pdf","Manual de Microshield")+' · '+link("https://makecode.microbit.org/pkg/MakeAndLearn/pxt-microshield","Extensió micro:shield")+'</p>');
 })();
