@@ -739,7 +739,7 @@
       const oldDescription=snapshots.some(m=>m.title===previous.title&&m.title!==current.title);
       // Si és una entrega antiga sense marques de temps ni metadades, millor
       // respectar els punts originals i demanar revisió que inflar la cota.
-      const uncertainHistoric=!dates.length&&!!pg?.completed&&!snapshots.length;
+      const uncertainHistoric=(!dates.length&&!!pg?.completed&&!snapshots.length)||snapshots.some(m=>m.needsReview===true);
       if(beforeChange||oldDescription||uncertainHistoric){
         return {...previous,legacy:true,needsReview:uncertainHistoric};
       }
