@@ -3,19 +3,167 @@
   const $=s=>document.querySelector(s), page=$("#learn-sensors"), robot=$("#learn-robot");
   if(!page||!robot)return;
   const catalog=[
-    ["microshield","🧩","Micro:Shield","Placa d'extensió","Diferents tipus de connectors","Insereix la micro:bit a la ranura. Localitza els GVS de 3,3 V, els de servos, els GVS amb selector 3,3/5 V i els ports de motors DC. No són intercanviables.","Comprova la bateria, l'interruptor general, el voltatge i els pins abans d'encendre.","Placa"],
-    ["pir","👁️","Sensor PIR","Moviment","P1 (exemple bàsic)","Connecta el PIR a un GVS P1: G→GND, V→alimentació admesa pel sensor i S→pin P1. Extension tinker-kit, bloc motion detector.","Prova moviment i absència de moviment, després d'esperar l'estabilització del PIR.","GVS"],
-    ["neopixel","🌈","NeoPixel","LEDs RGB","P8 (exemple bàsic)","Tira de 10 LED al GVS P8, verificant GND i la tensió. Extensions → NeoPixel. Inicialitza tira de 10 LEDs al pin P8.","Prova primer tota la tira amb un sol color.","GVS"],
-    ["humitat","💧","Sensor d'humitat","Humitat","P2 (exemple bàsic)","Connecta el sensor al GVS P2 segons el mòdul. Afegeix tinker-kit; crea variable Humitat, llegeix el valor, arrodoneix i mostra.","Mesura dues condicions d'humitat i ajusta el llindar.","GVS"],
-    ["ultrasons","📡","Ultrasons","Distància","Segons model","Identifica els connectors del sensor. Un HC-SR04 pot tenir TRIG i ECHO separats; altres models són de connector únic. Consulta el model i la compatibilitat de tensions.","Prova primer amb un objecte a 5 cm i després a 20 cm.","Mòdul"],
-    ["servo","↪️","Servomotor","Posició angular","S2 (guia barrera)","Port de servomotor de la Micro:Shield: comprova GND, alimentació i senyal. A la guia de barrera es fa servir S2. Programa posicions 30° i 90°.","Prova sense càrrega i ajusta l'angle per no forçar les peces.","SERVO"],
-    ["led","💡","LED extern","Llum","P0 / P1 exemple","Un mòdul LED GVS es connecta a un pin digital compatible. Si és un LED nu, respecta polaritat i afegeix resistència adequada. Escriu 1/0 per encendre/apagar.","Prova l'encesa amb el botó A i l'aturada amb B.","GVS"],
-    ["so","🎙️","Nivell de so","Sensor integrat","micro:bit V2","Si tens micro:bit V2, el micròfon integrat no necessita cable. El bloc «nivell de so» retorna 0–255. 80 és un llindar de prova, NO són decibels.","Compara ambient tranquil, parla i aplaudiment.","INTERN"],
-    ["buzzer","🔊","Brunzidor","So","Micro:Shield","Comprova l'interruptor PIN0–buzzer i la placa. Evita connectar simultàniament altres mòduls que utilitzin el mateix pin.","Fes una alarma curta i una ordre d'aturada.","INTEGRAT"],
-    ["motor","⚙️","Motor DC","Gir","Ports motors DC","Connecta el motor a un port de motor DC de la Micro:Shield, amb controlador i bateria; MAI a un pin GVS de senyal. Comprova polaritat i motor abans de muntar.","Prova endavant, enrere i aturada amb rodes a l'aire.","MOTOR"],
-    ["radio","📻","Ràdio","Comunicació","Dues micro:bit","No cal cable. Assigna el mateix grup de ràdio a emissor i receptor; envia text o números i programa el bloc «en rebre».","Abans d'activar motors, mostra a la matriu LED les ordres rebudes.","SENSE CABLE"],
-    ["rele","🚰","Relé i bomba","Commutació","P2 exemple avançat","El mòdul relé rep un senyal de control des de P2; la bomba s'alimenta pel seu circuit de baixa tensió passant pels contactes del relé. Mai des d'un pin de micro:bit.","Prova el relé sense aigua primer; separa el circuit de les gotes.","RELÉ"]
-  ];
+  [
+    "microshield",
+    "🧩",
+    "Micro:Shield",
+    "Placa de connexions",
+    "GVS 3,3 V, blaus 3,3/5 V, S0–S8, motors",
+    "Identifica els GVS de 3,3 V (P0,P1,P2,P3,P4,P6,P7,P8), els ports S i els blaus P12–P15/P19/P20. Els ports M3/M4 reserven P4–P7; P1 comparteix senyal amb S1.",
+    "Comprova alimentació, selector 3V3/5V, P0/BUZZER i G/V/S abans d'endollar.",
+    "Placa"
+  ],
+  [
+    "collision",
+    "🛑",
+    "Sensor de col·lisió KS0021",
+    "Digital 0/1",
+    "P1 (GVS, 3,3 V)",
+    "G al GND de P1, V al 3,3 V i S al P1. Val 0 quan es prem i 1 quan està lliure. No posis un servo al port S1 alhora.",
+    "Prem i allibera el sensor i mostra valors 0/1.",
+    "GVS"
+  ],
+  [
+    "pir",
+    "👁️",
+    "PIR KS0052",
+    "Moviment digital",
+    "P2 (GVS, 3,3 V)",
+    "Connecta G/V/S a P2 amb 3,3 V. Digital: 1 = moviment. Espera 5–10 segons d'estabilització i recorda que la detecció pot persistir.",
+    "Comprova la lectura abans i després de moure't.",
+    "GVS"
+  ],
+  [
+    "llum",
+    "☀️",
+    "TEMT6000",
+    "Llum analògica",
+    "P0 (GVS, 3,3 V)",
+    "G/V/S al pin P0 analògic. Posa selector P0/BUZZER a P0; MakeCode llegeix analog P0 entre 0 i 1023. No és un valor en volts.",
+    "Compara llum i foscor amb lectures reals.",
+    "GVS"
+  ],
+  [
+    "humitat",
+    "💧",
+    "Sonda d'humitat del terra",
+    "Analògica",
+    "P0 (GVS, 3,3 V, segons versió)",
+    "Comprova que la sonda admet 3,3 V; connecta-la a P0 i posa P0/BUZZER a P0. Valors 0–1023 a calibrar en sec i humit, sense mullar l'electrònica.",
+    "Anota dues lectures i explica quin llindar has triat.",
+    "GVS"
+  ],
+  [
+    "oled",
+    "📟",
+    "OLED KS0271",
+    "I²C, 128×64",
+    "SCL P19 i SDA P20; 3,3 V",
+    "Connecta quatre fils individuals: GND, VCC 3,3 V, SCL P19 i SDA P20. Selector dels pins blaus a 3V3. A MakeCode extensió SSD1306 OLED, inicialitza només a l'inici.",
+    "Mostra HOLA i després dades d'un sensor sense parpelleig.",
+    "GVS"
+  ],
+  [
+    "neopixel",
+    "🌈",
+    "NeoPixel integrats",
+    "4 LED RGB interns",
+    "P16 sense cables",
+    "Inicialitza 4 NeoPixel al pin intern P16, tipus GRB, i executa «mostrar» després de canviar colors. No necessita tira externa ni cable.",
+    "Mostra vermell, verd i blau i apaga els quatre LED.",
+    "INTERN"
+  ],
+  [
+    "servo",
+    "↪️",
+    "Servomotor KS0194",
+    "Angle fins a 180°",
+    "S8 (= P8); potència adequada",
+    "GND/G, V d'alimentació adequada i senyal S8. El servo és nominal 4,8–6 V i pot tremolar amb la bateria de 3,7 V. No utilitzis S1 amb un sensor al P1.",
+    "Prova 30° i 90° sense càrrega mecànica.",
+    "SERVO"
+  ],
+  [
+    "motor",
+    "⚙️",
+    "Motor groc amb roda",
+    "DC amb driver",
+    "M3+/M3− (o M4)",
+    "L'extrem blanc JST no encaixa als borns blaus. Necessites adaptador JST a fils i tornavís. M3/M4 ocupen pins P4–P7. Prova amb bateria i Microshield ON.",
+    "Fes girar, atura i inverteix el sentit amb la roda aixecada.",
+    "MOTOR"
+  ],
+  [
+    "buzzer",
+    "🔊",
+    "Brunzidor de Microshield",
+    "So integrat",
+    "P0/BUZZER a BUZZER",
+    "Posa el selector en BUZZER per utilitzar el brunzidor intern a P0. No connectis simultàniament el TEMT6000 ni altres sensors a P0.",
+    "Fes un to curt i una instrucció d'aturada.",
+    "INTERN"
+  ],
+  [
+    "ultrasons",
+    "📡",
+    "HC-SR04",
+    "Distància digital temporal",
+    "TRIG P14; ECHO P15 amb reductor",
+    "Alimenta el HC-SR04 amb 5 V i GND comú. TRIG cap a P14. ECHO cap a P15 NOMÉS amb adaptador 5→3,3 V; no connectis mai directament ECHO. Selector blau a 5V implica no connectar OLED de 3,3 V allà.",
+    "Compara lectures a 5 i 20 cm després de preparar el circuit.",
+    "Mòdul"
+  ],
+  [
+    "linia",
+    "🛤️",
+    "Tres seguidors KS0050",
+    "Digital TTL 5 V",
+    "P12/P13/P14 amb adaptadors 5→3,3 V",
+    "Els sensors de línia són de 5 V. Cada senyal S necessita un adaptador 5→3,3 V; el selector blau en 5V NO transforma el senyal. Evita OLED 3,3 V al mateix banc blau.",
+    "Compara blanc i negre només quan hi hagi els tres adaptadors.",
+    "GVS"
+  ],
+  [
+    "lm35",
+    "🌡️",
+    "LM35",
+    "Temperatura analògica",
+    "P0, connexió condicionada",
+    "Verifica abans l'alimentació nominal del mòdul (habitualment 5 V) i mesura que la sortida cap a P0 no superi 3,3 V. Conversió pròpia: 10 mV/°C.",
+    "El docent valida tensió abans de connectar a micro:bit.",
+    "GVS"
+  ],
+  [
+    "tira",
+    "✨",
+    "Tira externa de 30 LED",
+    "WS2812B, 5 V",
+    "Cable corrector + font 5 V",
+    "Per a 30 NeoPixel cal el cable corrector GVS del kit i una font de 5 V suficient; DIN necessita senyal compatible. No la connectis com si fos una tira de 10 LEDs a GVS 3,3 V.",
+    "Prova amb brillantor baixa quan el material estigui preparat.",
+    "GVS"
+  ],
+  [
+    "so",
+    "🎙️",
+    "Micròfon de micro:bit V2",
+    "Nivell de so incorporat",
+    "micro:bit V2",
+    "Només en micro:bit V2; retorna un valor 0–255, que no són decibels, i no necessita cable.",
+    "Compara silenci, parla i aplaudiment.",
+    "INTERN"
+  ],
+  [
+    "radio",
+    "📻",
+    "Ràdio micro:bit",
+    "Emissor i receptor",
+    "2 micro:bit",
+    "Fixa el mateix grup ràdio a totes dues plaques. Crea i entrega els dos programes. El receptor ha de gestionar les ordres i reaccionar.",
+    "Prova les dues micro:bit amb els programes separats.",
+    "SENSE CABLE"
+  ]
+];
   function illustration(item){
  const type=item[8];
  if(type==="INTERN"||type==="SENSE CABLE")return '<div class="v3-wire-free">📶 No requereix cables externs. Comprova els programes i el mateix grup de ràdio.</div>';
