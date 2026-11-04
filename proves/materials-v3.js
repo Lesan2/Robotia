@@ -61,7 +61,7 @@
     "SCL P19 i SDA P20; 3,3 V",
     "Connecta quatre fils individuals: GND, VCC 3,3 V, SCL P19 i SDA P20. Selector dels pins blaus a 3V3. A MakeCode extensió SSD1306 OLED, inicialitza només a l'inici.",
     "Mostra HOLA i després dades d'un sensor sense parpelleig.",
-    "GVS"
+    "OLED"
   ],
   [
     "neopixel",
@@ -166,11 +166,12 @@
 ];
   function illustration(item){
  const type=item[8];
- if(type==="INTERN"||type==="SENSE CABLE")return '<div class="v3-wire-free">📶 No requereix cables externs. Comprova els programes i el mateix grup de ràdio.</div>';
+ if(type==="INTERN")return '<div class="v3-wire-free">🧩 Component incorporat a la placa: no requereix cables externs. Comprova els interruptors i els pins compartits.</div>';
+ if(type==="SENSE CABLE")return '<div class="v3-wire-free">📶 La ràdio no requereix cables. Les dues micro:bit han de fer servir el mateix grup i dos programes compatibles.</div>';
  if(type==="Placa")return '<div class="v3-wire-free"><b>Micro:Shield:</b> connectors GVS de sensors, connectors específics de servo, ports de motor DC i font d’alimentació. Tria el port segons el dispositiu.</div>';
- const wires=type==="MOTOR"?["MOTOR +","MOTOR −"]:type==="RELÉ"?["GND","Vcc del mòdul","S = control P2"]:type==="Mòdul"?["GND","Vcc","TRIG","ECHO"]:["GND = G","V = tensió compatible","S = senyal"];
- const label=type==="MOTOR"?"PORT MOTOR DC":type==="SERVO"?"CONNECTOR SERVO":type==="RELÉ"?"ENTRADA DEL RELÉ":type==="Mòdul"?"SENSOR SEGONS MODEL":"GVS";
- const note=type==="MOTOR"?"El controlador i la bateria alimenten el motor; no utilitzis pins GVS.":type==="RELÉ"?"L'alimentació de la bomba passa pels contactes del relé, en un circuit separat; mai pels pins de micro:bit.":type==="Mòdul"?"Verifica si el mòdul porta TRIG i ECHO separats i comprova la tensió dels senyals.":"Comprova la tensió del component i orienta G, V i S correctament.";
+ const wires=type==="OLED"?["GND","VCC 3,3 V","SCL P19","SDA P20"]:type==="MOTOR"?["MOTOR +","MOTOR −"]:type==="RELÉ"?["GND","Vcc del mòdul","S = control P2"]:type==="Mòdul"?["GND","5 V","TRIG","ECHO 5→3,3 V"]:["GND = G","V = tensió compatible","S = senyal"];
+ const label=type==="OLED"?"BUS I²C, 4 FILS":type==="MOTOR"?"PORT MOTOR DC":type==="SERVO"?"CONNECTOR SERVO":type==="RELÉ"?"ENTRADA DEL RELÉ":type==="Mòdul"?"SENSOR HC-SR04":"GVS";
+ const note=type==="OLED"?"La pantalla OLED necessita 4 fils independents i selector blau 3V3.":type==="MOTOR"?"El controlador i la bateria alimenten el motor; no utilitzis pins GVS.":type==="RELÉ"?"L'alimentació de la bomba passa pels contactes del relé, en un circuit separat; mai pels pins de micro:bit.":type==="Mòdul"?"Verifica si el mòdul porta TRIG i ECHO separats i comprova la tensió dels senyals.":"Comprova la tensió del component i orienta G, V i S correctament.";
  return `<div class="v3-connect-diagram"><div class="v3-cd-row"><div><b>Micro:Shield</b><span>${label}</span></div><div class="v3-cd-lines">${wires.map((w,i)=>`<div><i class="line-${i}"></i><small>${w}</small></div>`).join("")}</div><div><b>${item[2]}</b><span>${item[4]}</span></div></div><small>${note} Esquema orientatiu: revisa el connector real del kit abans d'endollar.</small></div>`;
 }
 const box=document.createElement("section");box.className="v3-component-section";
