@@ -27,22 +27,28 @@ function addComment(container,label,note){
  block.append(head,p);container.append(block);
 }
 function updateMainGradeCards(){
- const app=window.ROBOTIA_CLOUD_APP;
  for(const key of ["flux","microbit","sensors","robot"]){
-   const strong=document.getElementById("v3-"+key);
-   if(!strong)continue;
-   const progress=typeof app?.scoreForCategory==="function"?app.scoreForCategory(key):null;
-   const current=!!verifiedEmail&&published?.email===verifiedEmail;
-   const teacher=current?published?.grades?.[key]:null;
+   const grade=document.getElementById("v3-"+key);
+   if(!grade)continue;
+   const isOwner=!!verifiedEmail&&published?.email===verifiedEmail;
+   const teacher=isOwner?published?.grades?.[key]:null;
    const valid=typeof teacher==="number"&&Number.isFinite(teacher)&&teacher>=0&&teacher<=10;
-   strong.textContent=valid?teacher.toLocaleString("ca-ES")+"/10":progress?.completed?progress.note+"/10":"—";
-   const label=strong.nextElementSibling;
-   if(label?.tagName==="SMALL")label.textContent=valid?"Nota docent · provisional":"Potencial segons reptes";
-   const count=document.getElementById("v3-"+key+"-count");
-   if(count&&valid&&progress){
-     count.textContent="Potencial automàtic: "+(progress.completed?progress.note+"/10":"pendent")+" · "+progress.completed+" repte(s) verificables";
-   }
+   grade.textContent=valid?teacher.toLocaleString("ca-ES")+"/10":"—";
+   const state=document.getElementById("v3-"+key+"-status");
+   if(state)state.textContent=valid?"Nota docent publicada":!verifiedEmail?"Inicia sessió per consultar-la":published?.unavailable?"No s'han pogut consultar les notes":"Encara no hi ha nota docent publicada";
  }
+ updateChallengeGradePanel();
+}
+function updateChallengeGradePanel(){
+ const grade=document.getElementById("robotia-category-teacher-grade");
+ const state=document.getElementById("robotia-category-teacher-status");
+ if(!grade||!state)return;
+ const category=window.ROBOTIA_CLOUD_APP?.state?.challengeCategory||"flux";
+ const isOwner=!!verifiedEmail&&published?.email===verifiedEmail;
+ const teacher=isOwner?published?.grades?.[category]:null;
+ const valid=typeof teacher==="number"&&Number.isFinite(teacher)&&teacher>=0&&teacher<=10;
+ grade.textContent=valid?teacher.toLocaleString("ca-ES")+"/10":"—";
+ state.textContent=valid?"Nota docent publicada i revisada.":!verifiedEmail?"Inicia sessió amb el compte de l'institut per consultar la nota docent.":published?.unavailable?"No s'han pogut consultar les notes. Torna a actualitzar-les.":"Encara no hi ha nota docent publicada per a aquesta categoria.";
 }
 function refreshNotes(){
  card.replaceChildren();
@@ -55,7 +61,7 @@ function refreshNotes(){
  card.append(refresh);
  if(published?.unavailable){
    const p=document.createElement("p");p.textContent="Ara mateix no s'han pogut consultar les valoracions. El teu portafoli continua disponible.";card.append(p);
-   refreshPerChallenge();return;
+   updateMainGradeCards();refreshPerChallenge();return;
  }
  if(!published){
  const p=document.createElement("p");p.textContent="Encara no tens valoracions publicades. Les entregues estan pendents de revisió docent.";card.append(p);
@@ -105,12 +111,13 @@ function refreshPerChallenge(){
 }
 window.addEventListener("robotia:teacherSession",event=>{
  const address=event.detail?.email||"";
- if(verifiedEmail!==address){
+ const changed=verifiedEmail!==address;
+ verifiedEmail=address;
+ if(changed){
    published=null;
    document.querySelectorAll("[data-teacher-grade]").forEach(el=>{el.textContent="Pendent"});
    refreshNotes();
  }
- verifiedEmail=address;
  let teacherButton=$("#v3TeacherLink");
  if(!teacherButton){
  teacherButton=document.createElement("a");teacherButton.id="v3TeacherLink";teacherButton.className="btn secondary";
@@ -127,6 +134,8 @@ window.addEventListener("robotia:publishedFeedback",event=>{
  published=obj;
  refreshNotes();
 });
+window.addEventListener("robotia:scorePanelRendered",updateChallengeGradePanel);
+window.addEventListener("robotia:gradePanelsRendered",updateMainGradeCards);
 const modal=$("#modalPractical");
 if(modal)new MutationObserver(refreshPerChallenge).observe(modal,{attributes:true,attributeFilter:["open"]});
 const lab=$("#viewLab");
