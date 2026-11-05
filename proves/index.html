@@ -103,6 +103,35 @@
 
 .bridge-chip.strong{background:#e0f2fe;color:#075985;border-color:#7dd3fc}.challenge-link-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:-2px}.bridge-open-btn{border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;border-radius:9px;padding:7px 9px;font-size:11px;font-weight:900;cursor:pointer}.bridge-open-btn:hover{background:#dbeafe}.workflow-card{padding:20px 22px;margin:0 0 16px}.workflow-card h2{margin:0 0 10px}.workflow-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.workflow-step{background:#f8fafc;border:1px solid #e3e8ef;border-radius:13px;padding:13px}.workflow-step b{display:block;margin-bottom:5px}.workflow-step p{margin:0;color:#667085;font-size:12px;line-height:1.45}.compat-note{margin-top:10px;font-size:11px;color:#166534;background:#ecfdf3;border:1px solid #bbf7d0;border-radius:10px;padding:9px 10px}.version-count{font-size:10px;color:#667085;margin-top:5px}.linked-status{display:inline-flex;margin-left:5px;border-radius:999px;padding:3px 7px;font-size:10px;font-weight:900;background:#f2f4f7;color:#475467}.linked-status.done{background:#dcfce7;color:#166534}@media(max-width:800px){.workflow-grid{grid-template-columns:1fr}}
 
+
+/* Notes docents i potencial automàtic en dos espais separats */
+.v3-reviewed-section{margin:18px 0 28px}
+.v3-reviewed-section>h2,.v3-potential-section>h2{font-size:23px;letter-spacing:-.02em;margin:0 0 7px}
+.v3-reviewed-section>p,.v3-potential-section>p{font-size:13px;color:#667085;margin:0 0 15px;line-height:1.5}
+.v3-grade-cards article{border:1px solid #bed7f4;background:#f8fbff}
+.v3-grade-cards article strong{font-size:39px;color:#174ea6}
+.v3-grade-cards article small{font-size:12px;color:#52657d}
+.v3-potential-section{background:#f8fafc;border:1px solid #e1e7ef;border-radius:16px;padding:19px;margin:0 0 22px}
+.v3-potential-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}
+.v3-potential-item{background:#fff;border:1px solid #e4e8ef;border-radius:12px;padding:13px;display:flex;flex-direction:column;gap:6px}
+.v3-potential-item>b{font-size:13px;color:#475467}
+.v3-potential-item>strong{font-size:22px;color:#586a7c}
+.v3-potential-item>small{font-size:11px;color:#667085;line-height:1.5}
+.robotia-score-separate{grid-template-columns:minmax(250px,.85fr) minmax(0,1.3fr);align-items:stretch}
+.robotia-teacher-main{border:1px solid #bfdbfe;border-radius:16px;background:#fff;padding:22px;display:flex;flex-direction:column;align-items:flex-start}
+.robotia-teacher-main h2{font-size:19px;margin:10px 0}
+.robotia-teacher-main strong{display:block;font-size:clamp(42px,5vw,62px);line-height:1.15;color:#174ea6;margin:14px 0}
+.robotia-teacher-main p{font-size:13px;color:#52657d;line-height:1.5}
+.robotia-automatic-potential{border:1px solid #e3e8ee;border-radius:16px;background:#f8fafc;padding:18px}
+.robotia-automatic-potential h3{font-size:17px;margin:0 0 6px;color:#465366}
+.robotia-automatic-potential h3 small{font-size:12px;font-weight:500}
+.robotia-automatic-potential>p{font-size:12px;color:#667085;line-height:1.5}
+.robotia-automatic-potential .score-kpis{gap:8px}
+.robotia-automatic-potential .score-kpi{padding:10px;border-color:#e3e8ef;box-shadow:none}
+.robotia-automatic-potential .score-kpi b{font-size:21px}
+@media(max-width:1100px){.v3-potential-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:800px){.robotia-score-separate{grid-template-columns:1fr}}
+@media(max-width:560px){.v3-potential-grid{grid-template-columns:1fr}}
 </style>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23111827'/%3E%3Cpath d='M14 22h18l8 10-8 10H14l8-10z' fill='%236ee7b7'/%3E%3Ccircle cx='48' cy='32' r='7' fill='%2360a5fa'/%3E%3C/svg%3E" />
 <style id="v3-style">
@@ -270,12 +299,27 @@
     <section id="viewV3Grades" class="view">
       <div class="section-head"><div><span class="eyebrow">AVALUACIÓ DE ROBÒTICA</span><h1>Les meves notes</h1>
       <p>Cap repte individual és obligatori. Els punts del joc no són una nota real del professor.</p></div></div>
-      <div class="v3-grade-cards">
-        <article class="card"><b>1 · Diagrames de flux</b><strong id="v3-flux">—</strong><small>Potencial segons reptes</small><p>Nota docent: <b data-teacher-grade="flux">Pendent</b></p><small id="v3-flux-count"></small></article>
-        <article class="card"><b>2 · Programació micro:bit</b><strong id="v3-microbit">—</strong><small>Potencial segons reptes</small><p>Nota docent: <b data-teacher-grade="microbit">Pendent</b></p><small id="v3-microbit-count"></small></article>
-        <article class="card"><b>3 · Sensors i actuadors</b><strong id="v3-sensors">—</strong><small>Potencial segons reptes</small><p>Nota docent: <b data-teacher-grade="sensors">Pendent</b></p><small id="v3-sensors-count"></small></article>
-        <article class="card"><b>4 · Projecte final del robot</b><strong id="v3-robot">—</strong><small>Potencial segons reptes</small><p>Nota docent: <b data-teacher-grade="robot">Pendent</b></p><small id="v3-robot-count"></small></article>
-      </div>
+
+      <section class="v3-reviewed-section" aria-labelledby="v3-reviewed-heading">
+        <h2 id="v3-reviewed-heading">Notes revisades pel professor</h2>
+        <p>Qualificacions docents publicades. No són els punts del joc.</p>
+        <div class="v3-grade-cards">
+          <article class="card"><b>1 · Diagrames de flux</b><strong id="v3-flux">—</strong><small id="v3-flux-status">Inicia sessió per consultar-la</small></article>
+          <article class="card"><b>2 · Programació micro:bit</b><strong id="v3-microbit">—</strong><small id="v3-microbit-status">Inicia sessió per consultar-la</small></article>
+          <article class="card"><b>3 · Sensors i actuadors</b><strong id="v3-sensors">—</strong><small id="v3-sensors-status">Inicia sessió per consultar-la</small></article>
+          <article class="card"><b>4 · Projecte final del robot</b><strong id="v3-robot">—</strong><small id="v3-robot-status">Inicia sessió per consultar-la</small></article>
+        </div>
+      </section>
+      <section class="v3-potential-section" aria-labelledby="v3-potential-heading">
+        <h2 id="v3-potential-heading">Potencial automàtic (no és una nota)</h2>
+        <p>Estimació calculada a partir dels reptes. És independent de la correcció docent.</p>
+        <div class="v3-potential-grid">
+          <div class="v3-potential-item"><b>Diagrames de flux</b><strong id="v3-flux-potential">—</strong><small id="v3-flux-count"></small></div>
+          <div class="v3-potential-item"><b>Programació micro:bit</b><strong id="v3-microbit-potential">—</strong><small id="v3-microbit-count"></small></div>
+          <div class="v3-potential-item"><b>Sensors i actuadors</b><strong id="v3-sensors-potential">—</strong><small id="v3-sensors-count"></small></div>
+          <div class="v3-potential-item"><b>Projecte final del robot</b><strong id="v3-robot-potential">—</strong><small id="v3-robot-count"></small></div>
+        </div>
+      </section>
       <div class="card v3-note">
         <h2>Les quatre notes de ROBOTIA</h2>
         <p>Flux, micro:bit, sensors i actuadors, i robot final. Les tres primeres entren en la nota de pràctiques; el robot té el seu 30% separat. Les categories encara no treballades queden pendents, no amb un zero.</p>
@@ -990,16 +1034,18 @@
   }
 
   function renderV3Grades(){
+    // Actualitzar només el potencial, mai les qualificacions docents.
     for(const id of ['flux','microbit','sensors','robot']){
       const result=scoreForCategory(id);
-      const score=document.getElementById('v3-'+id);
+      const potential=document.getElementById('v3-'+id+'-potential');
       const count=document.getElementById('v3-'+id+'-count');
-      if(score)score.textContent=result.completed?(result.note+'/10'):'—';
+      if(potential)potential.textContent=result.completed?(result.note+'/10'):'—';
       if(count){
-        const validated=result.completed?result.completed+' reptes amb evidència · pendent de correcció docent':'Sense reptes verificables';
-        count.textContent=validated+(result.pendingEvidence?' · '+result.pendingEvidence+' per recuperar evidències':'')+(result.legacyCount?' · '+result.legacyCount+' entrega/es històrica/ques preservada/es':'');
+        const summary=result.completed?result.completed+' repte(s) amb evidència':'Sense reptes verificables';
+        count.textContent=summary+(result.pendingEvidence?' · '+result.pendingEvidence+' per recuperar evidències':'')+(result.legacyCount?' · '+result.legacyCount+' entrega/es històrica/ques preservada/es':'');
       }
     }
+    window.dispatchEvent(new Event('robotia:gradePanelsRendered'));
   }
   function scoreForCategory(category='flux', progress=state.progress){
     const pool=challenges.filter(c=>c.category===category);
@@ -1022,7 +1068,25 @@
     const box=$('#scorePanel'); if(!box) return;
     const cat=state.challengeCategory||'flux', sc=scoreForCategory(cat), meta=categoryMeta[cat]||categoryMeta.flux;
     const isFlux=cat==='flux';
-    box.innerHTML=`<div class="score-summary"><div class="score-copy"><span class="eyebrow">POTENCIAL, NO NOTA DOCENT · ${escapeHtml(meta.label.toUpperCase())}</span><h2>${isFlux?'Acumula punts i desbloqueja sostre':'Construeix evidències del teu progrés'}</h2><p>${isFlux?'ROBOTIA comprova sobretot l’<b>estructura</b> del diagrama.':'Els reptes pràctics es consideren <b>entregats</b> quan afegeixes evidències al portafoli. La correcció real la farà el professor.'}</p><div class="score-validation-note">◷ Pendent de validació docent: la nota final pot canviar després de revisar la lògica, el codi i les evidències.</div></div><div class="score-kpis"><div class="score-kpi"><span>Punts màxims actuals</span><b>${sc.points}</b><small>provisionals</small></div><div class="score-kpi"><span>Sostre desbloquejat</span><b>${sc.unlockedMax||0}</b><small>nota límit</small></div><div class="score-kpi note"><span>Potencial actual*</span><b>${sc.completed?sc.note+'/10':'—'}</b><small>${sc.pendingEvidence?sc.pendingEvidence+' registres pendents d’evidència':'pendent de revisar'}</small></div><div class="score-kpi"><span>Reptes entregats</span><b>${sc.completed}</b><small>de ${sc.total} disponibles · no obligatoris</small></div></div></div>`;
+    box.innerHTML=`<div class="score-summary robotia-score-separate">
+      <section class="robotia-teacher-main" aria-label="Nota revisada del professor">
+        <span class="eyebrow">NOTA REVISADA PEL PROFESSOR</span>
+        <h2>${escapeHtml(meta.label)}</h2>
+        <strong id="robotia-category-teacher-grade">—</strong>
+        <p id="robotia-category-teacher-status">Inicia sessió amb el compte de l'institut per consultar la nota docent.</p>
+      </section>
+      <section class="robotia-automatic-potential" aria-label="Potencial automàtic del joc">
+        <h3>Potencial automàtic <small>(no és una nota)</small></h3>
+        <p>${isFlux?'El joc calcula el potencial segons els reptes i l’estructura dels diagrames.':'Els reptes pràctics necessiten evidències. El potencial no substitueix la correcció docent.'}</p>
+        <div class="score-kpis">
+          <div class="score-kpi note"><span>Potencial del joc</span><b>${sc.completed?sc.note+'/10':'—'}</b><small>Estimació automàtica</small></div>
+          <div class="score-kpi"><span>Punts acumulats</span><b>${sc.points}</b><small>potencials</small></div>
+          <div class="score-kpi"><span>Sostre desbloquejat</span><b>${sc.unlockedMax||0}</b><small>del joc, no nota docent</small></div>
+          <div class="score-kpi"><span>Reptes amb evidència</span><b>${sc.completed}</b><small>de ${sc.total} disponibles</small></div>
+        </div>
+      </section>
+    </div>`;
+    window.dispatchEvent(new Event('robotia:scorePanelRendered'));
   }
   function setChallengeCategory(cat){
     if(!categoryMeta[cat])return; state.challengeCategory=cat;
@@ -2233,7 +2297,7 @@
 <script src="aprendre-ampliat-v3.js?v=kit-20261104-02"></script>
 <script src="diccionari-makecode-v3.js?v=20261019-diccionari"></script>
 <script src="blocs-visuals-v3.js?v=20261019-blocs"></script>
-<script src="comentaris-v3.js?rev=notes20261019-notes-publicades"></script>
+<script src="comentaris-v3.js?rev=notes20261105-separades"></script>
 <script src="contacte-docent-v3.js?v=contact20261014a"></script>
 <script src="tauler-docent-v3.js?rev=professor20261015b"></script>
 <script src="visor-correccio-v3.js?rev=visor20261018a"></script>
