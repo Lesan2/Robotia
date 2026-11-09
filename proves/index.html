@@ -900,7 +900,9 @@
   function projectSignature(p){if(!p)return '';try{return JSON.stringify({workId:p.workId||'',challengeId:p.challengeId||'',updatedAt:p.updatedAt||'',owners:p.owners||[],nodes:p.nodes||[],edges:p.edges||[]})}catch{return String(p?.updatedAt||'')}}
   function archiveVersion(id,{project=null,reflection=null,label='versió alternativa'}={}){
     const r=portfolioEntry(id);r.versionHistory=Array.isArray(r.versionHistory)?r.versionHistory:[];
-    r.versionHistory.push({savedAt:new Date().toISOString(),label,project:project?JSON.parse(JSON.stringify(project)):null,reflection:reflection?reflectionSnapshot(reflection):null});
+    const archivedProject=project?JSON.parse(JSON.stringify(project)):null;
+    if(archivedProject?.reflection)delete archivedProject.reflection.versionHistory;
+    r.versionHistory.push({savedAt:new Date().toISOString(),label,project:archivedProject,reflection:reflection?reflectionSnapshot(reflection):null});
     if(r.versionHistory.length>8)r.versionHistory=r.versionHistory.slice(-8);
   }
   function chooseImportedActivity(id,incomingProject,incomingReflection,source='fitxer'){
@@ -2027,6 +2029,20 @@
     arr.forEach(file=>{const reader=new FileReader();reader.onload=()=>{try{const project=JSON.parse(reader.result);if(importProjectData(project,{open:false,source:file.name}))ok++}catch{}finally{if(--pending===0){renderPortfolio();renderChallenges();toast(`${ok} activitat(s) incorporada(es)`)}}};reader.readAsText(file)});
   }
 
+  // Evita que l'historial es copiï recursivament dins dels projectes i multipliqui el JSON.
+  // No esborra les versions principals: es conserven a reflections i activities.reflection.
+  function compactPortfolioBundle(bundle){
+    const clean=JSON.parse(JSON.stringify(bundle));
+    function cleanProject(p){if(p?.reflection)delete p.reflection.versionHistory;}
+    function cleanHistory(r){
+      if(!Array.isArray(r?.versionHistory))return;
+      r.versionHistory.forEach(v=>{cleanProject(v.project);if(v.reflection)delete v.reflection.versionHistory;});
+    }
+    Object.values(clean.projects||{}).forEach(cleanProject);
+    Object.values(clean.activities||{}).forEach(a=>{cleanProject(a.project);cleanHistory(a.reflection)});
+    Object.values(clean.reflections||{}).forEach(cleanHistory);
+    return clean;
+  }
   function makePortfolioBundle(){
     if(state.project)autosave(); const projects={},activities={};
     challenges.forEach(c=>{
@@ -2037,7 +2053,7 @@
         activities[c.id]={challengeMeta:activityChallengeMeta(c.id,project,r,p),progressRecord:p||{},reflection:r||{},project:project||null,workId:project?.workId||r?.workId||('progress-'+profileSlug()+'-'+c.id),owners,className:project?.className||r?.className||state.identity.className||'',createdAt:project?.createdAt||r?.createdAt||'',updatedAt:project?.updatedAt||r?.updatedAt||'',exportedAt:new Date().toISOString()};
       }
     });
-    return {app:'ROBOTIA FlowLab Portfolio',version:4,appBuild:APP_BUILD,exportedAt:new Date().toISOString(),identity:state.identity,progress:state.progress,reflections:state.portfolio,projects,activities,summary:buildSummary(state.progress)};
+    return compactPortfolioBundle({app:'ROBOTIA FlowLab Portfolio',version:4,appBuild:APP_BUILD,exportedAt:new Date().toISOString(),identity:state.identity,progress:state.progress,reflections:state.portfolio,projects,activities,summary:buildSummary(state.progress)});
   }
   // Només es crida en acceptar explícitament una invitació verificada al núvol.
   // No importa un portafoli complet: modifica únicament el repte compartit.
