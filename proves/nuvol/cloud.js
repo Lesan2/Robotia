@@ -5,7 +5,7 @@ const app=window.ROBOTIA_CLOUD_APP;
 const config=window.ROBOTIA_CLOUD_CONFIG||{};
 if(!app){console.error('ROBOTIA: manca el pont intern de l’aplicació original');return}
 const $=s=>document.querySelector(s);
-const cloud={token:'',email:'',revision:0,shared:{},bridge:null,remoteWindow:null,remoteOrigin:'',ready:false,seq:0,pending:new Map(),saving:false,savedSig:'',timer:0,poll:0,blocked:false,pendingSave:false};
+const cloud={token:'',email:'',revision:0,shared:{},bridge:null,remoteWindow:null,remoteOrigin:'',ready:false,seq:0,pending:new Map(),saving:false,savedSig:'',timer:0,poll:0,blocked:false,pendingSave:false,unsynced:false};
 const disabled=!/^\d+-[a-z0-9_-]+\.apps\.googleusercontent\.com$/i.test(config.clientId||'')||!/^https:\/\/script\.google\.com\/(?:a\/macros\/instituticaria\.cat\/s\/|macros\/s\/)[\w-]+\/exec$/.test(config.bridgeUrl||'');
 const html=`<section id="robotia-cloud" class="card" style="padding:18px;margin:15px 0;border:1px solid #93c5fd;border-radius:15px">
  <h2 style="margin-top:0">☁️ Desar els meus treballs al núvol</h2>
@@ -66,6 +66,7 @@ function snapshot(){
   if(!cloud.email||app.state.identity?.email!==cloud.email)throw Error('El compte del navegador no coincideix amb la sessió verificada. Torna a iniciar sessió.');
   const p=app.makePortfolioBundle();p.identity.email=cloud.email;if(typeof app.scoreForCategory==='function'){p.cloudSummary={flux:app.scoreForCategory('flux'),microbit:app.scoreForCategory('microbit'),sensors:app.scoreForCategory('sensors'),robot:app.scoreForCategory('robot')}}return p}
 function localHasWork(){const b=app.makePortfolioBundle();return Object.keys(b.activities||{}).length>0||Object.keys(b.projects||{}).length>0}
+function snapshotHasWork(p){return Object.keys(p.activities||{}).length>0||Object.keys(p.projects||{}).length>0||Object.values(p.progress||{}).some(v=>v?.started)}
 function downloadLocal(){app.exportPortfolioBundle()}
 function syncSharedFromInfo(r){
  cloud.shared=r.shared||{};
@@ -106,7 +107,11 @@ async function cloudInfo(){
 }
 async function enter(token){
  if(cloud.saving){message('Espera que s’acabi el desament abans de canviar de compte.');return}
- clearTimeout(cloud.timer);cloud.pendingSave=false;
+ if(cloud.email&&(cloud.pendingSave||cloud.unsynced)){
+  if(localHasWork())downloadLocal();
+  if(!confirm('Hi ha canvis sense confirmar. Se n’ha descarregat una còpia. Vols canviar de compte?'))return;
+ }
+ clearTimeout(cloud.timer);cloud.pendingSave=false;cloud.unsynced=false;
  // No deixar visible el perfil anterior mentre es verifica un compte nou.
  app.clearCloudIdentity();
  window.dispatchEvent(new CustomEvent('robotia:teacherSession',{detail:{email:''}}));
@@ -114,7 +119,10 @@ async function enter(token){
  cloud.token=token;cloud.blocked=true;buttons();message('Verificant el compte institucional…');
  try{
    const registration=await call('cloudRegister',[token]);cloud.email=registration.email;
-   const info=await cloudInfo();cloud.revision=info.revision;syncSharedFromInfo(info);
+   const info=await cloudInfo();
+    if(info.portfolio?.identity?.email&&String(info.portfolio.identity.email).toLowerCase()!==cloud.email.toLowerCase())
+      throw Error('El servidor ha retornat un portafoli d’un altre compte. No s’han modificat dades.');
+    cloud.revision=info.revision;syncSharedFromInfo(info);
    // Mai no s'adopta el darrer perfil local per semblança de nom.
    // Cada usuari té la seva pròpia zona local vinculada al correu verificat.
    const profile=info.portfolio?.identity||{};
@@ -129,7 +137,7 @@ async function enter(token){
    cloud.blocked=!!info.portfolio;buttons();$('#cloud-invite-count').textContent=info.invites?.length||'';
    if(info.portfolio){
      if(localHasWork()&&canResumeSameVersion()){
-       cloud.savedSig=stable(snapshot());cloud.blocked=false;buttons();
+       cloud.savedSig=stable(snapshot());cloud.unsynced=false;cloud.blocked=false;buttons();
        message('✓ Sessió recuperada. Els canvis es desen automàticament al núvol.');
      }else if(!localHasWork()){
        await load(true,info);
@@ -148,7 +156,9 @@ async function load(auto=false,knownInfo=null){
  cloud.blocked=true;buttons();
  try{
   message('Comprovant el portafoli del núvol…');const info=knownInfo||await cloudInfo();cloud.revision=info.revision;const hadLocalWork=localHasWork();
-  const incoming=syncSharedFromInfo(info);
+  if(info.portfolio?.identity?.email&&String(info.portfolio.identity.email).toLowerCase()!==cloud.email.toLowerCase())
+    throw Error('El servidor ha retornat un portafoli d’un altre compte.');
+   const incoming=syncSharedFromInfo(info);
   if(!incoming){cloud.blocked=false;buttons();message('No hi ha encara cap portafoli al núvol.');return}
   const localName=app.state.identity.name;
   if(localName&&localName.localeCompare(incoming.identity?.name||'',undefined,{sensitivity:'base'})!==0){
@@ -162,7 +172,7 @@ async function load(auto=false,knownInfo=null){
   }
   if(!app.state.identity.name){app.activateIdentity({name:incoming.identity.name,team:incoming.identity.team||'',className:incoming.identity.className||'',email:cloud.email})}
   await new Promise(resolve=>app.importPortfolioBundle(new File([JSON.stringify(incoming)],'ROBOTIA_NUVOL.robotiaportfolio',{type:'application/json'}),resolve));
-  cloud.savedSig=hadLocalWork?'':stable(snapshot());cloud.blocked=false;
+  cloud.savedSig=hadLocalWork?'':stable(snapshot());cloud.unsynced=hadLocalWork;cloud.blocked=false;
   message(hadLocalWork?'✓ Portafoli fusionat. Sincronitzant els treballs pendents…':'✓ Portafoli carregat. Desament automàtic activat.');
   $('#cloud-invite-count').textContent=info.invites?.length||'';buttons();
   if(hadLocalWork){cloud.pendingSave=true;void save(true)}
@@ -192,6 +202,12 @@ async function save(automatic=false){
  if(cloud.poll)clearTimeout(cloud.poll);
  clearTimeout(cloud.timer);cloud.timer=0;
  const p=snapshot(),sig=stable(p);
+ // Un portafoli accidentalment buit mai no pot sobreescriure dades del núvol.
+ if(!snapshotHasWork(p)){
+  cloud.pendingSave=false;
+  message('No hi ha treballs per desar. No s’ha modificat el núvol.');
+  return false;
+ }
  if(automatic&&sig===cloud.savedSig){cloud.pendingSave=false;return true}
  cloud.saving=true;cloud.pendingSave=false;buttons();message('☁️ Desant al núvol…');
  let success=false;
@@ -203,14 +219,16 @@ async function save(automatic=false){
      message('⚠️ Una altra sessió ha canviat el portafoli. S’ha descarregat una còpia local: cal fusionar abans de continuar.');
      return false;
    }
-   cloud.revision=r.revision;
-   for(const [id,revision] of Object.entries(r.sharedRevisions||{}))if(cloud.shared[id])cloud.shared[id].revision=revision;
-   cloud.savedSig=sig;recordConfirmed(sig);
+   if(r.revision===undefined||r.revision===null)
+      throw Error('El servidor no ha confirmat la revisió: el desament és pendent.');
+    cloud.revision=r.revision;
+    for(const [id,revision] of Object.entries(r.sharedRevisions||{}))if(cloud.shared[id])cloud.shared[id].revision=revision;
+   cloud.savedSig=sig;cloud.unsynced=false;recordConfirmed(sig);
    success=true;
    message((r.gradeWarning?'✓ Portafoli desat · ⚠️ Seguiment docent pendent':'✓ Desat al núvol')+' · '+new Date().toLocaleTimeString('ca-ES'));
    return true;
  }catch(err){
-   message('⚠️ Error de desament al núvol: '+err.message+'. El portafoli local es conserva. Descarrega una còpia.');
+   cloud.unsynced=true;cloud.pendingSave=true;message('⚠️ Error de desament al núvol: '+err.message+'. El portafoli local es conserva. Descarrega una còpia.');
    return false;
  }finally{
    cloud.saving=false;buttons();
@@ -350,13 +368,22 @@ function logout(){
  if(cloud.saving){
    message('Espera que s’acabi el desament al núvol abans de desconnectar.');return;
  }
+ if(cloud.email&&(cloud.pendingSave||cloud.unsynced)&&localHasWork()){
+  downloadLocal();
+  if(!confirm('Hi ha canvis pendents de sincronitzar. Se n’ha descarregat una còpia. Vols desconnectar igualment?'))return;
+ }
  clearTimeout(cloud.timer);if(window.google?.accounts?.id)google.accounts.id.disableAutoSelect();
- cloud.token='';cloud.email='';cloud.ready=!!cloud.remoteWindow;cloud.blocked=true;cloud.shared={};cloud.savedSig='';cloud.pendingSave=false;$('#cloud-share-panel').hidden=true;buttons();
+ cloud.token='';cloud.email='';cloud.ready=!!cloud.remoteWindow;cloud.blocked=true;cloud.shared={};cloud.savedSig='';cloud.pendingSave=false;cloud.unsynced=false;$('#cloud-share-panel').hidden=true;buttons();
  app.clearCloudIdentity();
  window.dispatchEvent(new CustomEvent('robotia:teacherSession',{detail:{email:''}}));
  message('Sessió desconnectada. Els treballs dels altres comptes no es mostraran en aquest navegador. Les dades antigues es conserven sense fusionar.');
 }
 function init(){
+ window.addEventListener('beforeunload',event=>{
+  if(cloud.email&&(cloud.saving||cloud.pendingSave||cloud.unsynced)){
+   event.preventDefault();event.returnValue='';
+  }
+ });
  window.addEventListener('robotia:refreshFeedback',()=>void refreshPublishedFeedback());
  window.addEventListener('robotia:portfolioChanged',markDirty);
  window.addEventListener('robotia:deliverySaved',requestDeliverySync);
